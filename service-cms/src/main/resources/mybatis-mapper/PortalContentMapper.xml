@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.manager.dao.PortalContentDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PortalContent_columns">
+	    <![CDATA[
+			id as id,
+			content_name as content_name,
+			title as title,
+			cover_id as cover_id,
+			cover_url as cover_url,
+		
+			video_id as video_id,
+			video_url as video_url,
+			content as content,
+			publish_status as publish_status,
+			category_id as category_id,
+		
+			station_id as station_id,
+			publish_time as publish_time,
+			operation_user_id as operation_user_id,
+			operation_user_name as operation_user_name,
+			sub_title as sub_title,
+			publisher as publisher,
+			create_time as create_time,
+
+			status as status
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.manager.bean.PortalContent" id="portalContentMap">
+		<id column="id" property="id"/>
+	    <result column="content_name" property="contentName"/>
+	    <result column="title" property="title"/>
+	    <result column="cover_id" property="coverId"/>
+	    <result column="cover_url" property="coverUrl"/>
+	    <result column="video_id" property="videoId"/>
+	    <result column="video_url" property="videoUrl"/>
+	    <result column="content" property="content"/>
+	    <result column="publish_status" property="publishStatus"/>
+	    <result column="category_id" property="categoryId"/>
+	    <result column="station_id" property="stationId"/>
+	    <result column="publish_time" property="publishTime"/>
+	    <result column="operation_user_id" property="operationUserId"/>
+	    <result column="operation_user_name" property="operationUserName"/>
+	    <result column="status" property="status"/>
+	    <result column="sub_title" property="subTitle"/>
+		<result column="create_time" property="createTime"/>
+	    <result column="publisher" property="publisher"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" parameterType="com.bit.module.manager.vo.PortalContentVO"
+			resultType="com.bit.module.manager.bean.PortalContent" >
+		select
+			t.id AS id,
+			t.content_name AS contentName,
+			t.title AS title,
+			t.cover_id AS coverId,
+			t.cover_url AS coverUrl,
+			t.video_id AS videoId,
+			t.video_url AS videoUrl,
+			t.publish_status AS publishStatus,
+			t.category_id AS categoryId,
+			CONCAT(tps.station_name,'-',tpn.navigation_name,'-',tpc.category_name) categoryName,
+			t.station_id AS stationId,
+			tps.station_name as stationName,
+			t.publish_time AS publishTime,
+			t.operation_user_id AS operationUserId,
+			t.operation_user_name AS operationUserName,
+			t.sub_title AS subTitle,
+			t.publisher AS publisher,
+			t.create_time AS createTime,
+			t.STATUS AS STATUS
+		from  t_portal_content t
+			LEFT JOIN t_portal_category tpc ON  t.category_id =tpc.id
+			LEFT JOIN t_portal_navigation tpn ON  tpc.navigation_id = tpn.id
+			LEFT JOIN t_portal_station tps ON   tpn.station_id = tps.id
+		where
+			t.status =#{portalContentVO.status,jdbcType=TINYINT}
+			<if test="portalContentVO.id != null and portalContentVO.id != '' " >and t.id =#{portalContentVO.id,jdbcType=BIGINT}</if>
+			<if test="portalContentVO.contentName != null and portalContentVO.contentName != '' " >and t.content_name like CONCAT('%',#{portalContentVO.contentName,jdbcType=VARCHAR},"%")</if>
+			<if test="portalContentVO.title != null and portalContentVO.title != '' " >and t.title like CONCAT('%',#{portalContentVO.title,jdbcType=VARCHAR},"%")</if>
+
+			<if test="portalContentVO.coverId != null and portalContentVO.coverId == 0">and t.cover_id is not null</if>
+			<if test="portalContentVO.coverId != null and portalContentVO.coverId == 1">and t.cover_id is null</if>
+
+			<if test="portalContentVO.coverUrl != null and portalContentVO.coverUrl != '' " >and t.cover_url =#{portalContentVO.coverUrl,jdbcType=VARCHAR}</if>
+
+			<if test="portalContentVO.videoId != null and portalContentVO.videoId == 0">and t.video_id is not null</if>
+			<if test="portalContentVO.videoId != null and portalContentVO.videoId == 1">and t.video_id is null</if>
+
+			<if test="portalContentVO.beginTime != null and portalContentVO.beginTime != ''">and t.publish_time >= #{portalContentVO.beginTime}</if>
+			<if test="portalContentVO.endTime != null and portalContentVO.endTime != ''">and t.publish_time <![CDATA[ <= ]]> #{portalContentVO.endTime}</if>
+			<if test="portalContentVO.beginTime != null and portalContentVO.beginTime != '' and portalContentVO.endTime != null and portalContentVO.endTime != ''">and t.publish_time >= #{portalContentVO.beginTime} and publish_time <![CDATA[ <= ]]> #{portalContentVO.endTime}</if>
+
+			<if test="portalContentVO.videoUrl != null and portalContentVO.videoUrl != '' " >and t.video_url =#{portalContentVO.videoUrl,jdbcType=VARCHAR}</if>
+			<if test="portalContentVO.content != null and portalContentVO.content != '' " >and t.content =#{portalContentVO.content,jdbcType=LONGVARCHAR}</if>
+			<if test="portalContentVO.publishStatus != null" >and t.publish_status =#{portalContentVO.publishStatus,jdbcType=TINYINT}</if>
+			<if test="portalContentVO.categoryId != null and portalContentVO.categoryId != '' " >and t.category_id =#{portalContentVO.categoryId,jdbcType=BIGINT}</if>
+			<if test="portalContentVO.stationId != null and portalContentVO.stationId != '' " >and t.station_id =#{portalContentVO.stationId,jdbcType=BIGINT}</if>
+			<if test="portalContentVO.operationUserId != null and portalContentVO.operationUserId != '' " >and t.operation_user_id =#{portalContentVO.operationUserId,jdbcType=BIGINT}</if>
+			<if test="portalContentVO.operationUserName != null and portalContentVO.operationUserName != '' " >and t.operation_user_name =#{portalContentVO.operationUserName,jdbcType=TIMESTAMP}</if>
+
+			ORDER BY createTime Desc
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="portalContentMap" parameterType="String">
+		select <include refid="PortalContent_columns" /> from t_portal_content
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="portalContentMap" parameterType="com.bit.module.manager.bean.PortalContent">
+		select <include refid="PortalContent_columns" /> 
+		from t_portal_content
+		where 
+        	id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 根据获取内容列表(分页) -->
+	<select id="getContentListByCategoryIdSql" parameterType="com.bit.module.manager.vo.PortalContentVO"
+			resultType="com.bit.module.manager.bean.PortalContent">
+		SELECT
+			tpc.id,
+			tpc.category_id,
+			tpc.content_name,
+			tpc.publish_status publishStatus,
+			tpc.video_id videoId,
+			tpc.video_url videoUrl,
+			tpc.cover_id coverId,
+			tpc.cover_url coverUrl,
+			tpc.title,
+			tpc.publish_time publishTime,
+			tpc.sub_title subTitle,
+			tpc.station_id stationId
+		FROM
+			t_portal_content tpc
+		WHERE
+		 	tpc.category_id = #{portalContentVo.categoryId}
+		AND tpc.station_id = #{portalContentVo.stationId}
+		AND tpc.status = #{portalContentVo.status}
+		<if test="portalContentVo.contentName != null and portalContentVo.contentName != '' ">
+			AND tpc.content_name LIKE CONCAT('%',#{portalContentVo.contentName},'%')
+		</if>
+		<if test="portalContentVo.title != null and portalContentVo.title != '' ">
+			AND tpc.title LIKE CONCAT('%',#{portalContentVo.title},'%')
+		</if>
+		<if test="portalContentVo.publishStatus != null">
+			AND tpc.publish_status = #{portalContentVo.publishStatus}
+		</if>
+		order by publish_status,create_time desc
+
+	</select>
+
+	<!-- 获得关联栏目关系 -->
+	<select id="getCategoryRelation" parameterType="java.lang.Long"
+			resultType="java.lang.String">
+		SELECT
+			CONCAT(
+				tps.station_name,
+				'-',
+				tpn.navigation_name,
+				'-',
+				tpc.category_name
+			) name
+		FROM
+			t_portal_category tpc,
+			t_portal_navigation tpn,
+			t_portal_station tps
+		WHERE
+			tpc.navigation_id = tpn.id
+		AND tpn.station_id = tps.id
+		AND tpc.id = #{categoryId}
+
+	</select>
+
+	<!-- 获取内容表所有关联关系 -->
+	<select id="getCategoryRelationAllSql" parameterType="java.lang.Integer"
+			resultType="com.bit.module.manager.bean.PortalContent">
+		SELECT DISTINCT
+			tpco.category_id,
+			CONCAT(
+				tps.station_name,
+				'-',
+				tpn.navigation_name,
+				'-',
+				tpc.category_name
+			) categoryName
+		FROM
+			t_portal_content tpco,
+			t_portal_category tpc,
+			t_portal_navigation tpn,
+			t_portal_station tps
+		WHERE
+			tpco.category_id = tpc.id
+		AND tpc.navigation_id = tpn.id
+		AND tpn.station_id = tps.id
+		AND tpc.category_type = #{categoryType}
+		AND tpco.id != #{categoryStatus}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.manager.bean.PortalContent" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+	insert INTO t_portal_content (
+		<if test="contentName != null and contentName != '' ">
+			content_name,
+		</if>
+		<if test="title != null and title != '' ">
+			title ,
+		</if>
+		<if test="coverId != null ">
+			cover_id ,
+		</if>
+		<if test="coverUrl != null and coverUrl != '' ">
+			cover_url ,
+		</if>
+		<if test="videoId != null ">
+			video_id ,
+		</if>
+		<if test="videoUrl != null and videoUrl != '' ">
+			video_url ,
+		</if>
+		<if test="content != null and content != '' ">
+			content ,
+		</if>
+		<if test="publishStatus != null ">
+			publish_status ,
+		</if>
+		<if test="categoryId != null ">
+			category_id ,
+		</if>
+		<if test="stationId != null ">
+			station_id ,
+		</if>
+		<if test="publishTime != null">
+			publish_time ,
+		</if>
+		<if test="status != null ">
+			status ,
+		</if>
+		<if test="subTitle != null and subTitle != '' ">
+			sub_title ,
+		</if>
+		<if test="createTime != null ">
+			create_time ,
+		</if>
+		<if test="publisher != null and publisher != '' ">
+			publisher,
+		</if>
+		operation_user_id,
+		operation_user_name
+	) VALUES (
+		<if test="contentName != null and contentName != '' ">
+			#{contentName,jdbcType=VARCHAR},
+		</if>
+		<if test="title != null and title != '' ">
+			#{title,jdbcType=VARCHAR},
+		</if>
+		<if test="coverId != null ">
+			#{coverId,jdbcType=BIGINT},
+		</if>
+		<if test="coverUrl != null and coverUrl != '' ">
+			#{coverUrl,jdbcType=VARCHAR},
+		</if>
+		<if test="videoId != null ">
+			#{videoId,jdbcType=BIGINT},
+		</if>
+		<if test="videoUrl != null and videoUrl != '' ">
+			#{videoUrl,jdbcType=VARCHAR},
+		</if>
+		<if test="content != null and content != '' ">
+			#{content,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="publishStatus != null ">
+			#{publishStatus,jdbcType=TINYINT},
+		</if>
+		<if test="categoryId != null ">
+			#{categoryId,jdbcType=BIGINT},
+		</if>
+		<if test="stationId != null ">
+			#{stationId,jdbcType=BIGINT},
+		</if>
+		<if test="publishTime != null">
+			#{publishTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="status != null ">
+			#{status,jdbcType=TINYINT},
+		</if>
+		<if test="subTitle != null and subTitle != '' ">
+			#{subTitle,jdbcType=VARCHAR},
+		</if>
+		<if test="createTime != null ">
+			#{createTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="publisher != null and publisher != '' ">
+			#{publisher,jdbcType=VARCHAR},
+		</if>
+		#{operationUserId,jdbcType=BIGINT},
+		#{operationUserName,jdbcType=VARCHAR}
+	)
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.manager.bean.PortalContent">
+		update t_portal_content
+		<set>
+		<if test="contentName != null">
+		 content_name =#{contentName,jdbcType=VARCHAR},
+		</if>
+		<if test="title != null">
+		 title =#{title,jdbcType=VARCHAR},
+		</if>
+		<if test="coverId != null">
+		 cover_id =#{coverId,jdbcType=BIGINT},
+		</if>
+		<if test="coverUrl != null">
+		 cover_url =#{coverUrl,jdbcType=VARCHAR},
+		</if>
+		<if test="videoId != null">
+		 video_id =#{videoId,jdbcType=BIGINT},
+		</if>
+		<if test="videoUrl != null">
+		 video_url =#{videoUrl,jdbcType=VARCHAR},
+		</if>
+		<if test="content != null">
+		 content =#{content,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="publishStatus != null">
+		 publish_status =#{publishStatus,jdbcType=TINYINT},
+		</if>
+		<if test="categoryId != null">
+		 category_id =#{categoryId,jdbcType=BIGINT},
+		</if>
+		<if test="stationId != null">
+		 station_id =#{stationId,jdbcType=BIGINT},
+		</if>
+		<if test="publishTime != null">
+		 publish_time =#{publishTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="status != null">
+		 status =#{status,jdbcType=TINYINT},
+		</if>
+		<if test="subTitle != null">
+			sub_title =#{subTitle,jdbcType=VARCHAR},
+		</if>
+		<if test="publisher != null">
+			publisher =#{publisher,jdbcType=VARCHAR},
+		</if>
+		<if test="operationUserId != null">
+			operation_user_id =#{operationUserId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserName != null">
+			operation_user_name =#{operationUserName,jdbcType=VARCHAR}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 修改一条记录 -->
+	<update id="cancelPublish" parameterType="com.bit.module.manager.bean.PortalContent">
+		update t_portal_content
+		<set>
+				publish_status =#{publishStatus,jdbcType=TINYINT},
+				publish_time =#{publishTime,jdbcType=TIMESTAMP},
+			<if test="operationUserId != null">
+				operation_user_id =#{operationUserId,jdbcType=BIGINT},
+			</if>
+			<if test="operationUserName != null">
+				operation_user_name =#{operationUserName,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete">
+		update t_portal_content
+		set
+			status = #{status,jdbcType=TINYINT}
+		where
+			id = #{id,jdbcType=BIGINT}
+	</delete>
+</mapper>

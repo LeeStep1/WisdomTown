@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.pb.dao.PartyDueDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PartyDue_columns">
+	    <![CDATA[
+			id as id,
+			year as year,
+			month as month,
+			member_id as member_id,
+			org_id as org_id,
+
+			org_name as org_name,
+			base as base,
+			amount as amount,
+			paid_amount as paid_amount,
+			remark as remark,
+
+			insert_time as insert_time
+	    ]]>
+	</sql>
+	<sql id="insert_columns">
+		(
+			year ,
+			month ,
+			member_id ,
+			org_id ,
+			org_name ,
+			base ,
+			amount ,
+			paid_amount ,
+			remark ,
+			insert_time
+		)
+	</sql>
+	<sql id="PartyDue_join_PartyMember_columns">
+	    <![CDATA[
+				pd.id as id,
+				pd.year as year,
+				pd.month as month,
+				pd.member_id as member_id,
+				pm.name as member_name,
+				pd.org_id as org_id,
+
+				pd.org_name as org_name,
+				pd.base as base,
+				pd.amount as amount,
+				pd.paid_amount as paid_amount,
+				pd.remark as remark,
+
+				pd.insert_time as insert_time
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.vo.PersonalPartyDueVO" id="partyDueMap">
+		<id column="id" property="id"/>
+	    <result column="year" property="year"/>
+	    <result column="month" property="month"/>
+		<result column="member_id" property="memberId"/>
+		<result column="member_name" property="memberName"/>
+	    <result column="org_id" property="orgId"/>
+	    <result column="org_name" property="orgName"/>
+	    <result column="base" property="base"/>
+	    <result column="amount" property="amount"/>
+	    <result column="paid_amount" property="paidAmount"/>
+	    <result column="remark" property="remark"/>
+	    <result column="insert_time" property="insertTime"/>
+	</resultMap>
+	<resultMap id="monthlyPartyDueMap" type="com.bit.module.pb.bean.MonthlyPartyDue">
+		<id column="org_id" property="orgId" />
+		<result column="amount" property="amount" />
+	</resultMap>
+    <resultMap id="monthlyPartyDueDetailVOMap" type="com.bit.module.pb.vo.MonthlyPartyDueDetailVO">
+        <id column="id" property="id" />
+        <result column="year" property="year" />
+        <result column="month" property="month" />
+        <result column="member_id" property="memberId" />
+        <result column="org_id" property="orgId" />
+        <result column="base" property="base" />
+        <result column="paid_amount" property="paidAmount" />
+    </resultMap>
+    <resultMap id="personalMonthlyPartyDueExportMap" type="com.bit.module.pb.vo.PersonalMonthlyPartyDueVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name" />
+        <result column="sex" property="sex" />
+        <result column="org_id" property="orgId" />
+        <result column="org_name" property="orgName" />
+		<collection property="partyDues" columnPrefix="d_" ofType="com.bit.module.pb.vo.MonthlyPartyDueDetailVO">
+			<id column="id" property="id"/>
+			<result column="member_id" property="memberId"/>
+			<result column="year" property="year"/>
+			<result column="month" property="month"/>
+			<result column="org_id" property="orgId"/>
+			<result column="base" property="base"/>
+			<result column="amount" property="amount"/>
+			<result column="paid_amount" property="paidAmount"/>
+		</collection>
+    </resultMap>
+	<resultMap id="personalMonthlyPartyDuePageMap" type="com.bit.module.pb.vo.PersonalMonthlyPartyDueVO">
+		<id column="id" property="id"/>
+		<result column="name" property="name" />
+		<result column="sex" property="sex" />
+		<result column="org_id" property="orgId" />
+		<result column="org_name" property="orgName" />
+		<collection property="partyDues" column="{memberId=id, year=year}" ofType="com.bit.module.pb.vo.MonthlyPartyDueDetailVO"
+					javaType="java.util.List" fetchType="eager" select="findByOrgIdAndYear" />
+	</resultMap>
+	<select id="findByOrgConditionPage" resultMap="partyDueMap">
+		select <include refid="PartyDue_join_PartyMember_columns"/>
+		from t_pb_party_member pm
+		left join t_pb_party_due pd on pd.member_id = pm.id
+	    <where>
+			<if test="year != null and year != '' " >and pd.year =#{year}</if>
+			<if test="month != null and month != '' " >and pd.month =#{month}</if>
+			<if test="orgId != null and orgId != ''" >and pd.org_id in (<include refid="selectSubOrganization" />)</if>
+			<if test="memberId != null and memberId != '' " >and pm.id =#{memberId}</if>
+			<if test="idCard != null and idCard != '' " >and pm.id_card =#{idCard}</if>
+			<if test="memberName != null and memberName != '' " >and pm.name like CONCAT('%',#{memberName},'%')</if>
+			<if test="paidAmount != null and paidAmount == 0">and (ISNULL(pd.paid_amount) or pd.paid_amount = 0) </if>
+			<if test="paidAmount != null and paidAmount == 1">and NOT ISNULL(pd.paid_amount) and pd.paid_amount != 0</if>
+		</where>
+	</select>
+	<select id="groupOrganizationMonthlyPartyDue" resultMap="monthlyPartyDueMap">
+		SELECT
+            org_id,
+            SUM(paid_amount) AS amount
+        FROM
+            t_pb_party_due
+        WHERE
+            `year` = #{year}
+            AND `month` = #{month}
+            AND `org_id` IN
+            <foreach collection="orgIds" item="orgId" open="(" separator="," close=")">
+                #{orgId,jdbcType=BIGINT}
+            </foreach>
+        GROUP BY org_id
+	</select>
+	<select id="findPersonalMonthlyPartyDueByCondition" resultMap="personalMonthlyPartyDuePageMap">
+        select
+            pm.id as id,
+            pm.org_id as org_id,
+            pm.name as name,
+            pm.sex as sex,
+            po.name as org_name,
+			IFNULL(#{year}, '') as year
+		from t_pb_party_member pm
+		join t_pb_organization po on pm.org_id = po.id
+		<where>
+			<if test="orgId != null and orgId != ''">and pm.org_id in (<include refid="selectSubOrganization" />)</if>
+			<if test="memberName != null and memberName != ''">and pm.name like CONCAT('%', #{memberName}, '%')</if>
+		</where>
+		ORDER BY pm.org_id , pm.id
+	</select>
+    <select id="findByOrgIdAndYear" resultMap="monthlyPartyDueDetailVOMap">
+        select
+            id, `year`, `month`, member_id, org_id , base, amount, paid_amount
+        from t_pb_party_due
+        <where>
+            <if test="memberId != null and memberId != ''">and member_id = #{memberId}</if>
+            <if test="year != null and year != ''">and `year` = #{year}</if>
+        </where>
+    </select>
+	<!-- 查询党员月党费详情 -->
+	<select id="findByPartyMemberIdAndMonth" resultMap="partyDueMap">
+		SELECT <include refid="PartyDue_columns" />
+		FROM t_pb_party_due WHERE `month` = #{month} AND member_id = #{memberId}
+	</select>
+    <select id="findById" resultType="com.bit.module.pb.bean.PartyDue">
+        select <include refid="PartyDue_columns" />
+        from t_pb_party_due where id = #{id}
+    </select>
+	<!-- 查询党员最后一月党费的核算基数和应交金额 -->
+	<select id="findByMemberLastMonthPartyDue" resultType="com.bit.module.pb.bean.PartyDue">
+		SELECT
+			pm.id AS member_id,
+			pm.org_id AS org_id,
+			po.NAME AS org_name,
+			pd.base AS base,
+			pd.amount AS amount
+		FROM
+			t_pb_party_member pm
+			LEFT JOIN t_pb_organization po ON pm.org_id = po.id
+			LEFT JOIN (
+				SELECT member_id, base, amount FROM t_pb_party_due WHERE YEAR = #{year} AND MONTH = #{month}
+			) pd ON pm.id = pd.member_id
+		WHERE pm.status != 2 and NOT ISNULL(org_id)
+		ORDER BY
+			member_id
+	</select>
+	<!-- 党员党费 -->
+	<select id="findPersonalPartyDue" resultType="com.bit.module.pb.vo.PersonalPartyDueExportVO">
+		select pm.NAME AS memberName,
+			   pm.id_card AS idCard,
+			   po.NAME AS orgName,
+			   pd.base AS base,
+			   pd.amount AS amount,
+			   pd.paid_amount AS paidAmount,
+			   pd.remark AS remark
+		from t_pb_party_member pm
+		LEFT JOIN t_pb_organization po ON pm.org_id = po.id
+		LEFT JOIN t_pb_party_due pd ON pd.member_id = pm.id
+		<where>
+			<if test="year != null and year != '' " >pd.year =#{year}</if>
+			<if test="month != null and month != '' " >and pd.month =#{month}</if>
+			<if test="orgId != null and orgId != ''" >and pd.org_id in (<include refid="selectSubOrganization" />)</if>
+		</where>
+	</select>
+	<!-- 党员党费明细 -->
+	<select id="findPersonalMonthlyPartyDue"  resultMap="personalMonthlyPartyDueExportMap">
+		select
+			pm.id as id,
+			pm.org_id as org_id,
+			pm.name as name,
+			pm.sex as sex,
+			po.name as org_name,
+			due.id as d_id,
+		    due.member_id as d_member_id,
+			due.year as d_year,
+			due.month as d_month,
+		    due.org_id as d_org_id ,
+		    due.base as d_base,
+		    due.amount as d_amount,
+		    due.paid_amount as d_paid_amount
+		from t_pb_party_member pm
+		join t_pb_organization po on pm.org_id = po.id
+		left join t_pb_party_due due on pm.id = due.member_id
+		<where>
+			<if test="orgId != null and orgId != '' and orgId &lt;&lt; 8 != 0">and pm.org_id in (<include refid="selectSubOrganization" />)</if>
+			<if test="year != null and year != ''">and due.year = #{year}</if>
+		</where>
+	</select>
+	<!-- 条件搜索 -->
+	<select id="findByCondition" resultType="com.bit.module.pb.bean.PartyDue">
+		select <include refid="PartyDue_columns" />
+		from t_pb_party_due
+		<where>
+			<if test="memberId != null and memberId != ''">and member_id = #{memberId}</if>
+			<if test="orgId != null and orgId != ''">and org_id = #{orgId,jdbcType=BIGINT}</if>
+			<if test="year != null and year != ''">and `year` = #{year}</if>
+			<if test="month != null and month != ''">and `month` = #{month}</if>
+		</where>
+	</select>
+	<select id="countPartyDueByOrgIdAndYearAndMonthIgnoreNull"
+			resultType="com.bit.module.pb.vo.PartyDueStatistics">
+		SELECT
+			month as month, paid_amount as amount
+		FROM
+			t_pb_party_due
+		<where>
+			year = #{year}
+			<if test="month != null">and month = #{month}</if>
+			<if test="orgId != null and orgId != '' " >
+				and org_id IN (
+				<include refid="selectSubOrganization" />
+				)
+			</if>
+		</where>
+	</select>
+	<!-- 添加一条记录 -->
+	<insert id="add" keyProperty="id" useGeneratedKeys="true" parameterType="com.bit.module.pb.bean.PartyDue">
+		insert INTO t_pb_party_due <include refid="insert_columns" />
+		VALUES (
+			#{year,jdbcType=SMALLINT},
+			#{month,jdbcType=TINYINT},
+			#{memberId,jdbcType=INTEGER},
+			#{orgId,jdbcType=BIGINT},
+			#{orgName,jdbcType=VARCHAR},
+			#{base,jdbcType=INTEGER},
+			#{amount,jdbcType=INTEGER},
+			#{paidAmount,jdbcType=INTEGER},
+			#{remark,jdbcType=VARCHAR},
+			#{insertTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<!-- 每月定时生成党费账单 -->
+    <insert id="batchUpsert">
+        insert into t_pb_party_due <include refid="insert_columns" />
+        VALUES
+        <foreach collection="partyDueList" item="partyDue" separator=",">
+            (#{partyDue.year,jdbcType=SMALLINT},
+            #{partyDue.month,jdbcType=TINYINT},
+            #{partyDue.memberId,jdbcType=INTEGER},
+            #{partyDue.orgId,jdbcType=BIGINT},
+            #{partyDue.orgName,jdbcType=VARCHAR},
+            #{partyDue.base,jdbcType=INTEGER},
+            #{partyDue.amount,jdbcType=INTEGER},
+            #{partyDue.paidAmount,jdbcType=INTEGER},
+            #{partyDue.remark,jdbcType=VARCHAR},
+            #{partyDue.insertTime,jdbcType=TIMESTAMP})
+        </foreach>
+        on duplicate key update insert_time = now()
+    </insert>
+    <!-- 修改一条记录 -->
+	<update id="updateAmountById" parameterType="com.bit.module.pb.bean.PartyDue">
+		update t_pb_party_due
+		<set>
+			paid_amount =#{paidAmount,jdbcType=INTEGER},
+			<if test="base != null">
+			 base =#{base,jdbcType=INTEGER},
+			</if>
+			<if test="amount != null">
+			 amount =#{amount,jdbcType=INTEGER},
+			</if>
+			<if test="remark != null">
+			 remark =#{remark,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 批量更新 -->
+	<update id="batchUpsertForUpload">
+		insert into t_pb_party_due <include refid="insert_columns" />
+		VALUES
+		<foreach collection="partyDues" item="partyDue" separator=",">
+			(#{year,jdbcType=SMALLINT},
+			#{month,jdbcType=TINYINT},
+			#{partyDue.memberId,jdbcType=INTEGER},
+			#{partyDue.orgId,jdbcType=BIGINT},
+			#{partyDue.orgName,jdbcType=VARCHAR},
+			#{partyDue.base,jdbcType=INTEGER},
+			#{partyDue.amount,jdbcType=INTEGER},
+			#{partyDue.paidAmount,jdbcType=INTEGER},
+			#{partyDue.remark,jdbcType=VARCHAR},
+			#{partyDue.insertTime,jdbcType=TIMESTAMP})
+		</foreach>
+		on duplicate key update
+			base = VALUES(base),
+			amount = VALUES(amount),
+			paid_amount = VALUES(paid_amount),
+			remark = VALUES(remark),
+			insert_time = VALUES(insert_time)
+	</update>
+	<update id="batchUpdate" parameterType="java.util.List">
+			update t_pb_party_due SET
+			<if test="isPaid">
+				paid_amount = amount
+			</if>
+			<if test="isPaid == null or !isPaid">
+				paid_amount = null
+			</if>
+			where id in
+		<foreach collection="ids" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+		<if test="isPaid">
+			and ISNULL(paid_amount)
+		</if>
+	</update>
+	<!-- 更新一条党费信息到另一组织 -->
+	<insert id="upsertPartyDueToOtherOrganization">
+		insert into t_pb_party_due <include refid="insert_columns" />
+        VALUES (
+            #{year,jdbcType=SMALLINT},
+            #{month,jdbcType=TINYINT},
+            #{memberId,jdbcType=INTEGER},
+            #{orgId,jdbcType=BIGINT},
+            #{orgName,jdbcType=VARCHAR},
+            #{base,jdbcType=INTEGER},
+            #{amount,jdbcType=INTEGER},
+            #{paidAmount,jdbcType=INTEGER},
+            #{remark,jdbcType=VARCHAR},
+            #{insertTime,jdbcType=TIMESTAMP}
+        ) on duplicate key update org_id = #{orgId,jdbcType=BIGINT}, org_name = #{orgName,jdbcType=VARCHAR}
+	</insert>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.pb.bean.PartyDue">
+		delete from t_pb_party_due
+		where
+			id = #{id,jdbcType=BIGINT}
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="java.util.List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_pb_party_due
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+	<!-- 查询所有下级组织 -->
+	<sql id="selectSubOrganization">
+        <![CDATA[
+            SELECT
+                id AS org_id
+            FROM
+                t_pb_organization a,
+                (
+					select
+						mysql.help_topic.help_topic_id + 1 as `level`
+					from
+						mysql.help_topic
+					where
+						mysql.help_topic.help_topic_id < 8
+						and ( #{orgId, jdbcType=BIGINT} << 8 * mysql.help_topic.help_topic_id + 1 ) != 0
+					order by
+						mysql.help_topic.help_topic_id desc
+					limit 1
+                ) b
+            WHERE
+                a.id < ( (#{orgId,jdbcType=BIGINT} >> ( 64 - b.`level` * 8 )) + 1) << ( 64 - b.`level` * 8 )
+            AND a.id >= #{orgId,jdbcType=BIGINT}
+		]]>
+	</sql>
+	<select id="findByIds" resultType="com.bit.module.pb.bean.PartyDue">
+		select <include refid="PartyDue_columns"/> from t_pb_party_due
+		where id in
+		<foreach collection="ids" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+    <update id="update" parameterType="com.bit.module.pb.bean.PartyDue">
+        UPDATE t_pb_party_due
+        <trim prefix="set" suffixOverrides=",">
+            <if test="year!=null">
+                year = #{year,jdbcType=INTEGER},
+            </if>
+            <if test="month!=null">
+                month = #{month,jdbcType=INTEGER},
+            </if>
+            <if test="memberId!=null">
+                member_id = #{memberId,jdbcType=INTEGER},
+            </if>
+            <if test="orgId!=null">
+                org_id = #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="orgName!=null and orgName!=''">
+                org_name = #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="base!=null">
+                base = #{base,jdbcType=INTEGER},
+            </if>
+            <if test="amount!=null">
+                amount = #{amount,jdbcType=INTEGER},
+            </if>
+            <if test="paidAmount!=null">
+                paid_amount = #{paidAmount,jdbcType=INTEGER},
+            </if>
+            <if test="remark!=null and remark!=''">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="insertTime!=null">
+                insert_time = #{insertTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

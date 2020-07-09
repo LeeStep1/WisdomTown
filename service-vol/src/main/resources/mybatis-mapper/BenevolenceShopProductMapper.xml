@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.vol.dao.BenevolenceShopProductDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="BenevolenceShopProduct_columns">
+	    <![CDATA[
+			id as id,
+			shop_id as shop_id,
+			product_name as product_name,
+			product_introduction as product_introduction,
+			integral_value as integral_value,
+		
+			exchange_explain as exchange_explain,
+			product_img_id as product_img_id,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			update_time as update_time,
+		
+			update_user_id as update_user_id,
+			product_state as product_state,
+			exchange_num as exchange_num,
+			shop_name as shop_name
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.vol.bean.BenevolenceShopProduct" id="benevolenceShopProductMap">
+		<id column="id" property="id"/>
+	    <result column="shop_id" property="shopId"/>
+	    <result column="shop_name" property="shopName"/>
+	    <result column="product_name" property="productName"/>
+	    <result column="product_introduction" property="productIntroduction"/>
+	    <result column="integral_value" property="integralValue"/>
+	    <result column="exchange_explain" property="exchangeExplain"/>
+	    <result column="product_img_id" property="productImgId"/>
+	    <result column="create_time" property="createTime"/>
+	    <result column="create_user_id" property="createUserId"/>
+	    <result column="update_time" property="updateTime"/>
+	    <result column="update_user_id" property="updateUserId"/>
+	    <result column="product_state" property="productState"/>
+	    <result column="exchange_num" property="exchangeNum"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="benevolenceShopProductMap" parameterType="com.bit.module.vol.vo.BenevolenceShopProductVO">
+		select <include refid="BenevolenceShopProduct_columns" /> from t_benevolence_shop_product
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="shopId != null and shopId != '' " >and shop_id =#{shopId,jdbcType=BIGINT}</if>
+			<if test="shopName != null and shopName != '' " >and shop_name like "%"#{shopName,jdbcType=VARCHAR}"%"</if>
+			<if test="productName != null and productName != '' " >and product_name like "%"#{productName,jdbcType=VARCHAR}"%"</if>
+			<if test="productIntroduction != null and productIntroduction != '' " >and product_introduction =#{productIntroduction,jdbcType=VARCHAR}</if>
+			<if test="integralValue != null and integralValue != '' " >and integral_value =#{integralValue,jdbcType=INTEGER}</if>
+			<if test="exchangeExplain != null and exchangeExplain != '' " >and exchange_explain =#{exchangeExplain,jdbcType=VARCHAR}</if>
+			<if test="productImgId != null and productImgId != '' " >and product_img_id =#{productImgId,jdbcType=BIGINT}</if>
+			<if test="createUserId != null and createUserId != '' " >and create_user_id =#{createUserId,jdbcType=BIGINT}</if>
+			<if test="updateUserId != null and updateUserId != '' " >and update_user_id =#{updateUserId,jdbcType=BIGINT}</if>
+			<if test="productState != null " >and product_state =#{productState,jdbcType=TINYINT}</if>
+			<if test="exchangeNum != null and exchangeNum != '' " >and exchange_num =#{exchangeNum,jdbcType=INTEGER}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="benevolenceShopProductMap" parameterType="String">
+		select <include refid="BenevolenceShopProduct_columns" /> from t_benevolence_shop_product
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="benevolenceShopProductMap" parameterType="com.bit.module.vol.bean.BenevolenceShopProduct">
+		select <include refid="BenevolenceShopProduct_columns" /> 
+		from t_benevolence_shop_product
+		where 
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.vol.bean.BenevolenceShopProduct">
+	insert INTO t_benevolence_shop_product (
+		shop_id ,
+		shop_name,
+		product_name ,
+		product_introduction ,
+		integral_value ,
+		exchange_explain ,
+		product_img_id ,
+		create_time ,
+		create_user_id ,
+		update_time ,
+		update_user_id ,
+		product_state ,
+		exchange_num 
+	) VALUES (
+		#{shopId,jdbcType=BIGINT},
+		#{shopName,jdbcType=VARCHAR},
+		#{productName,jdbcType=VARCHAR},
+		#{productIntroduction,jdbcType=VARCHAR},
+		#{integralValue,jdbcType=INTEGER},
+		#{exchangeExplain,jdbcType=VARCHAR},
+		#{productImgId,jdbcType=BIGINT},
+		#{createTime,jdbcType=TIMESTAMP},
+		#{createUserId,jdbcType=BIGINT},
+		#{updateTime,jdbcType=TIMESTAMP},
+		#{updateUserId,jdbcType=BIGINT},
+		#{productState,jdbcType=TINYINT},
+		#{exchangeNum,jdbcType=INTEGER}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.vol.bean.BenevolenceShopProduct">
+		update t_benevolence_shop_product
+		<set>
+		<if test="shopId != null">
+		 shop_id =#{shopId,jdbcType=BIGINT},
+		</if>
+		<if test="shopName != null">
+			shop_name =#{shopName,jdbcType=VARCHAR},
+		</if>
+		<if test="productName != null">
+		 product_name =#{productName,jdbcType=VARCHAR},
+		</if>
+		<if test="productIntroduction != null">
+		 product_introduction =#{productIntroduction,jdbcType=VARCHAR},
+		</if>
+		<if test="integralValue != null">
+		 integral_value =#{integralValue,jdbcType=INTEGER},
+		</if>
+		<if test="exchangeExplain != null">
+		 exchange_explain =#{exchangeExplain,jdbcType=VARCHAR},
+		</if>
+		<if test="productImgId != null">
+		 product_img_id =#{productImgId,jdbcType=BIGINT},
+		</if>
+		<if test="createTime != null">
+		 create_time =#{createTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="createUserId != null">
+		 create_user_id =#{createUserId,jdbcType=BIGINT},
+		</if>
+		<if test="updateTime != null">
+		 update_time =#{updateTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="updateUserId != null">
+		 update_user_id =#{updateUserId,jdbcType=BIGINT},
+		</if>
+		<if test="productState != null">
+		 product_state =#{productState,jdbcType=TINYINT},
+		</if>
+		<if test="exchangeNum != null">
+		 exchange_num =#{exchangeNum,jdbcType=INTEGER}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.vol.bean.BenevolenceShopProduct">
+		delete from t_benevolence_shop_product 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_benevolence_shop_product
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+
+	<select id="findByShopId" resultMap="benevolenceShopProductMap" parameterType="com.bit.module.vol.vo.BenevolenceShopProductVO">
+		select <include refid="BenevolenceShopProduct_columns" />
+		from t_benevolence_shop_product
+		where
+			shop_id =#{shopId,jdbcType=BIGINT}
+		and product_state = 1
+		<if test="productName != null and productName != ''">
+			and product_name like "%"#{productName,jdbcType=VARCHAR}"%"
+		</if>
+	</select>
+
+	<select id="findByParam" resultMap="benevolenceShopProductMap" parameterType="com.bit.module.vol.vo.BenevolenceShopProductExcelVO">
+		select <include refid="BenevolenceShopProduct_columns" />
+		from t_benevolence_shop_product
+		<where>
+			<if test="shopName != null and shopName != '' " >and shop_name like "%"#{shopName,jdbcType=VARCHAR}"%"</if>
+			<if test="productName != null and productName != '' " >and product_name like "%"#{productName,jdbcType=VARCHAR}"%"</if>
+			<if test="productState != null " >and product_state =#{productState,jdbcType=TINYINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+
+	<select id="batchSelect" resultMap="benevolenceShopProductMap" parameterType="com.bit.module.vol.vo.BenevolenceShopProductExcelVO">
+		select <include refid="BenevolenceShopProduct_columns" />
+		from t_benevolence_shop_product
+		where id in
+		<foreach collection="idList" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+
+	<!-- 批量更新 -->
+	<update id="batchUpdate" parameterType="java.util.List">
+		UPDATE t_benevolence_shop_product
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="exchange_num = case" suffix="end,">
+				<foreach collection="products" item="item" index="index" >
+					<if test="item.exchangeNum!=null">
+						WHEN id = #{item.id,jdbcType=BIGINT} then #{item.exchangeNum,jdbcType=INTEGER}
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		where
+		<foreach collection="products" item="item" index="index" separator="or">
+			id = #{item.id,jdbcType=BIGINT}
+		</foreach>
+	</update>
+</mapper>

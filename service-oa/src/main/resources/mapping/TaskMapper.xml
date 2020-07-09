@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.TaskDao">
+
+    <!-- Page分页 -->
+    <sql id="Task_simple_columns">
+        <![CDATA[
+          id as id,
+          no as no,
+          name as name,
+          principal_name as principal_name,
+          status as status,
+          type as type,
+          start_at as start_at,
+          end_at as end_at,
+          superior_id as superior_id
+        ]]>
+    </sql>
+
+    <!-- Page分页 -->
+    <sql id="TaskAssigner_simple_columns">
+        <![CDATA[
+          t.id as id,
+          t.no as no,
+          t.name as name,
+          t.principal_name as principal_name,
+          t.status as status,
+          t.type as type,
+          t.start_at as start_at,
+          t.end_at as end_at,
+          o.superior_id as superior_id
+        ]]>
+    </sql>
+
+    <!-- Page分页 -->
+    <sql id="TaskSubset_simple_columns">
+        <![CDATA[
+          any_value(t.id) as id,
+          any_value(t.no) as no,
+          any_value(t.name) as name,
+          any_value(t.principal_name) as principal_name,
+          any_value(t.status) as status,
+          any_value(t.type) as type,
+          any_value(t.start_at) as start_at,
+          any_value(t.end_at) as end_at,
+          any_value(o.superior_id) as superior_id,
+          any_value(t.create_at) as create_at,
+          any_value(o.tier) as tier,
+          COUNT(o.superior_id) AS num,
+          any_value(t.executor) as executor,
+          any_value(t.assigner_id) as assigner_id,
+          any_value(t.principal_id) as principal_id
+        ]]>
+    </sql>
+
+    <!-- 详细信息 -->
+    <sql id="Task_full_colimns">
+        <![CDATA[
+          id as id,
+          no as no,
+          name as name,
+          principal_id as principal_id,
+          principal_name as principal_name,
+          status as status,
+          type as type,
+          start_at as start_at,
+          end_at as end_at,
+          assigner_id as assigner_id,
+          assigner_name as assigner_name,
+          content as content,
+          superior_id as superior_id,
+          superior_name as superior_name,
+          executor as executor,
+          cc as cc,
+          attact_ids as attact_ids
+        ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.oa.vo.task.SimpleTask" id="taskSimpleMap">
+        <id column="id" property="id"/>
+        <result column="no" property="taskNo"/>
+        <result column="name" property="taskName"/>
+        <result column="principal_name" property="taskPrincipalName"/>
+        <result column="status" property="taskStatus"/>
+        <result column="type" property="taskType"/>
+        <result column="start_at" property="taskStartAt"/>
+        <result column="end_at" property="taskEndAt"/>
+        <result column="superior_id" property="superiorId"/>
+        <result column="tier" property="tier"/>
+        <result column="executor" property="executor" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="assigner_id" property="assignerId"/>
+        <result column="principal_id" property="taskPrincipalId"/>
+    </resultMap>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.oa.vo.task.FullTask" id="taskFullMap">
+        <id column="id" property="id"/>
+        <result column="no" property="taskNo"/>
+        <result column="name" property="taskName"/>
+        <result column="principal_id" property="taskPrincipalId"/>
+        <result column="principal_name" property="taskPrincipalName"/>
+        <result column="status" property="taskStatus"/>
+        <result column="type" property="taskType"/>
+        <result column="start_at" property="taskStartAt"/>
+        <result column="end_at" property="taskEndAt"/>
+        <result column="assigner_id" property="assignerId"/>
+        <result column="assigner_name" property="assignerName"/>
+        <result column="content" property="content"/>
+        <result column="superior_id" property="superiorId"/>
+        <result column="superior_name" property="superiorName"/>
+        <result column="executor" property="executor" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="cc" property="cc" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="attact_ids" property="attactIds"/>
+    </resultMap>
+
+    <!-- 根据条件获取分页 -->
+    <select id="findByConditionPage" resultMap="taskSimpleMap" parameterType="com.bit.module.oa.vo.task.TaskQuery">
+        SELECT
+        <include refid="Task_simple_columns"/>
+        FROM t_oa_task
+        <where>
+            <if test="principalId !=null">AND principal_id=#{principalId,jdbcType=BIGINT} AND superior_id = 0</if>
+            <if test="assignerId !=null">AND assigner_id=#{assignerId,jdbcType=BIGINT}</if>
+            <if test="superiorId !=null">AND superior_id=#{superiorId,jdbcType=BIGINT}</if>
+            <if test="taskStatus !=null">AND status = #{taskStatus,jdbcType=TINYINT}</if>
+            <if test="taskType !=null">AND type=#{taskType,jdbcType=TINYINT}</if>
+            <if test="ingStatus !=null">AND status=#{ingStatus,jdbcType=TINYINT} AND DATE_FORMAT(end_at,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="overStatus !=null">AND DATE_FORMAT(end_at,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskStartAt != null">and DATE_FORMAT(start_at,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{taskStartAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskEndAt != null">and DATE_FORMAT(end_at,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{taskEndAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskName !=null and taskName !='' ">AND name LIKE CONCAT(#{taskName,jdbcType=VARCHAR}"%")</if>
+        </where>
+        ORDER BY create_at DESC
+    </select>
+
+    <!-- 根据执行人获取任务信息分页 -->
+    <select id="findByExecutorPage" resultMap="taskSimpleMap" parameterType="com.bit.module.oa.vo.task.TaskQuery">
+        SELECT
+            t.id as id,
+            t.no as no,
+            t.name as name,
+            t.principal_name as principal_name,
+            t.status as status,
+            t.type as type,
+            t.start_at as start_at,
+            t.end_at as end_at,
+            t.superior_id as superior_id
+        FROM t_oa_task t, t_oa_task_executor o
+        <where>
+            <if test="ownerId !=null">AND o.executor_id=#{ownerId,jdbcType=BIGINT}</if>
+            <if test="superiorId !=null">AND t.superior_id=#{superiorId,jdbcType=BIGINT} AND t.id = o.task_id</if>
+        </where>
+        ORDER BY t.create_at DESC
+    </select>
+
+    <!-- 获取任务列表 -->
+    <select id="findTaskAll" resultMap="taskSimpleMap" parameterType="com.bit.module.oa.vo.task.TaskQuery">
+        SELECT
+        <include refid="Task_simple_columns"/>
+        FROM t_oa_task
+        <where>
+            <if test="principalId !=null">AND principal_id=#{principalId,jdbcType=BIGINT} AND superior_id = 0</if>
+            <if test="superiorId !=null">AND superior_id=#{superiorId,jdbcType=BIGINT}</if>
+            <if test="taskStatus !=null">AND status=#{taskStatus,jdbcType=TINYINT}</if>
+            <if test="taskType !=null">AND type = #{taskType,jdbcType=TINYINT}</if>
+            <if test="ingStatus !=null">AND status=#{ingStatus,jdbcType=TINYINT} AND DATE_FORMAT(end_at,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="overStatus !=null">AND DATE_FORMAT(end_at,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskStartAt != null">and DATE_FORMAT(start_at,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{taskStartAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskEndAt != null">and DATE_FORMAT(end_at,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{taskEndAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskName !=null and taskName !='' ">AND name LIKE CONCAT(#{taskName,jdbcType=VARCHAR}"%")</if>
+        </where>
+        ORDER BY create_at ASC
+    </select>
+
+    <!-- 分配人分页 -->
+    <select id="findAssignerByConditionPage" resultMap="taskSimpleMap" parameterType="com.bit.module.oa.vo.task.TaskQuery">
+        SELECT
+        <include refid="TaskSubset_simple_columns"/>
+        FROM
+        t_oa_task t LEFT JOIN t_oa_task_assigner o ON t.id = o.superior_id
+        <where>
+            <if test="ownerId != null">AND o.assigner_id =#{ownerId,jdbcType=BIGINT}</if>
+            <if test="taskStatus !=null">AND t.status = #{taskStatus,jdbcType=TINYINT}</if>
+            <if test="taskType !=null">AND t.type = #{taskType,jdbcType=TINYINT}</if>
+            <if test="ingStatus !=null">AND t.status=#{ingStatus,jdbcType=TINYINT} AND DATE_FORMAT(t.end_at,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="overStatus !=null">AND DATE_FORMAT(t.end_at,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskStartAt != null">and DATE_FORMAT(t.start_at,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{taskStartAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskEndAt != null">and DATE_FORMAT(t.end_at,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{taskEndAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskName !=null and taskName !='' ">AND t.name LIKE CONCAT(#{taskName,jdbcType=VARCHAR}"%")</if>
+        </where>
+        GROUP BY o.superior_id
+        ORDER BY o.superior_id DESC
+    </select>
+
+    <!-- 获取分配人子节点 -->
+    <select id="findAssignerChildren" resultMap="taskSimpleMap" parameterType="com.bit.module.oa.vo.task.TaskQuery">
+        SELECT
+        <include refid="Task_simple_columns"/>
+        FROM t_oa_task WHERE assigner_id=#{assignerId,jdbcType=BIGINT} AND superior_id=#{superiorId,jdbcType=BIGINT}
+        ORDER BY create_at ASC
+    </select>
+
+    <!-- 执行人分页 -->
+    <select id="findExecutorByConditionPage" resultMap="taskSimpleMap" parameterType="com.bit.module.oa.vo.task.TaskQuery">
+        SELECT
+        <include refid="TaskSubset_simple_columns"/>
+        FROM
+        t_oa_task t
+        LEFT JOIN t_oa_task_executor o ON t.id = o.superior_id
+        <where>
+            <if test="ownerId != null">AND o.executor_id = #{ownerId,jdbcType=BIGINT} AND t.superior_id = 0</if>
+            <if test="taskStatus !=null">AND t.status = #{taskStatus,jdbcType=TINYINT}</if>
+            <if test="taskType !=null">AND t.type = #{taskType,jdbcType=TINYINT}</if>
+            <if test="ingStatus !=null">AND t.status=#{ingStatus,jdbcType=TINYINT} AND DATE_FORMAT(t.end_at,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="overStatus !=null">AND DATE_FORMAT(t.end_at,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskStartAt != null">and DATE_FORMAT(t.start_at,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{taskStartAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskEndAt != null">and DATE_FORMAT(t.end_at,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{taskEndAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskName !=null and taskName !='' ">AND t.name LIKE CONCAT(#{taskName,jdbcType=VARCHAR}"%")</if>
+        </where>
+        GROUP BY o.superior_id
+        ORDER BY o.superior_id DESC
+    </select>
+
+    <!-- 获取执行人子节点 -->
+    <select id="findExecutorChildren" resultMap="taskSimpleMap" parameterType="com.bit.module.oa.vo.task.TaskQuery">
+        SELECT
+        <include refid="TaskAssigner_simple_columns"/>
+        FROM t_oa_task t LEFT JOIN t_oa_task_executor o ON t.id = o.task_id
+        WHERE o.executor_id=#{ownerId,jdbcType=BIGINT} AND o.superior_id=#{superiorId,jdbcType=BIGINT} AND o.tier = 1
+        ORDER BY t.create_at ASC
+    </select>
+
+    <!-- 抄送人分页 -->
+    <select id="findCcByConditionPage" resultMap="taskSimpleMap" parameterType="com.bit.module.oa.vo.task.TaskQuery">
+        SELECT
+        <include refid="TaskSubset_simple_columns"/>
+        FROM t_oa_task t
+        LEFT JOIN t_oa_task_cc o ON t.id = o.superior_id
+        <where>
+            <if test="ownerId != null">AND o.cc_id = #{ownerId,jdbcType=BIGINT} AND t.superior_id = 0</if>
+            <if test="taskStatus !=null">AND t.status = #{taskStatus,jdbcType=TINYINT}</if>
+            <if test="taskType !=null">AND t.type = #{taskType,jdbcType=TINYINT}</if>
+            <if test="ingStatus !=null">AND t.status=#{ingStatus,jdbcType=TINYINT} AND DATE_FORMAT(t.end_at,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="overStatus !=null">AND DATE_FORMAT(t.end_at,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskStartAt != null">and DATE_FORMAT(t.start_at,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{taskStartAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskEndAt != null">and DATE_FORMAT(t.end_at,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{taskEndAt,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="taskName !=null and taskName !='' ">AND t.name LIKE CONCAT(#{taskName,jdbcType=VARCHAR}"%")</if>
+        </where>
+        GROUP BY o.superior_id
+        ORDER BY o.superior_id DESC
+    </select>
+
+    <!-- 根据ID获取任务信息 -->
+    <select id="findById" resultMap="taskFullMap" parameterType="com.bit.module.oa.bean.Task">
+        SELECT <include refid="Task_full_colimns"/> FROM t_oa_task WHERE id=#{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 获取子任务数量 -->
+    <select id="selectNums" resultType="java.lang.Integer" parameterType="com.bit.module.oa.bean.Task">
+        SELECT COUNT(*) FROM t_oa_task WHERE superior_id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 终止任务 -->
+    <update id="terminationById" parameterType="com.bit.module.oa.bean.Task">
+        UPDATE t_oa_task
+        SET status=#{status,jdbcType=TINYINT}
+        WHERE (id=#{id,jdbcType=BIGINT} OR superior_id=#{id,jdbcType=BIGINT}) AND status!=#{status,jdbcType=TINYINT}
+    </update>
+
+    <!-- 添加任务 -->
+    <insert id="add" parameterType="com.bit.module.oa.bean.Task">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        <![CDATA[
+        insert INTO t_oa_task (
+            no,
+            name,
+            principal_id,
+            principal_name,
+            status,
+            type,
+            start_at,
+            end_at,
+            assigner_id,
+            assigner_name,
+            content,
+            superior_id,
+            superior_name,
+            user_id,
+            create_at,
+            executor,
+            cc,
+            attact_ids
+         ]]>
+        ) VALUES (
+            #{no,jdbcType=VARCHAR},
+            #{name,jdbcType=VARCHAR},
+            #{principalId,jdbcType=BIGINT},
+            #{principalName,jdbcType=VARCHAR},
+            #{status,jdbcType=TINYINT},
+            #{type,jdbcType=TINYINT},
+            #{startAt,jdbcType=TIMESTAMP},
+            #{endAt,jdbcType=TIMESTAMP},
+            #{assignerId,jdbcType=BIGINT},
+            #{assignerName,jdbcType=VARCHAR},
+            #{content,jdbcType=VARCHAR},
+            #{superiorId,jdbcType=BIGINT},
+            #{superiorName,jdbcType=VARCHAR},
+            #{userId,jdbcType=BIGINT},
+            #{createAt,jdbcType=TIMESTAMP},
+            #{executor,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            #{cc,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            #{attactIds,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!-- 新增分配人 -->
+    <insert id="createAssigner" parameterType="com.bit.module.oa.bean.TaskSubset">
+        <![CDATA[
+        insert INTO t_oa_task_assigner (
+            task_id,
+            tier,
+            superior_id,
+            create_at,
+            assigner_id
+         ]]>
+        ) VALUES(
+            #{taskId,jdbcType=BIGINT},
+            #{tier,jdbcType=TINYINT},
+            #{superiorId,jdbcType=BIGINT},
+            #{createAt,jdbcType=TIMESTAMP},
+            #{assignerId,jdbcType=BIGINT}
+        )
+    </insert>
+
+    <!-- 新增待办公文 -->
+    <insert id="batchCreateExecutor" parameterType="java.util.List">
+        <![CDATA[
+        insert INTO t_oa_task_executor (
+            task_id,
+            tier,
+            superior_id,
+            create_at,
+            executor_id,
+            executor_name
+         ]]>
+        ) VALUES
+        <foreach collection="list" item="executor" index="index" separator=","> (
+            #{executor.taskId,jdbcType=BIGINT},
+            #{executor.tier,jdbcType=TINYINT},
+            #{executor.superiorId,jdbcType=BIGINT},
+            #{executor.createAt,jdbcType=TIMESTAMP},
+            #{executor.executorId,jdbcType=BIGINT},
+            #{executor.ownerName,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 新增抄送公文 -->
+    <insert id="batchCreateCc" parameterType="java.util.List">
+        <![CDATA[
+        insert INTO t_oa_task_cc (
+            task_id,
+            tier,
+            superior_id,
+            create_at,
+            cc_id,
+            cc_name
+         ]]>
+        ) VALUES
+        <foreach collection="list" item="cc" index="index" separator=","> (
+            #{cc.taskId,jdbcType=BIGINT},
+            #{cc.tier,jdbcType=TINYINT},
+            #{cc.superiorId,jdbcType=BIGINT},
+            #{cc.createAt,jdbcType=TIMESTAMP},
+            #{cc.ccId,jdbcType=BIGINT},
+            #{cc.ownerName,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 新增反馈 -->
+    <insert id="createFeedback" parameterType="com.bit.module.oa.bean.TaskFeedback">
+        <![CDATA[
+        insert INTO t_oa_task_feedback (
+            task_id,
+            user_id,
+            user_name,
+            content,
+            create_at,
+            attact_ids,
+            reason,
+            type
+         ]]>
+        ) VALUES(
+            #{taskId,jdbcType=BIGINT},
+            #{userId,jdbcType=BIGINT},
+            #{userName,jdbcType=VARCHAR},
+            #{content,jdbcType=VARCHAR},
+            #{createAt,jdbcType=TIMESTAMP},
+            #{attactIds,jdbcType=VARCHAR},
+            #{reason,jdbcType=VARCHAR},
+            #{type,jdbcType=TINYINT}
+        )
+    </insert>
+
+    <!-- Page分页 -->
+    <sql id="TaskFeedback_columns">
+        <![CDATA[
+          id AS id,
+          task_id AS taskId,
+          user_id AS userId,
+          user_name AS userName,
+          content AS content,
+          create_at AS createAt,
+          attact_ids AS attact_ids,
+          reason AS reason,
+          type AS type
+        ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.oa.bean.TaskFeedback" id="taskFeedbackMap">
+        <id column="id" property="id"/>
+        <result column="taskId" property="taskId"/>
+        <result column="userId" property="userId"/>
+        <result column="userName" property="userName"/>
+        <result column="content" property="content"/>
+        <result column="createAt" property="createAt"/>
+        <result column="attact_ids" property="attactIds"/>
+        <result column="reason" property="reason"/>
+        <result column="type" property="type"/>
+    </resultMap>
+
+    <!-- 根据id获取反馈详细 -->
+    <select id="findTaskFeedbackById" resultMap="taskFeedbackMap" parameterType="com.bit.module.oa.bean.TaskFeedback">
+        SELECT <include refid="TaskFeedback_columns"/>
+        FROM t_oa_task_feedback WHERE id=#{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 反馈分页 -->
+    <select id="findTaskFeedbackByConditionPage" resultType="com.bit.module.oa.bean.TaskFeedback" parameterType="com.bit.module.oa.vo.task.TaskQuery">
+        SELECT
+            id AS id,
+            task_id AS taskId,
+            user_id AS userId,
+            user_name AS userName,
+            content AS content,
+            create_at AS createAt,
+            reason AS reason,
+            type AS type
+        FROM t_oa_task_feedback WHERE task_id=#{taskId,jdbcType=BIGINT} ORDER BY create_at ASC
+    </select>
+
+    <select id="findPrincipalSchedule" resultMap="com.bit.module.oa.dao.MeetingDao.scheduleMap">
+        select id as id, name as title, start_at as start_time, end_at as end_time, #{userId} as user_id, 2 as type
+        from t_oa_task
+        <where>
+            principal_id = #{userId,jdbcType=BIGINT}
+            <if test="startTime != null and endTime != null">
+                and (start_at between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')
+                and end_at between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T'))
+            </if>
+        </where>
+    </select>
+
+    <select id="findExecutorSchedule" resultMap="com.bit.module.oa.dao.MeetingDao.scheduleMap">
+        select t.id as id, t.name as title, t.start_at as start_time, t.end_at as end_time, #{userId} as user_id, 2 as type
+        from t_oa_task_executor e left join t_oa_task t on e.task_id = t.id
+        <where>
+            e.executor_id = #{userId,jdbcType=BIGINT}
+            <if test="startTime != null and endTime != null">
+                and (t.start_at between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')
+                and t.end_at between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T'))
+            </if>
+        </where>
+    </select>
+
+    <!-- 获取子任务中本人作为分配人的数量 -->
+    <select id="countAssignerChildren" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM t_oa_task WHERE assigner_id=#{assignerId,jdbcType=BIGINT} AND superior_id=#{superiorId,jdbcType=BIGINT}
+    </select>
+
+    <!-- 获取子任务中本人作为执行人的数量 -->
+    <select id="countExecutorChildren" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM t_oa_task_executor WHERE executor_id=#{executorId,jdbcType=BIGINT} AND superior_id=#{superiorId,jdbcType=BIGINT} AND tier = 1
+    </select>
+
+</mapper>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.ItemDao">
+  <resultMap id="BaseResultMap" type="com.bit.module.sv.bean.Item">
+
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="parent_id" jdbcType="BIGINT" property="parentId" />
+    <result column="source" jdbcType="INTEGER" property="source" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+    <result column="regulations" jdbcType="OTHER" property="regulations" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+
+    id, `name`, content, parent_id, source, regulations, create_at, update_at
+  </sql>
+
+  <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_sv_item
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteById" parameterType="java.lang.Long">
+
+    delete from t_sv_item
+    where id = #{id,jdbcType=BIGINT} or parent_id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Item" useGeneratedKeys="true">
+
+    insert into t_sv_item (`name`, source, content, parent_id, create_at,
+      update_at, regulations)
+    values (#{name,jdbcType=VARCHAR}, #{source,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR},
+      #{parentId,jdbcType=BIGINT}, #{createAt,jdbcType=TIMESTAMP},
+      #{updateAt,jdbcType=TIMESTAMP}, #{regulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Item" useGeneratedKeys="true">
+
+    insert into t_sv_item
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="source != null">
+        source,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="createAt != null">
+        create_at,
+      </if>
+      <if test="updateAt != null">
+        update_at,
+      </if>
+      <if test="regulations != null">
+        regulations,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="createAt != null">
+        #{createAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateAt != null">
+        #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="regulations != null">
+        #{regulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByIdSelective" parameterType="com.bit.module.sv.bean.Item">
+
+    update t_sv_item
+    <set>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        source = #{source,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="createAt != null">
+        create_at = #{createAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateAt != null">
+        update_at = #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="regulations != null">
+        regulations = #{regulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateById" parameterType="com.bit.module.sv.bean.Item">
+
+    update t_sv_item
+    set `name` = #{name,jdbcType=VARCHAR},
+      source = #{source,jdbcType=INTEGER},
+      content = #{content,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=BIGINT},
+      create_at = #{createAt,jdbcType=TIMESTAMP},
+      update_at = #{updateAt,jdbcType=TIMESTAMP},
+      regulations = #{regulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
+    insert into t_sv_item
+    (`name`, source, content, parent_id, create_at, update_at, regulations)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.name,jdbcType=VARCHAR}, #{item.source,jdbcType=INTEGER}, #{item.content,jdbcType=VARCHAR},
+        #{item.parentId,jdbcType=BIGINT}, #{item.createAt,jdbcType=TIMESTAMP},
+        #{item.updateAt,jdbcType=TIMESTAMP}, #{item.regulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler})
+    </foreach>
+  </insert>
+
+  <!--分页查询-->
+  <select id="findBySourceAndName" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from
+    (
+      SELECT
+      p.id id,
+      IF
+      ( ISNULL( q.source ), p.source, q.source ) source,
+      IF
+      ( ISNULL( q.`name` ), p.`name`, q.`name` ) name,
+      p.content content,
+      p.regulations regulations,
+      p.create_at create_at,
+      p.update_at update_at,
+      p.parent_id parent_id,
+      IF
+      ( ISNULL( p.parent_id ), 999999999999, p.parent_id ) sortNum
+      FROM
+      t_sv_item q
+      RIGHT JOIN t_sv_item p ON p.parent_id = q.id
+      WHERE p.id not in (SELECT parent_id from t_sv_item where !ISNULL(parent_id))
+    ) a
+    <where>
+      <if test="name != null and name != ''">
+         name like CONCAT('%', #{name, jdbcType=VARCHAR}, '%')
+      </if>
+      <if test="source != null">
+         and source = #{source, jdbcType=INTEGER}
+      </if>
+    </where>
+    ORDER BY sortNum desc, id desc
+  </select>
+
+  <select id="findAllBySource" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+      <include refid="Base_Column_List" />
+    FROM
+    (
+      SELECT
+        p.id id,
+        IF
+        ( ISNULL( q.source ), p.source, q.source ) source,
+        p.name NAME,
+        p.content content,
+        p.regulations regulations,
+        p.create_at create_at,
+        p.update_at update_at,
+        p.parent_id parent_id
+      FROM
+        t_sv_item q
+      RIGHT JOIN t_sv_item p ON p.parent_id = q.id
+    ) a
+    <where>
+      source = #{source, jdbcType=INTEGER}
+    </where>
+    order by id
+  </select>
+
+  <select id="findByIdIn" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from
+    t_sv_item
+    <where>
+      id in
+      <foreach collection="list" item="item" open="(" separator="," close=")">
+        #{item, jdbcType=BIGINT}
+      </foreach>
+    </where>
+    order by id
+  </select>
+</mapper>

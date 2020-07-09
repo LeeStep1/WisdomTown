@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.ResidentExtendDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Resident_extend_columns">
+	    <![CDATA[
+			id as id,
+			extend_type as extend_type,
+			resident_id as resident_id,
+			org_id as org_id
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.cbo.bean.ResidentExtend" id="residentExtendMap">
+		<id column="id" property="id"/>
+        <result column="extend_type" property="extendType"/>
+        <result column="resident_id" property="residentId"/>
+        <result column="org_id" property="orgId"/>
+	</resultMap>
+
+
+    <select id="findByParam" resultType="com.bit.module.cbo.bean.ResidentExtend" parameterType="com.bit.module.cbo.bean.ResidentExtend">
+        SELECT <include refid="Resident_extend_columns"/>
+        FROM t_cbo_resident_extend
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="extendType!=null">and extend_type = #{extendType,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+    
+    <delete id="delByResidentIdAndOrgId">
+        DELETE FROM t_cbo_resident_extend
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+        </where>
+    </delete>
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.ResidentExtend" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_cbo_resident_extend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="extendType!=null">extend_type,</if>
+            <if test="residentId!=null">resident_id,</if>
+            <if test="orgId!=null">org_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="extendType!=null">#{extendType,jdbcType=INTEGER},</if>
+            <if test="residentId!=null">#{residentId,jdbcType=BIGINT},</if>
+            <if test="orgId!=null">#{orgId,jdbcType=BIGINT},</if>
+        </trim>
+    </insert>
+
+    <insert id="batchAddResidentExtend" parameterType="com.bit.module.cbo.bean.ResidentExtend">
+        INSERT INTO t_cbo_resident_extend (
+          extend_type,
+          resident_id,
+          org_id
+        )VALUES
+        <foreach collection="residentExtendList" index="index" item="item" separator=",">
+            (
+            #{item.extendType,jdbcType=INTEGER},
+            #{item.residentId,jdbcType=BIGINT},
+            #{item.orgId,jdbcType=BIGINT}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

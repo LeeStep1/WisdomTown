@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: service-sys
+  cloud:
+    nacos:
+      config:
+        server-addr: 39.106.84.9:8848
+        file-extension: yml
+        group: wt_dev_liyang
+        prefix: service-sys

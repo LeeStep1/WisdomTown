@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.ApplicationDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Application_columns">
+	    <![CDATA[
+			id as id,
+			`no` as `no`,
+			execute_id as execute_id,
+			user_id as user_id,
+			user_name as user_name,
+			dep_id as dep_id,
+			dep_name as dep_name,
+			apply_time as apply_time,
+			apply_reason as apply_reason,
+			pic_urls as pic_urls,
+			reject_reason as reject_reason,
+			approver_id as approver_id,
+			create_at as create_at,
+			status as status,
+            version as version
+		]]>
+	</sql>
+	<sql id="Application_page_columns">
+	    <![CDATA[
+			a.id as id,
+            a.`no` as `no`,
+			a.execute_id as execute_id,
+			a.user_id as user_id,
+			a.user_name as user_name,
+			a.dep_id as dep_id,
+			a.dep_name as dep_name,
+			a.apply_time as apply_time,
+			a.apply_reason as apply_reason,
+			a.pic_urls as pic_urls,
+			a.reject_reason as reject_reason,
+			a.approver_id as approver_id,
+			a.create_at as create_at,
+			a.status as status,
+			e.inspect_name as inspect_name,
+			e.inspect_no as inspect_no,
+			e.inspect_start_time as inspect_start_time,
+			e.inspect_end_time as inspect_end_time
+		]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.Application" id="applicationMap">
+		<result column="id" property="id"/>
+		<result column="no" property="no"/>
+		<result column="execute_id" property="executeId"/>
+		<result column="user_id" property="userId"/>
+		<result column="user_name" property="userName"/>
+		<result column="dep_id" property="depId"/>
+		<result column="dep_name" property="depName"/>
+		<result column="apply_time" property="applyTime"/>
+		<result column="apply_reason" property="applyReason"/>
+		<result column="pic_urls" property="picUrls"/>
+		<result column="reject_reason" property="rejectReason"/>
+		<result column="approver_id" property="approverId"/>
+		<result column="create_at" property="createAt"/>
+		<result column="status" property="status"/>
+		<result column="version" property="version"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.vo.application.ApplicationPageVO" id="applicationPageMap">
+		<result column="id" property="id"/>
+        <result column="no" property="no"/>
+        <result column="execute_id" property="executeId"/>
+		<result column="inspect_name" property="inspectName"/>
+		<result column="inspect_no" property="inspectNo"/>
+		<result column="user_id" property="userId"/>
+		<result column="user_name" property="userName"/>
+		<result column="dep_id" property="depId"/>
+		<result column="dep_name" property="depName"/>
+		<result column="apply_time" property="applyTime"/>
+		<result column="apply_reason" property="applyReason"/>
+		<result column="pic_urls" property="picUrls"/>
+		<result column="reject_reason" property="rejectReason"/>
+		<result column="approver_id" property="approverId"/>
+		<result column="create_at" property="createAt"/>
+		<result column="status" property="status"/>
+		<result column="inspect_start_time" property="inspectStartTime"/>
+		<result column="inspect_end_time" property="inspectEndTime"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="applicationPageMap" parameterType="com.bit.module.oa.vo.application.ApplicationVO">
+		select <include refid="Application_page_columns" />
+		from t_oa_inspect_application a join t_oa_inspect_executor e on a.execute_id = e.id
+		<where>
+			<if test="status != null">a.status = #{status,jdbcType=INTEGER} </if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="applicationMap" parameterType="com.bit.module.oa.bean.Application">
+		select <include refid="Application_columns" />
+		from t_oa_inspect_application
+		where
+        	id =#{id,jdbcType=BIGINT}
+	</select>
+	<select id="findByExecuteId" resultMap="applicationMap" >
+		select <include refid="Application_columns" />
+		from t_oa_inspect_application
+		where
+		execute_id =#{executeId,jdbcType=BIGINT}
+		order by create_at desc limit 1
+	</select>
+	<select id="existByExecuteIdAndUserIdAndStatus" resultType="java.lang.Integer">
+		select count(id)
+		from t_oa_inspect_application
+		where
+		execute_id =#{executeId,jdbcType=BIGINT} and user_id =#{userId} and status = #{status}
+	</select>
+    <select id="findNo" resultType="java.lang.String">
+		select no FROM t_oa_inspect_application
+
+		WHERE DATEDIFF(NOW(), create_at) = 0
+		ORDER BY id desc, create_at desc LIMIT 1
+    </select>
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Application">
+	<selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+		SELECT LAST_INSERT_ID()
+	</selectKey>
+	insert INTO t_oa_inspect_application (
+	    `no`,
+		execute_id,
+		user_id,
+		user_name,
+		dep_id,
+		dep_name,
+		apply_time,
+		apply_reason,
+		pic_urls,
+		create_at,
+		status
+	) VALUES (
+		#{no},
+		#{executeId},
+		#{userId},
+		#{userName},
+		#{depId},
+		#{depName},
+		#{applyTime},
+		#{applyReason},
+		#{picUrls},
+		#{createAt},
+		#{status}
+	)
+	</insert>
+	<insert id="batchAdd">
+		insert into t_oa_inspect_application
+		(
+		`no`,
+		execute_id,
+		user_id,
+		user_name,
+		dep_id,
+		dep_name,
+		apply_time,
+		apply_reason,
+		pic_urls,
+		reject_reason,
+		approver_id,
+		create_at,
+		status
+		) values
+		<foreach collection="applications" item="application" separator=",">
+			(
+			#{application.no},
+			#{application.executeId},
+			#{application.userId},
+			#{application.userName},
+			#{application.depId},
+			#{application.depName},
+			#{application.applyTime},
+			#{application.applyReason},
+			#{application.picUrls},
+			#{application.rejectReason},
+			#{application.approverId},
+			#{application.createAt},
+			#{application.status}
+			)
+		</foreach>
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.Application">
+		update t_oa_inspect_application
+		<set>
+			<if test="no != null">
+				`no` =#{no},
+			</if>
+			<if test="executeId != null">
+				execute_id =#{executeId},
+			</if>
+			<if test="userId != null">
+				user_id =#{userId},
+			</if>
+			<if test="userName != null">
+				user_name =#{userName},
+			</if>
+			<if test="depId != null">
+				dep_id =#{depId},
+			</if>
+			<if test="depName != null">
+				dep_name =#{depName},
+			</if>
+			<if test="applyTime != null">
+				apply_time =#{applyTime},
+			</if>
+			<if test="applyReason != null">
+				apply_reason =#{applyReason},
+			</if>
+			<if test="picUrls != null">
+				pic_urls =#{picUrls},
+			</if>
+			<if test="rejectReason != null">
+				reject_reason =#{rejectReason},
+			</if>
+			<if test="approverId != null">
+				approver_id =#{approverId},
+			</if>
+			<if test="createAt != null">
+				create_at =#{createAt},
+			</if>
+			<if test="status != null">
+				status =#{status},
+			</if>
+		    version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Application">
+		delete from t_oa_inspect_application
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_oa_inspect_application
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+</mapper>

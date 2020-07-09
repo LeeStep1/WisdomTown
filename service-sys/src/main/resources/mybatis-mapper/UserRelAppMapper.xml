@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.UserRelAppDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="UserRelApp_columns">
+	    <![CDATA[
+			id as id,
+			user_id as user_id,
+			app_id as app_id
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.UserRelApp" id="UserRelAppMap">
+		<id column="id" property="id"/>
+	    <result column="user_id" property="userId"/>
+	    <result column="app_id" property="appId"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="UserRelAppMap" parameterType="com.bit.module.system.vo.UserRelAppVO">
+		select <include refid="UserRelApp_columns" /> from t_sys_user_rel_app
+		<where>
+			<if test="id != null " >and id = #{id,jdbcType=BIGINT}</if>
+			<if test="userId != null  " >and user_id = #{userId,jdbcType=BIGINT}</if>
+			<if test="appId != null  " >and app_id = #{appId,jdbcType=TINYINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="UserRelAppMap" parameterType="String">
+		select <include refid="UserRelApp_columns" /> from t_sys_user_rel_app
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="UserRelAppMap" parameterType="com.bit.module.system.bean.UserRelApp">
+		select <include refid="UserRelApp_columns" /> 
+		from t_sys_user_rel_app
+		where id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!--根据用户id查询-->
+    <select id="findByUserId" resultType="com.bit.module.system.bean.UserRelApp">
+		select <include refid="UserRelApp_columns" />
+		from t_sys_user_rel_app
+		where user_id =#{userId,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByParam" parameterType="com.bit.module.system.bean.UserRelApp" resultMap="UserRelAppMap">
+		SELECT <include refid="UserRelApp_columns"/>
+		FROM t_sys_user_rel_app
+		<where>
+			<if test="userId!=null">and user_id =#{userId,jdbcType=BIGINT}</if>
+			<if test="appId!=null">and app_id =#{appId,jdbcType=BIGINT}</if>
+		</where>
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.UserRelApp">
+		insert INTO t_sys_user_rel_app (
+			user_id ,
+			app_id
+		) VALUES (
+			#{userId,jdbcType=BIGINT},
+			#{appId,jdbcType=TINYINT}
+		)
+	</insert>
+
+	<!-- 批量添加 -->
+	<insert id="batchAdd"  parameterType="java.util.List">
+		insert INTO t_sys_user_rel_app (
+			user_id ,
+			app_id
+		) VALUES
+		<foreach collection="list" index="index" item="item" separator=",">
+			(#{item.userId,jdbcType=BIGINT},
+			#{item.appId,jdbcType=TINYINT}
+			)
+		</foreach>
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.system.bean.UserRelApp">
+		update t_sys_user_rel_app
+		<set>
+		<if test="userId != null">
+		 user_id =#{userId,jdbcType=BIGINT},
+		</if>
+		<if test="dictId != null">
+			app_id =#{appId,jdbcType=TINYINT}
+		</if>
+		</set>
+		where  id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.UserRelApp">
+		delete from t_sys_user_rel_app where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		delete from t_sys_user_rel_app where id in
+		<foreach collection="ids" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 根据用户id删除中间表，删除用户和应用的关系 -->
+	<delete id="delByUserId">
+		delete from t_sys_user_rel_app where user_id=#{userId}
+	</delete>
+
+</mapper>

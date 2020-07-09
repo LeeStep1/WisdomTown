@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.pb.dao.DoneDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Done_columns">
+	    <![CDATA[
+			id as id,
+			topic as topic,
+			action as action,
+			correlation_id as correlation_id,
+			content as content,
+		
+			last_handler_name as last_handler_name,
+			user_id as user_id,
+			org_id as org_id,
+			org_name as org_name,
+			reason as reason,
+		
+			remark as remark,
+			attachment_ids as attachment_ids,
+			submit_time as submit_time,
+			handle_time as handle_time
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.bean.Done" id="doneMap">
+		<id column="id" property="id"/>
+	    <result column="topic" property="topic"/>
+	    <result column="action" property="action"/>
+	    <result column="correlation_id" property="correlationId"/>
+	    <result column="content" property="content"/>
+	    <result column="last_handler_name" property="lastHandlerName"/>
+	    <result column="user_id" property="userId"/>
+	    <result column="org_id" property="orgId"/>
+	    <result column="org_name" property="orgName"/>
+	    <result column="reason" property="reason"/>
+	    <result column="remark" property="remark"/>
+	    <result column="attachment_ids" property="attachmentIds"/>
+	    <result column="submit_time" property="submitTime"/>
+	    <result column="handle_time" property="handleTime"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="doneMap" parameterType="com.bit.module.pb.vo.DoneVO">
+		select <include refid="Done_columns" /> from t_pb_done
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="topic != null" >and topic =#{topic,jdbcType=TINYINT}</if>
+			<if test="action != null" >and action =#{action,jdbcType=TINYINT}</if>
+			<if test="correlationId != null and correlationId != '' " >and correlation_id =#{correlationId,jdbcType=BIGINT}</if>
+			<if test="content != null and content != '' " >and content =#{content,jdbcType=VARCHAR}</if>
+			<if test="lastHandlerName != null and lastHandlerName != '' " >and last_handler_name =#{lastHandlerName,jdbcType=VARCHAR}</if>
+			<if test="userId != null and userId != '' " >and user_id =#{userId,jdbcType=BIGINT}</if>
+			<if test="orgId != null and orgId != '' " >and org_id =#{orgId,jdbcType=VARCHAR}</if>
+			<if test="orgName != null and orgName != '' " >and org_name =#{orgName,jdbcType=VARCHAR}</if>
+			<if test="reason != null and reason != '' " >and reason =#{reason,jdbcType=VARCHAR}</if>
+			<if test="remark != null and remark != '' " >and remark =#{remark,jdbcType=VARCHAR}</if>
+			<if test="attachmentIds != null and attachmentIds != '' " >and attachment_ids =#{attachmentIds,jdbcType=VARCHAR}</if>
+		</where>
+		ORDER BY submit_time DESC
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="doneMap" parameterType="String">
+		select <include refid="Done_columns" /> from t_pb_done
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="doneMap" parameterType="com.bit.module.pb.bean.Done">
+		select <include refid="Done_columns" /> 
+		from t_pb_done
+		where 
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.pb.bean.Done">
+	insert INTO t_pb_done (
+		topic ,
+		action ,
+		correlation_id ,
+		content ,
+		last_handler_name ,
+		user_id ,
+		org_id ,
+		org_name ,
+		reason ,
+		remark ,
+		attachment_ids ,
+		submit_time ,
+		handle_time 
+	) VALUES (
+		#{topic,jdbcType=TINYINT},
+		#{action,jdbcType=TINYINT},
+		#{correlationId,jdbcType=BIGINT},
+		#{content,jdbcType=VARCHAR},
+		#{lastHandlerName,jdbcType=VARCHAR},
+		#{userId,jdbcType=BIGINT},
+		#{orgId,jdbcType=VARCHAR},
+		#{orgName,jdbcType=VARCHAR},
+		#{reason,jdbcType=VARCHAR},
+		#{remark,jdbcType=VARCHAR},
+		#{attachmentIds,jdbcType=VARCHAR},
+		#{submitTime,jdbcType=TIMESTAMP},
+		#{handleTime,jdbcType=TIMESTAMP}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.pb.bean.Done">
+		update t_pb_done
+		<set>
+		<if test="topic != null">
+		 topic =#{topic,jdbcType=TINYINT},
+		</if>
+		<if test="action != null">
+		 action =#{action,jdbcType=TINYINT},
+		</if>
+		<if test="correlationId != null">
+		 correlation_id =#{correlationId,jdbcType=BIGINT},
+		</if>
+		<if test="content != null">
+		 content =#{content,jdbcType=VARCHAR},
+		</if>
+		<if test="lastHandlerName != null">
+		 last_handler_name =#{lastHandlerName,jdbcType=VARCHAR},
+		</if>
+		<if test="userId != null">
+		 user_id =#{userId,jdbcType=BIGINT},
+		</if>
+		<if test="orgId != null">
+		 org_id =#{orgId,jdbcType=VARCHAR},
+		</if>
+		<if test="orgName != null">
+		 org_name =#{orgName,jdbcType=VARCHAR},
+		</if>
+		<if test="reason != null">
+		 reason =#{reason,jdbcType=VARCHAR},
+		</if>
+		<if test="remark != null">
+		 remark =#{remark,jdbcType=VARCHAR},
+		</if>
+		<if test="attachmentIds != null">
+		 attachment_ids =#{attachmentIds,jdbcType=VARCHAR},
+		</if>
+		<if test="submitTime != null">
+		 submit_time =#{submitTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="handleTime != null">
+		 handle_time =#{handleTime,jdbcType=TIMESTAMP}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.pb.bean.Done">
+		delete from t_pb_done 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+	<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_pb_done
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+
+	<!-- 查询记录 -->
+	<select id="findRecord" resultMap="doneMap" parameterType="com.bit.module.pb.bean.Done">
+		select <include refid="Done_columns" />
+		from t_pb_done
+		where
+		correlation_id =#{correlationId,jdbcType=BIGINT} ORDER BY submit_time ASC
+	</select>
+
+	<!-- 获取停用党员的停用原因记录 -->
+	<select id="findOutreason" resultMap="doneMap" parameterType="com.bit.module.pb.bean.Done">
+		select <include refid="Done_columns" />
+		from t_pb_done
+		<where>
+			<if test="correlationId != null">
+				AND correlation_id =#{correlationId,jdbcType=BIGINT}
+			</if>
+			<if test="topic != null">
+				AND topic =#{topic,jdbcType=TINYINT}
+			</if>
+			<if test="action != null">
+				AND action =#{action,jdbcType=TINYINT}
+			</if>
+		</where>
+		ORDER BY submit_time DESC LIMIT 1
+	</select>
+
+	<select id="getRelativeLastRecord" resultMap="doneMap" parameterType="com.bit.module.pb.vo.DoneVO">
+		select <include refid="Done_columns" />
+		from t_pb_done
+		where correlation_id =#{correlationId,jdbcType=BIGINT}
+		AND topic =#{topic,jdbcType=TINYINT}
+        AND content =#{content,jdbcType=VARCHAR}
+		AND org_id &lt; #{orgId,jdbcType=BIGINT}
+		ORDER BY submit_time DESC
+		LIMIT 1
+	</select>
+
+</mapper>

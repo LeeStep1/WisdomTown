@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.pb.dao.ConferenceRecordDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="ConferenceRecord_columns">
+        <![CDATA[
+			id as id,
+			conference_id as conference_id,
+			user_id as user_id,
+			sign_situation as sign_situation,
+			sign_time as sign_time,
+			sign_condition as sign_condition,
+			late_reason as late_reason
+
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.pb.bean.ConferenceRecord" id="ConferenceRecordMap">
+        <id column="id" property="id"/>
+        <result column="conference_id" property="conferenceId"/>
+        <result column="user_id" property="userId"/>
+        <result column="sign_situation" property="signSituation"/>
+        <result column="sign_time" property="signTime"/>
+        <result column="sign_condition" property="signCondition"/>
+        <result column="late_reason" property="lateReason"/>
+    </resultMap>
+
+
+    <insert id="add" parameterType="com.bit.module.pb.bean.ConferenceRecord" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into t_pb_conference_record(
+           conference_id,
+           user_id,
+           sign_situation,
+           sign_time,
+           sign_condition,
+           late_reason
+        )VALUES (
+           #{conferenceId,jdbcType=BIGINT},
+           #{userId,jdbcType=BIGINT},
+           #{signSituation,jdbcType=INTEGER},
+           #{signTime,jdbcType=TIMESTAMP},
+           #{signCondition,jdbcType=INTEGER},
+           #{lateReason,jdbcType=VARCHAR}
+
+        )
+    </insert>
+
+    <update id="update" parameterType="com.bit.module.pb.bean.ConferenceRecord">
+        update t_pb_conference_record
+        <set>
+            <if test="conferenceId !=null ">
+                conference_id =#{conferenceId,jdbcType=BIGINT},
+            </if>
+            <if test="userId !=null ">
+                user_id =#{userId,jdbcType=BIGINT},
+            </if>
+            <if test="signSituation !=null">
+                sign_situation =#{signSituation,jdbcType=INTEGER},
+            </if>
+            <if test="signTime !=null">
+                sign_time =#{signTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="signCondition !=null">
+                sign_condition =#{signCondition,jdbcType=INTEGER},
+            </if>
+            <if test="lateReason !=null">
+                late_reason =#{lateReason,jdbcType=VARCHAR}
+            </if>
+
+        </set>
+        where id =#{id,jdbcType=BIGINT}
+    </update>
+
+    
+    <select id="queryByParam" parameterType="com.bit.module.pb.bean.ConferenceRecord" resultType="com.bit.module.pb.bean.ConferenceRecord">
+        SELECT <include refid="ConferenceRecord_columns"/>
+        FROM t_pb_conference_record
+        <where>
+            <if test="conferenceId !=null">and conference_id =#{conferenceId,jdbcType=BIGINT}</if>
+            <if test="userId!=null">and user_id =#{userId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <select id="listPage" parameterType="com.bit.module.pb.vo.ConferenceRecordVO" resultType="com.bit.module.pb.bean.ConferenceRecord">
+        SELECT t2.id as conferenceId,t2.theme,t2.start_time,t1.sign_situation,t3.`name` FROM t_pb_conference_record t1
+        INNER JOIN t_pb_conference t2
+        on t1.conference_id = t2.id
+        INNER JOIN t_pb_organization t3
+        on t2.pb_id=t3.id
+        <where>
+            <if test="conferenceId !=null">and t2.conference_id =#{conferenceId,jdbcType=BIGINT}</if>
+            <if test="userId!=null">and t1.user_id =#{userId,jdbcType=BIGINT}</if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">and t2.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            <if test="status!=null and status!=0">and t2.status =#{status,jdbcType=INTEGER}</if>
+            <if test="theme!=null and theme!=''">and t2.theme like #{theme,jdbcType=VARCHAR}"%"</if>
+        </where>
+    </select>
+
+    <insert id="batchAdd" parameterType="com.bit.module.pb.bean.ConferenceRecord">
+        insert into t_pb_conference_record(
+           conference_id,
+           user_id,
+           sign_situation,
+           sign_time,
+           sign_condition,
+           late_reason
+        ) VALUES
+        <foreach collection="conferenceRecords" item="item"  separator="," index="index">
+            (#{item.conferenceId,jdbcType=BIGINT},
+            #{item.userId,jdbcType=BIGINT},
+            #{item.signSituation,jdbcType=INTEGER},
+            #{item.signTime,jdbcType=TIMESTAMP},
+            #{item.signCondition,jdbcType=INTEGER},
+            #{item.lateReason,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="delByConferenceId" parameterType="long">
+        DELETE FROM t_pb_conference_record
+        WHERE conference_id = #{conferenceId,jdbcType=BIGINT}
+    </delete>
+
+
+
+
+
+
+
+
+</mapper>

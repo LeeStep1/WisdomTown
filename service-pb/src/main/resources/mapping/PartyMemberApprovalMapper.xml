@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.pb.dao.PartyMemberApprovalDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PartyMemberApprovalPage_columns">
+	    <![CDATA[
+		id as id,
+		JSON_UNQUOTE(member_name) as `name`,
+		JSON_UNQUOTE(member_org_name) as org_name,
+		JSON_UNQUOTE(mobile) as mobile,
+		member_type as member_type,
+		`type` as `type`,
+		status as status,
+		approve_org_id as approve_org_id,
+		insert_time as insert_time
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.vo.partyMember.PartyMemberApprovalPageVO" id="partyMemberApprovalPageMap">
+		<id column="id" property="id"/>
+	    <result column="name" property="name"/>
+	    <result column="org_name" property="orgName"/>
+	    <result column="mobile" property="mobile"/>
+	    <result column="member_type" property="memberType"/>
+		<result column="type" property="type"/>
+	    <result column="status" property="status"/>
+        <result column="approve_org_id" property="approveOrgId"/>
+		<result column="insert_time" property="insertTime"/>
+	</resultMap>
+
+	<sql id="PartyMemberApproval_columns">
+		<![CDATA[
+			id as id,
+			`type` as `type`,
+			reason as reason,
+			remark as remark,
+			member_id as member_id,
+			attach as attach,
+			modification as modification,
+			status as status,
+			user_org_id as org_id,
+			user_id as user_id,
+			approve_org_id as approve_org_id,
+			version as version,
+			id_card as id_card
+		]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.vo.partyMember.PartyMemberApprovalVO" id="partyMemberApprovalMap">
+		<id column="id" property="id"/>
+		<result column="type" property="type"/>
+		<result column="reason" property="reason"/>
+		<result column="remark" property="remark"/>
+		<result column="member_id" property="memberId"/>
+		<result column="attach" property="attach" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+		<result column="modification" property="modification" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+		<result column="status" property="status"/>
+		<result column="org_id" property="orgId"/>
+		<result column="user_id" property="userId"/>
+		<result column="approve_org_id" property="approveOrgId"/>
+		<result column="version" property="version" />
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="partyMemberApprovalPageMap" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		SELECT A.* FROM (
+			select <include refid="PartyMemberApprovalPage_columns" /> from t_pb_party_member_approval
+			<where>
+				<if test="type != null">and type =#{type,jdbcType=TINYINT}</if>
+				<if test="status != null">and status =#{status,jdbcType=TINYINT}</if>
+				<if test="orgId != null">and member_org_id =#{orgId,jdbcType=BIGINT}</if>
+				<if test="approveOrgId != null">and approve_org_id = #{approveOrgId, jdbcType=BIGINT}</if>
+				<if test="orgName != null and orgName != '' ">and JSON_UNQUOTE(member_org_name) LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+				<if test="name != null and name != '' ">and JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+			</where>
+		) A
+		UNION
+		SELECT B.* FROM (
+			select <include refid="PartyMemberApprovalPage_columns" /> from t_pb_party_member_approval
+			<where>
+				<if test="type != null">and type =#{type,jdbcType=TINYINT}</if>
+				<if test="status != null">and status =#{status,jdbcType=TINYINT}</if>
+				<if test="orgId != null">and member_org_id =#{orgId,jdbcType=BIGINT}</if>
+				<if test="approveOrgId != null">and user_org_id = #{approveOrgId, jdbcType=BIGINT}</if>
+				<if test="orgName != null and orgName != '' ">and JSON_UNQUOTE(member_org_name) LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+				<if test="name != null and name != '' ">and JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+			</where>
+		) B
+		ORDER BY insert_time DESC
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="partyMemberApprovalMap" parameterType="com.bit.module.pb.bean.PartyMemberApproval">
+		select <include refid="PartyMemberApproval_columns" /> 
+		from t_pb_party_member_approval
+		where 
+        	id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.pb.bean.PartyMemberApproval">
+		<selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert INTO t_pb_party_member_approval (
+			type ,
+			user_id ,
+			user_org_id ,
+			reason ,
+			remark ,
+			attach ,
+			modification ,
+			insert_time ,
+			complete_time ,
+			status,
+            approve_org_id
+		) VALUES (
+			#{type,jdbcType=TINYINT},
+			#{userId,jdbcType=BIGINT},
+			#{userOrgId,jdbcType=BIGINT},
+			#{reason,jdbcType=VARCHAR},
+			#{remark,jdbcType=VARCHAR},
+			#{attach,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			#{modification,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			#{insertTime,jdbcType=TIMESTAMP},
+			#{completeTime,jdbcType=TIMESTAMP},
+			#{status,jdbcType=TINYINT},
+            #{approveOrgId,jdbcType=BIGINT}
+		)
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.pb.bean.PartyMemberApproval">
+		update t_pb_party_member_approval
+		<set>
+			<if test="reason != null">
+			 reason =#{reason,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+			 remark =#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="attach != null">
+			 attach =#{attach,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			</if>
+			<if test="modification != null">
+			 modification =#{modification,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			</if>
+			version = version + 1
+		</set>
+		where 
+		  id = #{id,jdbcType=BIGINT} AND status IN (0,3)
+	</update>
+
+	<!-- 修改状态 -->
+	<update id="updateByStatus" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		UPDATE t_pb_party_member_approval
+			SET status =#{status,jdbcType=TINYINT}, approve_org_id = #{approveOrgId,jdbcType=BIGINT}, version = version + 1
+			<if test="changeTime != null">
+				, complete_time = #{changeTime,jdbcType=TIMESTAMP}
+			</if>
+		where
+			id = #{id,jdbcType=BIGINT} AND status IN
+			<foreach collection="statuses" item="statuses" index="index" open="(" separator="," close=")">
+				#{statuses}
+			</foreach>
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.pb.bean.PartyMemberApproval">
+		delete from t_pb_party_member_approval 
+		where
+			id = #{id,jdbcType=BIGINT} AND status IN(0,3)
+	</delete>
+
+	<!-- 判断是否已提交申请(草稿状态) -->
+	<select id="findRecord" resultMap="partyMemberApprovalMap" parameterType="com.bit.module.pb.bean.PartyMemberApproval">
+		select <include refid="PartyMemberApproval_columns" />
+		from t_pb_party_member_approval
+		where
+		member_id =#{memberId,jdbcType=BIGINT} AND type =#{type,jdbcType=TINYINT} AND status = 0
+	</select>
+
+	<!-- 获取原因 -->
+	<select id="findOutreason" resultMap="partyMemberApprovalMap" parameterType="com.bit.module.pb.bean.PartyMemberApproval">
+		SELECT <include refid="PartyMemberApproval_columns" />
+		from t_pb_party_member_approval
+		WHERE
+		member_id =#{memberId,jdbcType=BIGINT} AND type =#{type,jdbcType=TINYINT}
+		ORDER BY insert_time DESC LIMIT 1
+	</select>
+
+    <!-- 根据身份证获取审核信息 -->
+	<select id="findByIdCard" resultMap="partyMemberApprovalMap" parameterType="com.bit.module.pb.bean.PartyMemberApproval">
+		SELECT <include refid="PartyMemberApproval_columns" />
+		FROM t_pb_party_member_approval
+		WHERE JSON_UNQUOTE(id_card) = #{idCard,jdbcType=VARCHAR} AND status IN (0, 1)
+	</select>
+
+</mapper>

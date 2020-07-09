@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.cbo.dao.RepairApplyProgressDao">
+    <resultMap id="RepairApplyProgressMap" type="com.bit.module.cbo.bean.RepairApplyProgress">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="repair_apply_id" property="repairApplyId" jdbcType="BIGINT"/>
+        <result column="user_type" property="userType" jdbcType="TINYINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="operation_type" property="operationType" jdbcType="TINYINT"/>
+        <result column="operation_name" property="operationName" jdbcType="VARCHAR"/>
+        <result column="operation_time" property="operationTime" jdbcType="TIMESTAMP"/>
+        <result column="reason" property="reason" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,
+        repair_apply_id,
+        user_type,
+        user_id,
+        user_name,
+        operation_type,
+        operation_name,
+        operation_time,
+        reason
+    </sql>
+    <select id="getRepairApplyProgressById" resultMap="RepairApplyProgressMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from t_cbo_repair_apply_progress
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+      delete from t_cbo_repair_apply_progress
+      where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.RepairApplyProgress" keyProperty="id" useGeneratedKeys="true">
+        insert into t_cbo_repair_apply_progress
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="repairApplyId != null">
+                repair_apply_id,
+            </if>
+            <if test="userType != null">
+                user_type,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="operationType != null">
+                operation_type,
+            </if>
+            <if test="operationName != null">
+                operation_name,
+            </if>
+            <if test="operationTime != null">
+                operation_time,
+            </if>
+            <if test="reason != null">
+                reason,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="repairApplyId != null">
+                #{repairApplyId,jdbcType=BIGINT},
+            </if>
+            <if test="userType != null">
+                #{userType,jdbcType=TINYINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="operationType != null">
+                #{operationType,jdbcType=TINYINT},
+            </if>
+            <if test="operationName != null">
+                #{operationName,jdbcType=VARCHAR},
+            </if>
+            <if test="operationTime != null">
+                #{operationTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reason != null">
+                #{reason,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.bit.module.cbo.bean.RepairApplyProgress">
+
+        update t_cbo_repair_apply_progress
+        <trim prefix="set" suffixOverrides=",">
+            <if test="repairApplyId != null">
+                repair_apply_id = #{repairApplyId,jdbcType=BIGINT},
+            </if>
+            <if test="userType != null">
+                user_type = #{userType,jdbcType=TINYINT},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="operationType != null">
+                operation_type = #{operationType,jdbcType=TINYINT},
+            </if>
+            <if test="operationName != null">
+                operation_name = #{operationName,jdbcType=VARCHAR},
+            </if>
+            <if test="operationTime != null">
+                operation_time = #{operationTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reason != null">
+                reason = #{reason,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="findByParam" parameterType="com.bit.module.cbo.bean.RepairApplyProgress" resultMap="RepairApplyProgressMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_cbo_repair_apply_progress
+        <where>
+            <if test="repairApplyId">and repair_apply_id = #{repairApplyId,jdbcType=BIGINT}</if>
+            <if test="userType!=null">and user_type = #{userType,jdbcType=INTEGER}</if>
+            <if test="userId!=null">and user_id = #{userId,jdbcType=BIGINT}</if>
+            <if test="operationType!=null">and operation_type = #{operationType,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+</mapper>

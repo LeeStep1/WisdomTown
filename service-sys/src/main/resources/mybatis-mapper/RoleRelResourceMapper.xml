@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.RoleRelResourceDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="RoleRelResource_columns">
+	    <![CDATA[
+			id as id,
+			role_id as role_id,
+			resource_id as resource_id
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.RoleRelResource" id="roleRelResourceMap">
+		<id column="id" property="id"/>
+	    <result column="role_id" property="roleId"/>
+	    <result column="resource_id" property="resourceId"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="roleRelResourceMap" parameterType="com.bit.module.system.vo.RoleRelResourceVO">
+		select <include refid="RoleRelResource_columns" /> from t_sys_role_rel_resource
+		<where>
+			<if test="id != null  " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="roleId != null  " >and role_id =#{roleId,jdbcType=BIGINT}</if>
+			<if test="resourceId != null  " >and resource_id =#{resourceId,jdbcType=BIGINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="roleRelResourceMap" parameterType="String">
+		select <include refid="RoleRelResource_columns" /> from t_sys_role_rel_resource
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="roleRelResourceMap" parameterType="com.bit.module.system.bean.RoleRelResource">
+		select <include refid="RoleRelResource_columns" /> 
+		from t_sys_role_rel_resource
+		where 	id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 根据角色id查询资源回显设置 -->
+	<select id="findResourcesByRoleId" resultType="java.lang.Long">
+		select resource_id from t_sys_role_rel_resource where role_id =#{roleId,jdbcType=BIGINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.RoleRelResource">
+		insert INTO t_sys_role_rel_resource (
+			role_id ,
+			resource_id
+		) VALUES (
+			#{roleId,jdbcType=BIGINT},
+			#{resourceId,jdbcType=BIGINT}
+		)
+	</insert>
+
+	<!-- 批量添加 -->
+	<insert id="batchAdd"  parameterType="java.util.List">
+		insert INTO t_sys_role_rel_resource (
+			role_id,
+			resource_id
+		) VALUES
+		<foreach collection="list" index="index" item="item" separator=",">
+			(#{item.roleId,jdbcType=BIGINT},
+			#{item.resourceId,jdbcType=BIGINT}
+			)
+		</foreach>
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.system.bean.RoleRelResource">
+		update t_sys_role_rel_resource
+		<set>
+		<if test="roleId != null">
+		 role_id =#{roleId,jdbcType=BIGINT},
+		</if>
+		<if test="resourceId != null">
+		 resource_id =#{resourceId,jdbcType=BIGINT}
+		</if>
+		</set>
+		where  id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.RoleRelResource">
+		delete from t_sys_role_rel_resource where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="java.util.List">
+		delete from t_sys_role_rel_resource where id in
+		<foreach collection="ids" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 根据角色id批量删除 -->
+	<delete id="delByRoleId">
+		delete from t_sys_role_rel_resource where role_id =#{roleId}
+	</delete>
+
+	<!--根据资源id删除资源和角色中间表关系-->
+	<delete id="delByResourceId">
+		delete from t_sys_role_rel_resource where resource_id =#{resourceId}
+	</delete>
+
+	<!--根据资源ids批量删除资源和角色中间表关系-->
+	<delete id="batchDeleteByResourceIds"  parameterType="java.util.List">
+		delete from t_sys_role_rel_resource where resource_id in
+		<foreach collection="ids" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

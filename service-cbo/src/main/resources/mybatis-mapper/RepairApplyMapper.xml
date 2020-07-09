@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.cbo.dao.RepairApplyDao">
+    <resultMap id="RepairApplyMap" type="com.bit.module.cbo.bean.RepairApply">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="resident_id" property="residentId" jdbcType="BIGINT"/>
+        <result column="resident_name" property="residentName" jdbcType="VARCHAR"/>
+        <result column="resident_mobile" property="residentMobile" jdbcType="VARCHAR"/>
+        <result column="org_id" property="orgId" jdbcType="BIGINT"/>
+        <result column="org_name" property="orgName" jdbcType="VARCHAR"/>
+        <result column="community_id" property="communityId" jdbcType="BIGINT"/>
+        <result column="community_name" property="communityName" jdbcType="VARCHAR"/>
+        <result column="trouble_type" property="troubleType" jdbcType="INTEGER"/>
+        <result column="trouble_desc" property="troubleDesc" jdbcType="VARCHAR"/>
+        <result column="trouble_location" property="troubleLocation" jdbcType="VARCHAR"/>
+        <result column="apply_status" property="applyStatus" jdbcType="TINYINT"/>
+        <result column="data_status" property="dataStatus" jdbcType="TINYINT"/>
+        <result column="attched_ids" property="attchedIds" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="update_user_id" property="updateUserId" jdbcType="BIGINT"/>
+        <result column="update_user_type" property="updateUserType" jdbcType="VARCHAR"/>
+        <result column="handle_user_name" property="handleUserName" jdbcType="VARCHAR"/>
+        <result column="handle_user_mobile" property="handleUserMobile" jdbcType="VARCHAR"/>
+        <result column="handle_user_result" property="handleUserResult" jdbcType="VARCHAR"/>
+        <result column="version" property="version" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id,
+    resident_id,
+    resident_name,
+    resident_mobile,
+    org_id,
+    org_name,
+    community_id,
+    community_name,
+    trouble_type,
+    trouble_desc,
+    trouble_location,
+    apply_status,
+    data_status,
+    attched_ids,
+    create_time,
+    update_time,
+    update_user_id,
+    update_user_type,
+    handle_user_name,
+    handle_user_mobile,
+    handle_user_result,
+    version
+  </sql>
+
+    <select id="getRequireApplyById" resultMap="RepairApplyMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from t_cbo_repair_apply
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+      delete from t_cbo_repair_apply
+      where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.RepairApply" keyProperty="id" useGeneratedKeys="true">
+        insert into t_cbo_repair_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="residentId != null">
+                resident_id,
+            </if>
+            <if test="residentName != null and residentName!=''">
+                resident_name,
+            </if>
+            <if test="residentMobile != null and residentMobile!=''">
+                resident_mobile,
+            </if>
+            <if test="orgId != null">
+                org_id,
+            </if>
+            <if test="orgName != null and orgName!=''">
+                org_name,
+            </if>
+            <if test="communityId != null">
+                community_id,
+            </if>
+            <if test="communityName != null and communityName!=''">
+                community_name,
+            </if>
+            <if test="troubleType != null">
+                trouble_type,
+            </if>
+            <if test="troubleDesc != null and troubleDesc!=''">
+                trouble_desc,
+            </if>
+            <if test="troubleLocation != null and troubleLocation!=''">
+                trouble_location,
+            </if>
+            <if test="applyStatus != null">
+                apply_status,
+            </if>
+            <if test="dataStatus != null">
+                data_status,
+            </if>
+            <if test="attchedIds != null and attchedIds!=''">
+                attched_ids,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="updateUserId != null">
+                update_user_id,
+            </if>
+            <if test="updateUserType != null">
+                update_user_type,
+            </if>
+            <if test="handleUserName != null and handleUserName!=''">
+                handle_user_name,
+            </if>
+            <if test="handleUserMobile != null and handleUserMobile!=''">
+                handle_user_mobile,
+            </if>
+            <if test="handleUserResult != null and handleUserResult!=''">
+                handle_user_result,
+            </if>
+            <if test="version != null">
+                version,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="residentId != null">
+                #{residentId,jdbcType=BIGINT},
+            </if>
+            <if test="residentName != null and residentName!=''">
+                #{residentName,jdbcType=VARCHAR},
+            </if>
+            <if test="residentMobile != null and residentMobile!=''">
+                #{residentMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="orgId != null">
+                #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="orgName != null and orgName!=''">
+                #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="communityId != null">
+                #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="communityName != null and communityName!=''">
+                #{communityName,jdbcType=VARCHAR},
+            </if>
+            <if test="troubleType != null">
+                #{troubleType,jdbcType=INTEGER},
+            </if>
+            <if test="troubleDesc != null and troubleDesc!=''">
+                #{troubleDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="troubleLocation != null and troubleLocation!=''">
+                #{troubleLocation,jdbcType=VARCHAR},
+            </if>
+            <if test="applyStatus != null">
+                #{applyStatus,jdbcType=TINYINT},
+            </if>
+            <if test="dataStatus != null">
+                #{dataStatus,jdbcType=TINYINT},
+            </if>
+            <if test="attchedIds != null and attchedIds!=''">
+                #{attchedIds,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId != null">
+                #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="updateUserType != null">
+                #{updateUserType,jdbcType=VARCHAR},
+            </if>
+            <if test="handleUserName != null and handleUserName!=''">
+                #{handleUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="handleUserMobile != null and handleUserMobile!=''">
+                #{handleUserMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="handleUserResult != null and handleUserResult!=''">
+                #{handleUserResult,jdbcType=VARCHAR},
+            </if>
+            <if test="version != null">
+                #{version,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="update" parameterType="com.bit.module.cbo.bean.RepairApply">
+        update t_cbo_repair_apply
+        <trim prefix="set" suffixOverrides=",">
+            <if test="residentId != null">
+                resident_id = #{residentId,jdbcType=BIGINT},
+            </if>
+            <if test="residentName != null and residentName!=''">
+                resident_name = #{residentName,jdbcType=VARCHAR},
+            </if>
+            <if test="residentMobile != null and residentMobile!=''">
+                resident_mobile = #{residentMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="orgId != null">
+                org_id = #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="orgName != null and orgName!=''">
+                org_name = #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="communityId != null">
+                community_id = #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="communityName != null and communityName!=''">
+                community_name = #{communityName,jdbcType=VARCHAR},
+            </if>
+            <if test="troubleType != null">
+                trouble_type = #{troubleType,jdbcType=INTEGER},
+            </if>
+            <if test="troubleLocation != null and troubleLocation!=''">
+                trouble_location = #{troubleLocation,jdbcType=VARCHAR},
+            </if>
+            <if test="applyStatus != null">
+                apply_status = #{applyStatus,jdbcType=TINYINT},
+            </if>
+            <if test="dataStatus != null">
+                data_status = #{dataStatus,jdbcType=TINYINT},
+            </if>
+            <if test="attchedIds != null and attchedIds!=''">
+                attched_ids = #{attchedIds,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId != null">
+                update_user_id = #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="updateUserType != null">
+                update_user_type = #{updateUserType,jdbcType=VARCHAR},
+            </if>
+            <if test="handleUserName != null and handleUserName!=''">
+                handle_user_name = #{handleUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="handleUserMobile != null and handleUserMobile!=''">
+                handle_user_mobile = #{handleUserMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="handleUserResult != null and handleUserResult!=''">
+                handle_user_result = #{handleUserResult,jdbcType=VARCHAR},
+            </if>
+            <if test="version != null">
+                version = #{version,jdbcType=INTEGER} + 1,
+            </if>
+        </trim>
+        where id = #{id,jdbcType=BIGINT}
+        and version = #{version,jdbcType=INTEGER}
+    </update>
+
+    <select id="appRecordListPage" parameterType="com.bit.module.cbo.vo.RepairApplyPageVO" resultMap="RepairApplyMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_cbo_repair_apply
+        <where>
+            <if test="dataStatus!=null">and data_status = #{dataStatus,jdbcType=INTEGER}</if>
+            <if test="applyStatus!=null">and apply_status = #{applyStatus,jdbcType=INTEGER}</if>
+            <if test="communityIds!=null and communityIds.size()>0">
+                and community_id in
+                <foreach collection="communityIds" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="webListPage" parameterType="com.bit.module.cbo.vo.RepairApplyPageVO" resultType="com.bit.module.cbo.vo.RepairApplyVO">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_cbo_repair_apply
+        <where>
+            <if test="dataStatus!=null">and data_status = #{dataStatus,jdbcType=INTEGER}</if>
+            <if test="applyStatus!=null">and apply_status = #{applyStatus,jdbcType=INTEGER}</if>
+            <if test="communityIds!=null and communityIds.size()>0">
+                and community_id in
+                <foreach collection="communityIds" item="id" index="index" open="(" separator="," close=")">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="troubleType!=null">and trouble_type = #{troubleType,jdbcType=INTEGER}</if>
+            <if test="applyBeginTime!=null and applyBeginTime!='' and applyEndTime!=null and applyEndTime!=''">
+                and create_time between #{applyBeginTime,jdbcType=VARCHAR} and #{applyEndTime,jdbcType=VARCHAR}
+            </if>
+            <if test="residentName!=null and residentName!=''">and resident_name like concat("%",#{residentName,jdbcType=VARCHAR},"%")</if>
+        </where>
+        order by create_time desc
+    </select>
+</mapper>

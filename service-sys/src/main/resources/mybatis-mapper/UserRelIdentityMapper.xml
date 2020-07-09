@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.UserRelIdentityDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="UserRelIdentity_columns">
+	    <![CDATA[
+			id as id,
+			user_id as user_id,
+			identity_id as identity_id
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.UserRelIdentity" id="userRelIdentityMap">
+		<id column="id" property="id"/>
+	    <result column="user_id" property="userId"/>
+	    <result column="identity_id" property="identityId"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="userRelIdentityMap" parameterType="com.bit.module.system.vo.UserRelIdentityVO">
+		select <include refid="UserRelIdentity_columns" /> from t_sys_user_rel_identity
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="userId != null and userId != '' " >and user_id =#{userId,jdbcType=BIGINT}</if>
+			<if test="identityId != null and identityId != '' " >and identity_id =#{identityId,jdbcType=BIGINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="userRelIdentityMap" parameterType="String">
+		select <include refid="UserRelIdentity_columns" /> from t_sys_user_rel_identity
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="userRelIdentityMap" parameterType="com.bit.module.system.bean.UserRelIdentity">
+		select <include refid="UserRelIdentity_columns" /> 
+		from t_sys_user_rel_identity
+		where id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!--根据身份id查询统计-->
+    <select id="findCountByIdentityId" resultType="java.lang.Integer">
+		select count(1) from t_sys_user_rel_identity where identity_id =#{identityId,jdbcType=BIGINT}
+	</select>
+
+	<!--根据用户id查询-->
+    <select id="findByUserId" resultType="com.bit.module.system.bean.UserRelIdentity">
+		select <include refid="UserRelIdentity_columns" /> rom t_sys_user_rel_identity where user_id =#{userId,jdbcType=BIGINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.UserRelIdentity" >
+		insert INTO t_sys_user_rel_identity (
+			user_id ,
+			identity_id
+		) VALUES (
+			#{userId,jdbcType=BIGINT},
+			#{identityId,jdbcType=BIGINT}
+		)
+	</insert>
+
+	<!-- 批量添加 -->
+	<insert id="batchAdd"  parameterType="java.util.List">
+		insert INTO t_sys_user_rel_identity (
+			user_id ,
+			identity_id
+		) VALUES
+		<foreach collection="list" index="index" item="item" separator=",">
+			(#{item.userId,jdbcType=BIGINT},
+			#{item.identityId,jdbcType=BIGINT}
+			)
+		</foreach>
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.system.bean.UserRelIdentity">
+		update t_sys_user_rel_identity
+		<set>
+		<if test="userId != null">
+		 user_id =#{userId,jdbcType=BIGINT},
+		</if>
+		<if test="identityId != null">
+		 identity_id =#{identityId,jdbcType=BIGINT}
+		</if>
+		</set>
+		where  id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.UserRelIdentity">
+		delete from t_sys_user_rel_identity
+			<where>
+				 <if test="id != null">
+					 and id = #{id,jdbcType=BIGINT}
+				 </if>
+				<if test="userId != null">
+					and user_id = #{userId,jdbcType=BIGINT}
+				</if>
+				<if test="identityId != null">
+					and identity_id = #{identityId,jdbcType=BIGINT}
+				</if>
+			</where>
+	</delete>
+
+	<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		delete from t_sys_user_rel_identity where id in
+		<foreach collection="ids" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!--根据用户id删除中间表-->
+	<delete id="delByUserId">
+		delete from t_sys_user_rel_identity where user_id =#{userId,jdbcType=BIGINT}
+	</delete>
+
+</mapper>

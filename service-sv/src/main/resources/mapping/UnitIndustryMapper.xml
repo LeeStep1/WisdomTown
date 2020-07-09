@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.UnitIndustryDao">
+  <insert id="insert" parameterType="map">
+    insert into t_sv_unit_industry
+    (unit_id, industry_code)
+    values
+    <foreach collection="industryCodes" item="item" separator=",">
+      (#{unitId,jdbcType=BIGINT}, #{item,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <select id="findByUnitId" resultType="java.lang.String">
+    select industry_code from t_sv_unit_industry where unit_id = #{unitId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByUnitId">
+    delete from t_sv_unit_industry where unit_id = #{unitId,jdbcType=BIGINT}
+  </delete>
+</mapper>

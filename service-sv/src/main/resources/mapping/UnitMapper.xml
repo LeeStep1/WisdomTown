@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.UnitDao">
+    <resultMap id="BaseResultMap" type="com.bit.module.sv.bean.Unit">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="company_type" jdbcType="TINYINT" property="companyType"/>
+        <result column="street" jdbcType="VARCHAR" property="street"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="lng" jdbcType="DOUBLE" property="lng"/>
+        <result column="lat" jdbcType="DOUBLE" property="lat"/>
+        <result column="principal_name" jdbcType="VARCHAR" property="principalName"/>
+        <result column="principal_phone" jdbcType="VARCHAR" property="principalPhone"/>
+        <result column="dangerous" jdbcType="TINYINT" property="dangerous"/>
+        <result column="monitor" jdbcType="TINYINT" property="monitor"/>
+        <result column="credit_code" jdbcType="VARCHAR" property="creditCode"/>
+        <result column="annual_output" jdbcType="VARCHAR" property="annualOutput"/>
+        <result column="annual_output_value" jdbcType="INTEGER" property="annualOutputValue"/>
+        <result column="technology" jdbcType="VARCHAR" property="technology"/>
+        <result column="employees" jdbcType="INTEGER" property="employees"/>
+        <result column="area" jdbcType="DOUBLE" property="area"/>
+        <result column="create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="injuria_count" property="injuriaCount"/>
+        <collection property="industryCode" ofType="string" select="com.bit.module.sv.dao.UnitIndustryDao.findByUnitId"
+                    column="{unitId=id}" fetchType="eager"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+            id,
+            `name`,
+            `type`,
+            company_type,
+            street,
+            address,
+            lng,
+            lat,
+            principal_name,
+            principal_phone,
+            dangerous,
+            monitor,
+            credit_code,
+            annual_output,
+            annual_output_value,
+            technology,
+            employees,
+            area,
+            create_at,
+            update_at,
+            `status`,
+            injuria_count
+    </sql>
+    <sql id="Page_Column_List">
+            distinct (id),
+                     `name`,
+                     `type`,
+                     company_type,
+                     street,
+                     address,
+                     lng,
+                     lat,
+                     principal_name,
+                     principal_phone,
+                     dangerous,
+                     monitor,
+                     credit_code,
+                     annual_output,
+                     annual_output_value,
+                     technology,
+                     employees,
+                     area,
+                     `status`,
+                     injuria_count
+    </sql>
+    <select id="findByConditionPage" resultMap="BaseResultMap">
+        select
+        <include refid="Page_Column_List"/>
+        from t_sv_unit u left join t_sv_unit_industry i on u.id = i.unit_id
+        <where>
+            <if test="type != null">type = #{type,jdbcType=INTEGER}</if>
+            <if test="companyType != null">and company_type = #{companyType,jdbcType=INTEGER}</if>
+            <if test="industryCode != null">and i.industry_code = #{industryCode,jdbcType=VARCHAR}</if>
+            <if test="name != null and name != ''">
+                and (name like concat('%', #{name,jdbcType=VARCHAR}, '%')
+                or credit_code like concat('%', #{name,jdbcType=VARCHAR}, '%'))
+            </if>
+            <choose>
+                <when test="injuria != null and injuria == true">
+                    and injuria_count > 0
+                </when>
+                <when test="injuria != null and injuria == false">
+                    and injuria_count = 0
+                </when>
+            </choose>
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+    <select id="findByType" resultMap="BaseResultMap">
+        select id, `name`, street, address, lng, lat, dangerous, monitor, type
+        from t_sv_unit
+        <where>
+            <if test="type != null">
+                type = #{type,jdbcType=TINYINT}
+            </if>
+            <if test="street != null and street != ''">
+                and street = #{street,jdbcType=VARCHAR}
+            </if>
+            and status = 1
+        </where>
+    </select>
+    <select id="findById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_unit
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from t_sv_unit
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Unit"
+            useGeneratedKeys="true">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_sv_unit (`name`, `type`, company_type,
+        street, address, lng,
+        lat, principal_name, principal_phone,
+        dangerous, monitor, credit_code,
+        annual_output, annual_output_value, technology,
+        employees, area, create_at,
+        update_at, `status`, injuria_count)
+        values (#{name,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT}, #{companyType,jdbcType=TINYINT},
+        #{street,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{lng,jdbcType=DOUBLE},
+        #{lat,jdbcType=DOUBLE}, #{principalName,jdbcType=VARCHAR}, #{principalPhone,jdbcType=VARCHAR},
+        #{dangerous,jdbcType=TINYINT}, #{monitor,jdbcType=TINYINT}, #{creditCode,jdbcType=VARCHAR},
+        #{annualOutput,jdbcType=VARCHAR}, #{annualOutputValue,jdbcType=INTEGER}, #{technology,jdbcType=VARCHAR},
+        #{employees,jdbcType=INTEGER}, #{area,jdbcType=DOUBLE}, #{createAt,jdbcType=TIMESTAMP},
+        #{updateAt,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, #{injuriaCount,jdbcType=INTEGER} )
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Unit"
+            useGeneratedKeys="true">
+        insert into t_sv_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="type != null">
+                `type`,
+            </if>
+            <if test="companyType != null">
+                company_type,
+            </if>
+            <if test="street != null">
+                street,
+            </if>
+            <if test="address != null">
+                address,
+            </if>
+            <if test="lng != null">
+                lng,
+            </if>
+            <if test="lat != null">
+                lat,
+            </if>
+            <if test="principalName != null">
+                principal_name,
+            </if>
+            <if test="principalPhone != null">
+                principal_phone,
+            </if>
+            <if test="dangerous != null">
+                dangerous,
+            </if>
+            <if test="monitor != null">
+                monitor,
+            </if>
+            <if test="creditCode != null">
+                credit_code,
+            </if>
+            <if test="annualOutput != null">
+                annual_output,
+            </if>
+            <if test="annualOutputValue != null">
+                annual_output_value,
+            </if>
+            <if test="technology != null">
+                technology,
+            </if>
+            <if test="employees != null">
+                employees,
+            </if>
+            <if test="area != null">
+                area,
+            </if>
+            <if test="createAt != null">
+                create_at,
+            </if>
+            <if test="updateAt != null">
+                update_at,
+            </if>
+            <if test="status != null">
+                `status`,
+            </if>
+            <if test="injuriaCount != null">
+                injuria_count
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=TINYINT},
+            </if>
+            <if test="companyType != null">
+                #{companyType,jdbcType=TINYINT},
+            </if>
+            <if test="street != null">
+                #{street,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="lng != null">
+                #{lng,jdbcType=DOUBLE},
+            </if>
+            <if test="lat != null">
+                #{lat,jdbcType=DOUBLE},
+            </if>
+            <if test="principalName != null">
+                #{principalName,jdbcType=VARCHAR},
+            </if>
+            <if test="principalPhone != null">
+                #{principalPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="dangerous != null">
+                #{dangerous,jdbcType=TINYINT},
+            </if>
+            <if test="monitor != null">
+                #{monitor,jdbcType=TINYINT},
+            </if>
+            <if test="creditCode != null">
+                #{creditCode,jdbcType=VARCHAR},
+            </if>
+            <if test="annualOutput != null">
+                #{annualOutput,jdbcType=VARCHAR},
+            </if>
+            <if test="annualOutputValue != null">
+                #{annualOutputValue,jdbcType=INTEGER},
+            </if>
+            <if test="technology != null">
+                #{technology,jdbcType=VARCHAR},
+            </if>
+            <if test="employees != null">
+                #{employees,jdbcType=INTEGER},
+            </if>
+            <if test="area != null">
+                #{area,jdbcType=DOUBLE},
+            </if>
+            <if test="createAt != null">
+                #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="injuriaCount != null">
+                #{injuriaCount,jdbcType=INTEGER}
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.bit.module.sv.bean.Unit">
+        update t_sv_unit
+        <set>
+            <if test="name != null and name != ''">
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                `type` = #{type,jdbcType=TINYINT},
+            </if>
+            <if test="companyType != null">
+                company_type = #{companyType,jdbcType=TINYINT},
+            </if>
+            <if test="street != null and street != ''">
+                street = #{street,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null and address != ''">
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="lng != null">
+                lng = #{lng,jdbcType=DOUBLE},
+            </if>
+            <if test="lat != null">
+                lat = #{lat,jdbcType=DOUBLE},
+            </if>
+            <if test="principalName != null and principalName != ''">
+                principal_name = #{principalName,jdbcType=VARCHAR},
+            </if>
+            <if test="principalPhone != null and principalPhone != ''">
+                principal_phone = #{principalPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="dangerous != null">
+                dangerous = #{dangerous,jdbcType=TINYINT},
+            </if>
+            <if test="monitor != null">
+                monitor = #{monitor,jdbcType=TINYINT},
+            </if>
+            <if test="creditCode != null and creditCode != ''">
+                credit_code = #{creditCode,jdbcType=VARCHAR},
+            </if>
+            <if test="annualOutput != null and annualOutput != ''">
+                annual_output = #{annualOutput,jdbcType=VARCHAR},
+            </if>
+            <if test="annualOutputValue != null">
+                annual_output_value = #{annualOutputValue,jdbcType=INTEGER},
+            </if>
+            <if test="technology != null and technology != ''">
+                technology = #{technology,jdbcType=VARCHAR},
+            </if>
+            <if test="employees != null">
+                employees = #{employees,jdbcType=INTEGER},
+            </if>
+            <if test="area != null">
+                area = #{area,jdbcType=DOUBLE},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                `status` = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="injuriaCount != null">
+                injuria_count = #{injuriaCount,jdbcType=INTEGER}
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.bit.module.sv.bean.Unit">
+        update t_sv_unit
+        set `name` = #{name,jdbcType=VARCHAR},
+        `type` = #{type,jdbcType=TINYINT},
+        company_type = #{companyType,jdbcType=TINYINT},
+        street = #{street,jdbcType=VARCHAR},
+        address = #{address,jdbcType=VARCHAR},
+        lng = #{lng,jdbcType=DOUBLE},
+        lat = #{lat,jdbcType=DOUBLE},
+        principal_name = #{principalName,jdbcType=VARCHAR},
+        principal_phone = #{principalPhone,jdbcType=VARCHAR},
+        dangerous = #{dangerous,jdbcType=TINYINT},
+        monitor = #{monitor,jdbcType=TINYINT},
+        credit_code = #{creditCode,jdbcType=VARCHAR},
+        annual_output = #{annualOutput,jdbcType=VARCHAR},
+        annual_output_value = #{annualOutputValue,jdbcType=INTEGER},
+        technology = #{technology,jdbcType=VARCHAR},
+        employees = #{employees,jdbcType=INTEGER},
+        area = #{area,jdbcType=DOUBLE},
+        update_at = NOW(),
+        injuria_count = #{injuriaCount,jdbcType=INTEGER}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <insert id="batchAdd" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
+        insert into t_sv_unit
+        (`name`, `type`, company_type, street, address, lng, lat, principal_name, principal_phone,
+        dangerous, monitor, credit_code, annual_output, annual_output_value, technology,
+        employees, area, create_at, update_at, `status`, injuria_count)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=TINYINT}, #{item.companyType,jdbcType=TINYINT},
+            #{item.street,jdbcType=VARCHAR}, #{item.address,jdbcType=VARCHAR}, #{item.lng,jdbcType=DOUBLE},
+            #{item.lat,jdbcType=DOUBLE}, #{item.principalName,jdbcType=VARCHAR},
+            #{item.principalPhone,jdbcType=VARCHAR},
+            #{item.dangerous,jdbcType=TINYINT}, #{item.monitor,jdbcType=TINYINT}, #{item.creditCode,jdbcType=VARCHAR},
+            #{item.annualOutput,jdbcType=VARCHAR}, #{item.annualOutputValue,jdbcType=INTEGER},
+            #{item.technology,jdbcType=VARCHAR}, #{item.employees,jdbcType=INTEGER}, #{item.area,jdbcType=DOUBLE},
+            #{item.createAt,jdbcType=TIMESTAMP}, #{item.updateAt,jdbcType=TIMESTAMP}, #{item.status,jdbcType=TINYINT},
+            #{item.injuriaCount,jdbcType=INTEGER} )
+        </foreach>
+    </insert>
+    <update id="increaseInjuriaCount">
+        update t_sv_unit set injuria_count = injuria_count + #{count,jdbcType=INTEGER}, update_at = now() where id =
+        #{id,jdbcType=BIGINT}
+    </update>
+    <select id="findByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Page_Column_List"/>
+        from t_sv_unit
+        <where>
+            id in
+            <foreach collection="ids" separator="," open="(" close=")" item="id">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+</mapper>

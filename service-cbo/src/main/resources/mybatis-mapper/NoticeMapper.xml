@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.NoticeDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Notice_columns">
+        <![CDATA[
+			id as id,
+			org_id as org_id,
+			title as title,
+			content as content,
+			pic as pic,
+			status as status,
+			author_name as author_name,
+			create_user_id as create_user_id,
+			create_time as create_time,
+			publish_time as publish_time,
+			publish_user_id as publish_user_id,
+			label as label,
+			total_num as total_num,
+			read_num as read_num
+
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.cbo.bean.Notice" id="noticeMap">
+        <id column="id" property="id"/>
+        <result column="org_id" property="orgId"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="pic" property="pic"/>
+        <result column="status" property="status"/>
+        <result column="author_name" property="authorName"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="publish_user_id" property="publishUserId"/>
+        <result column="label" property="label"/>
+        <result column="total_num" property="totalNum"/>
+        <result column="read_num" property="readNum"/>
+
+    </resultMap>
+
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.Notice" keyProperty="id" useGeneratedKeys="true">
+        insert INTO t_cbo_notice
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orgId!=null">
+                org_id,
+            </if>
+            <if test="title!=null and title!=''">
+                title,
+            </if>
+            <if test="content!=null and content!=''">
+                content,
+            </if>
+            <if test="pic!=null">
+                pic,
+            </if>
+            <if test="status!=null">
+                status,
+            </if>
+            <if test="authorName!=null and authorName!=''">
+                author_name,
+            </if>
+            <if test="createUserId!=null">
+                create_user_id,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="publishTime!=null">
+                publish_time,
+            </if>
+            <if test="publishUserId!=null">
+                publish_user_id,
+            </if>
+            <if test="label!=null and label!=''">
+                label,
+            </if>
+            <if test="totalNum!=null">
+                total_num,
+            </if>
+            <if test="readNum!=null">
+                read_num,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orgId!=null">
+                #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="title!=null and title!=''">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content!=null and content!=''">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="pic!=null">
+                #{pic,jdbcType=INTEGER},
+            </if>
+            <if test="status!=null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="authorName!=null and authorName!=''">
+                #{authorName,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserId!=null">
+                #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishTime!=null">
+                #{publishTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishUserId!=null">
+                #{publishUserId,jdbcType=BIGINT},
+            </if>
+            <if test="label!=null and label!=''">
+                #{label,jdbcType=VARCHAR},
+            </if>
+            <if test="totalNum!=null">
+                #{totalNum,jdbcType=INTEGER},
+            </if>
+            <if test="readNum!=null">
+                #{readNum,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="modify" parameterType="com.bit.module.cbo.bean.Notice">
+        update t_cbo_notice
+        <trim prefix="set" suffixOverrides=",">
+            <if test="orgId!=null">
+                org_id = #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="title!=null and title!=''">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content!=null and content!=''">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="pic!=null">
+                pic = #{pic,jdbcType=INTEGER},
+            </if>
+            <if test="status!=null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="authorName!=null and authorName!=''">
+                author_name = #{authorName,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserId!=null">
+                create_user_id = #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime!=null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishTime!=null">
+                publish_time = #{publishTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishUserId!=null">
+                publish_user_id = #{publishUserId,jdbcType=BIGINT},
+            </if>
+            <if test="label!=null and label!=''">
+                label= #{label,jdbcType=VARCHAR},
+            </if>
+            <if test="totalNum!=null">
+                total_num = #{totalNum,jdbcType=INTEGER},
+            </if>
+            <if test="readNum!=null">
+                read_num = #{readNum,jdbcType=INTEGER},
+            </if>
+        </trim>
+        where
+          id = #{id,jdbcType=BIGINT}
+    </update>
+
+
+
+    <select id="getNoticeById" parameterType="long" resultMap="noticeMap">
+        SELECT <include refid="Notice_columns"/>
+        FROM t_cbo_notice
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+    <!--是不是社区办的表示 0-不是 1-是-->
+    <select id="webListPage" parameterType="com.bit.module.cbo.vo.NoticePageVO" resultType="com.bit.module.cbo.vo.NoticeVO">
+        <if test="flag==0">
+            SELECT <include refid="Notice_columns"/>
+            FROM t_cbo_notice
+            <where>
+                <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+                <if test="title!=null">and title like concat("%",#{title,jdbcType=VARCHAR},"%")</if>
+                <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">
+                    and publish_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+            </where>
+            order by status asc,  publish_time desc
+        </if>
+        <if test="flag==1">
+            SELECT <include refid="Notice_columns"/>
+            FROM t_cbo_notice
+            <where>
+                and status = 1
+                <if test="title!=null">and title like concat("%",#{title,jdbcType=VARCHAR},"%")</if>
+                <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">
+                    and publish_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+                <if test="orgIds!=null and orgIds.size()>0">
+                    and org_id IN
+                    <foreach collection="orgIds" item="id" index="index" separator="," open="(" close=")">
+                        #{id,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+            </where>
+            order by publish_time desc
+
+        </if>
+
+
+    </select>
+
+    <select id="appResidentListPage" parameterType="com.bit.module.cbo.vo.NoticePageVO" resultType="com.bit.module.cbo.vo.NoticeVO">
+        SELECT t1.*,t2.read_status FROM t_cbo_notice t1
+        INNER JOIN
+        (
+        SELECT * FROM t_cbo_notice_rel_resident
+        <where>
+            <if test="residentId!=null">
+                and resident_id = #{residentId,jdbcType=BIGINT}
+            </if>
+        </where>
+        )t2
+        on t1.id = t2.notice_id
+        <where>
+            and t1.status = 1
+            <if test="orgId!=null">and t1.org_id = #{orgId,jdbcType=BIGINT}</if>
+        </where>
+        order by t1.publish_time desc
+    </select>
+
+    <select id="appOrgListPage" parameterType="com.bit.module.cbo.vo.NoticePageVO" resultType="com.bit.module.cbo.vo.NoticeVO">
+        SELECT <include refid="Notice_columns"/>
+        FROM t_cbo_notice
+        <where>
+            and status = 1
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="receiveStatus!=null">
+                <if test="receiveStatus==1"><![CDATA[ and read_num < total_num ]]></if>
+                <if test="receiveStatus==2"><![CDATA[ and read_num = total_num ]]></if>
+            </if>
+            <if test="beginTime!=null and beginTime!=''">
+                <![CDATA[ and publish_time >= #{beginTime,jdbcType=VARCHAR} ]]>
+            </if>
+        </where>
+        order by publish_time desc
+    </select>
+
+    <delete id="delById" parameterType="long">
+        DELETE FROM t_cbo_notice
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+
+</mapper>

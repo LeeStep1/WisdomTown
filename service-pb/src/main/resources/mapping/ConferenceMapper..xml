@@ -1,0 +1,1099 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.pb.dao.ConferenceDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Conference_columns">
+        <![CDATA[
+			id as id,
+			theme as theme,
+			place as place,
+			start_time as start_time,
+			last_time as last_time,
+			ahead_time as ahead_time,
+			release_time as release_time,
+			status as status,
+			upload_rate as upload_rate,
+			is_notice as is_notice,
+			is_sign as is_sign,
+			is_upload_experience as is_upload_experience,
+			study_id as study_id,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			update_time as update_time,
+			update_user_id as update_user_id,
+			sign_rate as sign_rate,
+			optional_action as optional_action,
+			pb_id as pb_id,
+			create_user_name as create_user_name,
+			create_real_name as create_real_name,
+			update_user_name as update_user_name,
+			update_real_name as update_real_name,
+			version as version,
+			attend_person as attend_person,
+			end_time as end_time,
+			conference_type as conference_type,
+			cancel_reaseon as cancel_reaseon
+
+	    ]]>
+    </sql>
+
+    <!-- 用于查询组织代码所在的层级 -->
+    <sql id="Organization">
+        <![CDATA[
+			select id as id
+		from
+			t_pb_organization a,
+			( select
+				mysql.help_topic.help_topic_id + 1 as `level`
+			from
+				mysql.help_topic
+			where
+				mysql.help_topic.help_topic_id < 8
+				and ( #{pbId, jdbcType=BIGINT} << 8 * mysql.help_topic.help_topic_id + 1 ) != 0
+			order by
+				mysql.help_topic.help_topic_id desc
+			limit 1 ) b
+		where
+			a.id < ( ( #{pbId, jdbcType=BIGINT} >> ( 64 - b.`level` * 8 )) + 1) << ( 64 - b.`level` * 8 )
+			and a.id > #{pbId, jdbcType=BIGINT}
+
+		]]>
+    </sql>
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.pb.bean.Conference" id="ConferenceMap">
+        <id column="id" property="id"/>
+        <result column="theme" property="theme"/>
+        <result column="place" property="place"/>
+        <result column="start_time" property="startTime"/>
+        <result column="last_time" property="lastTime"/>
+        <result column="ahead_time" property="aheadTime"/>
+        <result column="release_time" property="releaseTime"/>
+        <result column="status" property="status"/>
+        <result column="upload_rate" property="uploadRate"/>
+        <result column="is_notice" property="isNotice"/>
+        <result column="is_sign" property="isSign"/>
+        <result column="is_upload_experience" property="isUploadExperience"/>
+        <result column="study_id" property="studyId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_user_id" property="updateUserId"/>
+        <result column="sign_rate" property="signRate"/>
+        <result column="optional_action" property="optionalAction"/>
+        <result column="pb_id" property="pbId"/>
+        <result column="create_user_name" property="createUserName"/>
+        <result column="create_real_name" property="createRealName"/>
+        <result column="update_user_name" property="updateUserName"/>
+        <result column="update_real_name" property="updateRealName"/>
+        <result column="version" property="version"/>
+        <result column="attend_person" property="attendPerson"/>
+        <result column="end_time" property="endTime"/>
+        <result column="conference_type" property="conferenceType"/>
+        <result column="cancel_reaseon" property="cancelReaseon"/>
+    </resultMap>
+
+
+    <insert id="add" parameterType="com.bit.module.pb.bean.Conference" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into t_pb_conference(
+           theme,
+           place,
+           start_time,
+           last_time,
+           ahead_time,
+           release_time,
+           status,
+           upload_rate,
+           is_notice,
+           is_sign,
+           is_upload_experience,
+           study_id,
+           create_time,
+           create_user_id,
+           update_time,
+           update_user_id,
+           sign_rate,
+           optional_action,
+           pb_id,
+           create_user_name,
+           create_real_name,
+           update_user_name,
+           update_real_name,
+           version,
+           attend_person,
+           end_time,
+           conference_type,
+           cancel_reaseon
+        )VALUES (
+           #{theme,jdbcType=VARCHAR},
+           #{place,jdbcType=VARCHAR},
+           #{startTime,jdbcType=TIMESTAMP},
+           #{lastTime,jdbcType=INTEGER},
+           #{aheadTime,jdbcType=INTEGER},
+           #{releaseTime,jdbcType=TIMESTAMP},
+           #{status,jdbcType=INTEGER},
+           #{uploadRate,jdbcType=INTEGER},
+           #{isNotice,jdbcType=INTEGER},
+           #{isSign,jdbcType=INTEGER},
+           #{isUploadExperience,jdbcType=INTEGER},
+           #{studyId,jdbcType=BIGINT},
+           #{createTime,jdbcType=TIMESTAMP},
+           #{createUserId,jdbcType=BIGINT},
+           #{updateTime,jdbcType=TIMESTAMP},
+           #{updateUserId,jdbcType=BIGINT},
+           #{signRate,jdbcType=INTEGER},
+           #{optionalAction,jdbcType=VARCHAR},
+           #{pbId,jdbcType=BIGINT},
+           #{createUserName,jdbcType=VARCHAR},
+           #{createRealName,jdbcType=VARCHAR},
+           #{updateUserName,jdbcType=VARCHAR},
+           #{updateRealName,jdbcType=VARCHAR},
+           #{version,jdbcType=INTEGER},
+           #{attendPerson,jdbcType=VARCHAR},
+           #{endTime,jdbcType=TIMESTAMP},
+           #{conferenceType,jdbcType=INTEGER},
+           #{cancelReaseon,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.bit.module.pb.bean.Study">
+        update t_pb_conference
+        <set>
+            <if test="theme !=null and theme !=''">
+                theme =#{theme,jdbcType=VARCHAR},
+            </if>
+            <if test="place !=null and place !=''">
+                place =#{place,jdbcType=VARCHAR},
+            </if>
+            <if test="startTime !=null">
+                start_time =#{startTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastTime !=null">
+                last_time =#{lastTime,jdbcType=INTEGER},
+            </if>
+            <if test="aheadTime !=null">
+                ahead_time =#{aheadTime,jdbcType=INTEGER},
+            </if>
+            <if test="releaseTime !=null">
+                release_time =#{releaseTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status !=null">
+                status =#{status,jdbcType=INTEGER},
+            </if>
+            <if test="uploadRate !=null">
+                upload_rate =#{uploadRate,jdbcType=INTEGER},
+            </if>
+            <if test="isNotice !=null">
+                is_notice =#{isNotice,jdbcType=INTEGER},
+            </if>
+            <if test="isSign !=null">
+                is_sign =#{isSign,jdbcType=INTEGER},
+            </if>
+            <if test="isUploadExperience !=null">
+                is_upload_experience =#{isUploadExperience,jdbcType=INTEGER},
+            </if>
+            <if test="studyId !=null">
+                study_id =#{studyId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime !=null">
+                create_time =#{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserId !=null">
+                create_user_id =#{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="updateTime !=null">
+                update_time =#{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId !=null">
+                update_user_id =#{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="signRate !=null">
+                sign_rate =#{signRate,jdbcType=INTEGER},
+            </if>
+            <if test="optionalAction !=null">
+                optional_action =#{optionalAction,jdbcType=VARCHAR},
+            </if>
+            <if test="pbId !=null">
+                pb_id =#{pbId,jdbcType=BIGINT},
+            </if>
+            <if test="createUserName !=null">
+                create_user_name =#{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createRealName !=null">
+                create_real_name =#{createRealName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName !=null">
+                update_user_name =#{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateRealName !=null">
+                update_real_name =#{updateRealName,jdbcType=VARCHAR},
+            </if>
+            <if test="version !=null">
+                version =#{version,jdbcType=INTEGER} + 1,
+            </if>
+            <if test="attendPerson !=null">
+                attend_person =#{attendPerson,jdbcType=VARCHAR},
+            </if>
+            <if test="endTime !=null">
+                end_time =#{endTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="conferenceType !=null">
+                conference_type =#{conferenceType,jdbcType=INTEGER},
+            </if>
+            <if test="cancelReaseon !=null and cancelReaseon!=''">
+                cancel_reaseon =#{cancelReaseon,jdbcType=VARCHAR}
+            </if>
+        </set>
+        <where>
+            <if test="id !=null">
+                and id =#{id,jdbcType=BIGINT}
+            </if>
+            <if test="version !=null">
+                and version =#{version,jdbcType=INTEGER}
+            </if>
+        </where>
+    </update>
+
+    <delete id="delete" parameterType="long">
+        delete from t_pb_conference
+        where id =#{id,jdbcType=BIGINT}
+    </delete>
+
+    <select id="queryById" parameterType="long" resultType="com.bit.module.pb.bean.Conference">
+        select <include refid="Conference_columns"/>
+        from t_pb_conference
+        where id =#{id,jdbcType=BIGINT}
+    </select>
+
+
+
+
+    <!--一级机构-->
+    <select id="listPageTown" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.vo.ConferenceVO">
+        SELECT DISTINCT t1.*,t2.name,t2.id as orgId FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.status > 0
+            <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="status != null">
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status <= 4 and t1.status >= 1]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+        </where>
+        order by t1.release_time desc
+    </select>
+
+
+    <!--二级机构-->
+    <!--如果选了党组织 就要查询已发布的数据-->
+    <!--如果没选了党组织 就要查询草稿和已发布的数据-->
+    <!--isMeFlag 是不是自己 0-不是 1-是-->
+    <select id="listPageForTwo" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.vo.ConferenceVO">
+
+        <if test="pbId!=null ">
+            <if test="isMeFlag!=null and isMeFlag == 1">
+                SELECT DISTINCT *  FROM (
+                SELECT * FROM (
+                    SELECT DISTINCT t1.*,t2.name,t2.id as orgId FROM t_pb_conference t1
+                    INNER JOIN t_pb_organization t2
+                    on t1.pb_id = t2.id
+                    <where>
+                        and t1.pb_id = #{pbId,jdbcType=BIGINT} and t1.status =0
+                        <if test="status != null">
+                            <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                            <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                            <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                            <if test="status == 4">and t1.status = 4</if>
+                        </if>
+                        <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                        <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                            and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                        </if>
+                    </where>
+                    order by t1.create_time desc
+                )as a
+                union
+
+                SELECT * FROM (
+                SELECT DISTINCT t1.*,t2.name,t2.id as orgId FROM t_pb_conference t1
+                INNER JOIN t_pb_organization t2
+                on t1.pb_id = t2.id
+                <where>
+                    and t1.pb_id = #{pbId,jdbcType=BIGINT} and t1.status >0
+                    <if test="status != null">
+                        <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 4">and t1.status = 4</if>
+                    </if>
+                    <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                    <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                    <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                        and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                    </if>
+                </where>
+                order by t1.release_time desc
+                )as b
+                ) t
+                ORDER BY t.create_time desc, t.release_time DESC
+            </if>
+
+            <if test="isMeFlag!=null and isMeFlag == 0">
+                SELECT DISTINCT t1.*,t2.name,t2.id as orgId FROM t_pb_conference t1
+                INNER JOIN t_pb_organization t2
+                on t1.pb_id = t2.id
+                <where>
+                    and t1.pb_id = #{pbId,jdbcType=BIGINT} and t1.status >0
+                    <if test="status != null">
+                        <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 4">and t1.status = 4</if>
+                    </if>
+                    <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                    <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                    <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                        and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                    </if>
+                </where>
+                order by t1.release_time desc
+            </if>
+        </if>
+
+
+        <if test="pbId==null">
+            SELECT DISTINCT * from(
+            select * from (
+
+            SELECT t1.*,t2.name,t2.id as orgId,0 as cond FROM t_pb_conference t1
+            INNER JOIN t_pb_organization t2
+            on t1.pb_id = t2.id
+            <where>
+                and t1.status = 0
+                <if test="status != null">
+                  <if test="status == 0">and t1.status = 0</if>
+                  <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                  <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                  <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                  <if test="status == 4">and t1.status = 4</if>
+                </if>
+                <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                    and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+                <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                    <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                        #{id,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+            </where>
+            order by t1.status asc, t1.create_time desc
+
+            ) as a
+            <if test="noidList!=null and noidList.size()>0 ">
+            <if test="status!=0">
+                union
+                select * from (
+                SELECT t1.*,t2.name,t2.id as orgId,1 as cond FROM t_pb_conference t1
+                INNER JOIN t_pb_organization t2
+                on t1.pb_id = t2.id
+                <where>
+                    <if test="status != null">
+                        <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 4">and t1.status = 4</if>
+                    </if>
+                    <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                    <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                    <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                        and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                    </if>
+                    <if test="noidList!=null and noidList.size()>0 ">and t1.pb_id in
+                        <foreach collection="noidList" item="id" index="index" open="(" close=")" separator=",">
+                            #{id,jdbcType=BIGINT}
+                        </foreach>
+                    </if>
+                    and t1.status > 0
+                </where>
+                order by t1.release_time desc
+                )b
+            </if>
+            </if>
+            )t
+            ORDER BY t.cond asc, t.create_time desc, t.release_time DESC
+        </if>
+
+    </select>
+
+    <select id="listPage" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.vo.ConferenceVO">
+        SELECT DISTINCT * FROM (
+        SELECT t1.*,t2.name,t2.id as orgId,0 as cond FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.status = 0
+            <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="status != null">
+                <if test="status == 0">and t1.status = 0</if>
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+        </where>
+        <if test="noidList!=null and noidList.size()>0 ">
+
+        union
+        SELECT t1.*,t2.name,t2.id as orgId,1 as cond FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.status != 0
+            <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <!--<if test="idList!=null and idList.size()>0 ">and t1.pb_id in-->
+            <!--<foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">-->
+            <!--#{id,jdbcType=BIGINT}-->
+            <!--</foreach>-->
+            <!--</if>-->
+            <if test="noidList!=null and noidList.size()>0 ">and t1.pb_id in
+                <foreach collection="noidList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="status != null">
+                <if test="status == 0">and t1.status = 0</if>
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+        </where>
+
+        </if>
+        ) t
+        order by t.cond asc,  t.release_time desc
+    </select>
+
+    <select id="listPageOrgTypeThree" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.vo.ConferenceVO">
+        SELECT DISTINCT * FROM (
+        SELECT t1.*,t2.name,t2.id as orgId
+        FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.status >= 0
+            <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="status != null">
+                <if test="status == 0">and t1.status = 0</if>
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+        </where>
+
+        ) t
+        order by t.status asc, t.create_time desc, t.release_time desc
+    </select>
+
+    <select id="listPageLevelFour" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.vo.ConferenceVO">
+        SELECT DISTINCT * FROM (
+        SELECT t1.*,t2.name,t2.id as orgId,0 as cond FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.status >= 0
+            <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="status != null">
+                <if test="status == 0">and t1.status = 0</if>
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+        </where>
+
+        ) t
+        order by t.cond asc,t.create_time desc,  t.release_time desc
+    </select>
+
+    <select id="appMyListPage" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.vo.ConferenceVO">
+
+        SELECT DISTINCT * FROM (
+        SELECT DISTINCT t1.* ,t2.sign_situation FROM t_pb_conference t1
+        LEFT JOIN t_pb_conference_record t2
+        on t1.id = t2.conference_id
+        <where>
+            and t1.`status` !=4
+            and t1.`status` !=0
+            <if test="theme!=null and theme!=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>
+            <if test="conferenceType!=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER}</if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            <if test="status!=null">
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            and t1.is_sign = 0
+        </where>
+        union
+        SELECT DISTINCT t1.*,t2.sign_situation FROM t_pb_conference t1
+        INNER JOIN t_pb_conference_record t2
+        on t1.id = t2.conference_id
+        <where>
+            and t1.`status` !=4
+            and t1.`status` !=0
+            <if test="theme!=null and theme!=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>
+            <if test="conferenceType!=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER}</if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            <if test="status!=null">
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="userId!=null">and t2.user_id = #{userId,jdbcType=BIGINT}</if>
+        </where>
+        and t1.is_sign = 1
+        and t2.sign_situation = 1
+        )t order by t.release_time desc
+
+
+        <!--SELECT DISTINCT t1.* ,t2.sign_situation FROM t_pb_conference t1-->
+        <!--LEFT JOIN-->
+        <!--(-->
+        <!--SELECT * FROM t_pb_conference_record-->
+        <!--<where>-->
+            <!--<if test="userId!=null ">and user_id = #{userId,jdbcType=BIGINT}</if>-->
+        <!--</where>-->
+        <!--)t2-->
+        <!--on t1.id = t2.conference_id-->
+        <!--<where>-->
+            <!--and t1.`status` !=4-->
+            <!--and t1.`status` !=0-->
+            <!--<if test="theme!=null and theme!=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>-->
+            <!--<if test="conferenceType!=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER}</if>-->
+            <!--<if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>-->
+            <!--<if test="status!=null">-->
+              <!--<if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>-->
+              <!--<if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>-->
+              <!--<if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>-->
+              <!--<if test="status == 4">and t1.status = 4</if>-->
+            <!--</if>-->
+            <!--<if test="idList!=null and idList.size()>0 ">and t1.pb_id in-->
+                <!--<foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">-->
+                    <!--#{id,jdbcType=BIGINT}-->
+                <!--</foreach>-->
+            <!--</if>-->
+            <!--and (t1.is_sign = 1 and t2.id is not NULL) or (t1.is_sign = 0 and t2.id is NULL)-->
+        <!--</where>-->
+        <!--order by t1.release_time desc-->
+    </select>
+
+    <select id="appThreeLessonListPage" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.vo.ConferenceVO">
+        SELECT DISTINCT t1.*,t2.sign_situation as signSituation,t3.`name`
+        FROM t_pb_conference t1
+        LEFT JOIN
+        (
+        SELECT * FROM t_pb_conference_record
+        <where>
+            <if test="userId!=null ">and user_id = #{userId,jdbcType=BIGINT}</if>
+        </where>
+        )  t2
+        on t1.id = t2.conference_id
+        INNER JOIN t_pb_organization t3
+        on t1.pb_id = t3.id
+        <where>
+            and t1.status > 0
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            <if test="status!=null">
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 4">and status = 4</if>
+            </if>
+            <if test="theme!=null and theme!='' ">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="conferenceType!=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER}</if>
+        </where>
+        order by t1.release_time desc
+    </select>
+
+    <select id="appThreeLessonAdminListPage" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.vo.ConferenceVO">
+        SELECT DISTINCT t1.* ,t2.`name`FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.status > 0
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            <if test="status!=null">
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status != 4]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+            <if test="theme!=null and theme!='' ">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="conferenceType!=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER}</if>
+        </where>
+        order by t1.release_time desc
+    </select>
+
+    <select id="queryRecordsByConferenceId" parameterType="com.bit.module.pb.bean.ConferenceMemberDetail" resultType="com.bit.module.pb.bean.ConferenceMemberDetail">
+        SELECT t2.*,t3.name,t3.mobile from t_pb_conference_record t2
+        LEFT JOIN t_pb_party_member t3
+        on t2.user_id = t3.id
+        <where>
+            <if test="conferenceId!=null">and t2.conference_id = #{conferenceId,jdbcType=BIGINT}</if>
+            <if test="signSituation!=null">and t2.sign_situation = #{signSituation,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+    <select id="calculateSignRate" parameterType="long" resultType="integer">
+        SELECT COUNT(1) as num  from t_pb_conference_record
+        <where>
+            <if test="id!=null">and conference_id = #{id,jdbcType=BIGINT}</if>
+            and sign_situation = 1
+        </where>
+    </select>
+
+    <select id="queryAll" resultType="com.bit.module.pb.bean.Conference">
+        SELECT t1.theme as theme,
+        t1.place as place,
+        t1.start_time as startTime,
+        t1.release_time as releaseTime,
+        t1.sign_rate as signRate,
+        t2.`name` as `name`,
+        t1.`status`
+        FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        ORDER BY t1.release_time desc
+    </select>
+
+    <select id="queryAllConferences" resultType="com.bit.module.pb.bean.Conference">
+        SELECT <include refid="Conference_columns"/>
+        FROM t_pb_conference
+    </select>
+
+    <update id="batchUpdate" parameterType="list">
+        UPDATE t_pb_conference
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="status = case" suffix="end,">
+                <foreach collection="conferenceListForUpdate" item="conference" index="index" >
+                    <if test="conference.status!=null">
+                        WHEN id = #{conference.id,jdbcType=BIGINT} then #{conference.status,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="uploadRate = case" suffix="end,">
+                <foreach collection="conferenceListForUpdate" item="conference" index="index" >
+                    <if test="conference.uploadRate!=null">
+                        WHEN id = #{conference.id,jdbcType=BIGINT} then #{conference.uploadRate,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="signRate = case" suffix="end,">
+                <foreach collection="conferenceListForUpdate" item="conference" index="index" >
+                    <if test="conference.signRate!=null">
+                        WHEN id = #{conference.id,jdbcType=BIGINT} then #{conference.signRate,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="conferenceListForUpdate" item="conference" index="index" >
+                    <if test="conference.version!=null">
+                        WHEN id = #{conference.id,jdbcType=BIGINT} then #{conference.version,jdbcType=INTEGER} + 1
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where
+            <foreach collection="conferenceListForUpdate" item="conference" index="index" separator=" ) or (" close=")" open="(">
+                id = #{conference.id,jdbcType=BIGINT} and version = #{conference.version,jdbcType=INTEGER}
+            </foreach>
+    </update>
+
+    <!--三级机构-->
+    <select id="listPageForExcel" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.bean.ConferenceExcelParam">
+
+        SELECT DISTINCT * FROM (
+        SELECT t1.*,t2.name,t2.id as orgId,0 as cond FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.status = 0
+            <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="status != null">
+                <if test="status == 0">and t1.status = 0</if>
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+        </where>
+        union
+        SELECT t1.*,t2.name,t2.id as orgId,1 as cond FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.status != 0
+            <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="status != null">
+                <if test="status == 0">and t1.status = 0</if>
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+        </where>
+        ) t
+        order by t.cond asc, t.create_time desc, t.release_time desc
+
+
+    </select>
+    <!--一级机构-->
+    <select id="listPageForTownExcel" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.bean.ConferenceExcelParam">
+        SELECT DISTINCT t1.*,t2.name,t2.id as orgId FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.status > 0
+            <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="status != null">
+                <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} ]]></if>
+                <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP}]]></if>
+                <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP}]]></if>
+                <if test="status == 4">and t1.status = 4</if>
+            </if>
+        </where>
+        order by t1.release_time desc
+    </select>
+    <!--二级机构-->
+    <select id="listPageForTwoExcel" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.bean.ConferenceExcelParam">
+
+        <if test="pbId!=null ">
+            <if test="isMeFlag!=null and isMeFlag == 1">
+                SELECT DISTINCT *  FROM (
+                SELECT * FROM (
+                SELECT DISTINCT t1.*,t2.name,t2.id as orgId FROM t_pb_conference t1
+                INNER JOIN t_pb_organization t2
+                on t1.pb_id = t2.id
+                <where>
+                    and t1.pb_id = #{pbId,jdbcType=BIGINT} and t1.status =0
+                    <if test="status != null">
+                        <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 4">and t1.status = 4</if>
+                    </if>
+                    <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                    <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                    <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                        and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                    </if>
+                </where>
+                order by t1.create_time desc
+                )as a
+                union
+
+                SELECT * FROM (
+                SELECT DISTINCT t1.*,t2.name,t2.id as orgId FROM t_pb_conference t1
+                INNER JOIN t_pb_organization t2
+                on t1.pb_id = t2.id
+                <where>
+                    and t1.pb_id = #{pbId,jdbcType=BIGINT} and t1.status >0
+                    <if test="status != null">
+                        <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 4">and t1.status = 4</if>
+                    </if>
+                    <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                    <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                    <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                        and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                    </if>
+                </where>
+                order by t1.release_time desc
+                )as b
+                ) t
+                ORDER BY t.create_time desc, t.release_time DESC
+            </if>
+
+            <if test="isMeFlag!=null and isMeFlag == 0">
+                SELECT DISTINCT t1.*,t2.name,t2.id as orgId FROM t_pb_conference t1
+                INNER JOIN t_pb_organization t2
+                on t1.pb_id = t2.id
+                <where>
+                    and t1.pb_id = #{pbId,jdbcType=BIGINT} and t1.status >0
+                    <if test="status != null">
+                        <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 4">and t1.status = 4</if>
+                    </if>
+                    <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                    <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                    <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                        and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                    </if>
+                </where>
+                order by t1.release_time desc
+            </if>
+
+
+        </if>
+
+
+        <if test="pbId==null">
+            SELECT DISTINCT * from(
+            select * from (
+
+            SELECT t1.*,t2.name,t2.id as orgId,0 as cond FROM t_pb_conference t1
+            INNER JOIN t_pb_organization t2
+            on t1.pb_id = t2.id
+            <where>
+                and t1.status = 0
+                <if test="status != null">
+                    <if test="status == 0">and t1.status = 0</if>
+                    <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                    <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                    <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                    <if test="status == 4">and t1.status = 4</if>
+                </if>
+                <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                    and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+                <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                    <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                        #{id,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+            </where>
+            order by t1.create_time desc
+
+            ) as a
+            <if test="status!=0">
+                union
+                select * from (
+                SELECT t1.*,t2.name,t2.id as orgId,1 as cond FROM t_pb_conference t1
+                INNER JOIN t_pb_organization t2
+                on t1.pb_id = t2.id
+                <where>
+                    <if test="status != null">
+                        <if test="status == 1">and <![CDATA[ t1.start_time >  #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 2">and <![CDATA[ t1.start_time <=  #{nowDate,jdbcType=TIMESTAMP} and t1.end_time >= #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 3">and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP} and t1.status < 4 and t1.status >= 1]]></if>
+                        <if test="status == 4">and t1.status = 4</if>
+                    </if>
+                    <if test="conferenceType !=null">and t1.conference_type = #{conferenceType,jdbcType=INTEGER} </if>
+                    <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                    <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                        and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                    </if>
+                    <if test="noidList!=null and noidList.size()>0 ">and t1.pb_id in
+                        <foreach collection="noidList" item="id" index="index" open="(" close=")" separator=",">
+                            #{id,jdbcType=BIGINT}
+                        </foreach>
+                    </if>
+                    and t1.status > 0
+                </where>
+                order by t1.release_time desc
+                )b
+            </if>
+            )t
+            ORDER BY t.cond asc, t.create_time desc, t.release_time DESC
+        </if>
+
+
+    </select>
+
+
+    <select id="findByParam" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.bean.Conference">
+        SELECT <include refid="Conference_columns"/>
+        FROM t_pb_conference
+        <where>
+            <if test="isSign!=null">and is_sign = #{isSign,jdbcType=INTEGER}</if>
+            <if test="isUploadExperience!=null">and is_upload_experience = #{isUploadExperience,jdbcType=INTEGER}</if>
+            <if test="status!=null">and status = #{status,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+
+    <update id="batchUpdateConferenceStatus" parameterType="list">
+        UPDATE t_pb_conference
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="status = case" suffix="end,">
+                <foreach collection="updateList" item="item" index="index" >
+                    <if test="item.status!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.status,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="updateList" item="item" index="index" >
+                    <if test="item.version!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.version,jdbcType=INTEGER} + 1
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="updateList" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT} and version = #{item.version,jdbcType=INTEGER}
+            </foreach>
+
+        </where>
+    </update>
+
+    <update id="batchUpdateConferenceUploadRate" parameterType="list">
+        UPDATE t_pb_conference
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="upload_rate = case" suffix="end,">
+                <foreach collection="updateList" item="item" index="index" >
+                    <if test="item.uploadRate!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.uploadRate,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="updateList" item="item" index="index" >
+                    <if test="item.version!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.version,jdbcType=INTEGER} + 1
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="updateList" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT} and version = #{item.version,jdbcType=INTEGER}
+            </foreach>
+
+        </where>
+    </update>
+
+    <update id="batchUpdateConferenceSignRate" parameterType="list">
+        UPDATE t_pb_conference
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="sign_rate = case" suffix="end,">
+                <foreach collection="updateList" item="item" index="index" >
+                    <if test="item.signRate!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.signRate,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="updateList" item="item" index="index" >
+                    <if test="item.version!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.version,jdbcType=INTEGER} + 1
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="updateList" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT} and version = #{item.version,jdbcType=INTEGER}
+            </foreach>
+
+        </where>
+    </update>
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.FlowDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Flow_columns">
+	    <![CDATA[
+			id as id,
+			flow_id as flow_id,
+			flow_name as flow_name,
+			role_id as role_id,
+			app_id as app_id
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.BusinessRole" id="BusinessRoleMap">
+		<id column="id" property="id"/>
+	    <result column="flow_id" property="flowId"/>
+		<result column="flow_name" property="flowName"/>
+		<result column="role_id" property="roleId"/>
+		<result column="app_id" property="appId"/>
+	</resultMap>
+
+	<select id="batchSelectByFlowId" parameterType="integer" resultMap="BusinessRoleMap">
+		SELECT id,flow_id,flow_name,app_id
+		FROM t_sys_flow_role
+		WHERE flow_id = #{flowId,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryRoleNamesByFlowId" parameterType="integer" resultType="com.bit.module.system.bean.BusinessRelRole">
+		SELECT t1.role_id,t2.role_name FROM t_sys_flow_role t1 INNER JOIN t_sys_role t2
+		on t1.role_id = t2.id and t1.app_id = t2.app_id
+		WHERE t1.role_id in (
+			SELECT role_id FROM t_sys_flow_role WHERE flow_id = #{flowId,jdbcType=INTEGER}
+		)
+	</select>
+
+	<delete id="batchDeleteByFlowId" parameterType="integer">
+		DELETE FROM t_sys_flow_role
+		WHERE flow_id = #{flowId,jdbcType=INTEGER}
+	</delete>
+
+	<select id="queryByFlowId" parameterType="integer" resultMap="BusinessRoleMap">
+		SELECT <include refid="Flow_columns"/>
+		FROM t_sys_flow_role
+		WHERE flow_id = #{flowId,jdbcType=INTEGER}
+	</select>
+
+	<insert id="batchAdd" parameterType="com.bit.module.system.bean.BusinessRelRole">
+		INSERT INTO t_sys_flow_role(flow_id,flow_name,role_id,app_id)
+		VALUES
+		<foreach collection="businessRoleList" item="item"  separator="," index="index">
+			(
+			#{item.flowId,jdbcType=INTEGER},
+			#{item.flowName,jdbcType=VARCHAR},
+			#{item.roleId,jdbcType=BIGINT},
+			#{item.appId,jdbcType=BIGINT}
+			)
+		</foreach>
+
+	</insert>
+
+	<select id="listPage" parameterType="com.bit.module.system.vo.BusinessRoleVO" resultMap="BusinessRoleMap">
+		SELECT DISTINCT flow_id,flow_name,app_id
+		FROM t_sys_flow_role
+		<where>
+			<if test="appId!=null">and app_id = #{appId,jdbcType=BIGINT}</if>
+			<if test="flowName!=null and flowName!=''">and flow_name like concat("%",#{flowName,jdbcType=VARCHAR},"%")</if>
+		</where>
+        order by app_id
+	</select>
+
+	<select id="queryUserByRole" parameterType="com.bit.module.system.bean.RoleIdentityUser" resultType="com.bit.module.system.bean.User">
+		SELECT DISTINCT t3.* from t_sys_identity_rel_role t1
+		INNER JOIN t_sys_user_rel_identity t2
+		on t1.identity_id = t2.identity_id
+		INNER JOIN t_sys_user t3
+		on t2.user_id = t3.id
+		<where>
+			<if test="roleId!=null">and t1.role_id = #{roleId,jdbcType=BIGINT}</if>
+		</where>
+	</select>
+	
+	<select id="queryUserByIdentity" parameterType="com.bit.module.system.bean.RoleIdentityUser" resultType="com.bit.module.system.bean.User">
+		SELECT DISTINCT t2.* FROM t_sys_user_rel_identity t1
+		INNER JOIN t_sys_user t2
+		on t1.user_id = t2.id
+		<where>
+			<if test="identityId!=null">and t1.identity_id = #{identityId,jdbcType=BIGINT}</if>
+		</where>
+	</select>
+
+	<select id="queryUserByRoleBatch" parameterType="long" resultType="com.bit.module.system.bean.User">
+		SELECT DISTINCT t3.* from t_sys_identity_rel_role t1
+		INNER JOIN t_sys_user_rel_identity t2
+		on t1.identity_id = t2.identity_id
+		INNER JOIN t_sys_user t3
+		on t2.user_id = t3.id
+		<where>
+			<if test="roleIds!=null and roleIds.size()>0">
+				and t1.role_id IN
+				<foreach collection="roleIds" item="id" index="index" open="(" separator="," close=")">
+					#{id,jdbcType=BIGINT}
+				</foreach>
+			</if>
+		</where>
+	</select>
+</mapper>

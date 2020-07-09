@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.RegulationContentDao">
+    <resultMap id="BaseResultMap" type="com.bit.module.sv.bean.RegulationContent">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="regulation_id" jdbcType="BIGINT" property="regulationId"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+            id,
+            regulation_id,
+            title,
+            create_at,
+            update_at,
+            content
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_regulation_content
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from t_sv_regulation_content
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.RegulationContent"
+            useGeneratedKeys="true">
+        insert into t_sv_regulation_content (regulation_id, title, create_at,
+                                             update_at, content)
+        values (#{regulationId,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR}, #{createAt,jdbcType=TIMESTAMP},
+                #{updateAt,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR})
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.bit.module.sv.bean.RegulationContent">
+        update t_sv_regulation_content
+        <set>
+            <if test="regulationId != null">
+                regulation_id = #{regulationId,jdbcType=BIGINT},
+            </if>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="findByRegulationId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_regulation_content
+        where regulation_id=#{regulationId,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteByRegulationId">
+        delete
+        from t_sv_regulation_content
+        where regulation_id = #{regulationId,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByRegulationIdIn">
+        delete from t_sv_regulation_content
+        where regulation_id in
+        <foreach item="item" index="index" collection="regulationIds"
+                 open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </delete>
+    <select id="findByConditionPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_regulation_content
+        <where>
+            <if test="regulationId != null">
+                regulation_id = #{regulationId,jdbcType=BIGINT}
+            </if>
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+</mapper>

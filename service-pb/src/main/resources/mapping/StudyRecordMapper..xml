@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.pb.dao.StudyRecordDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="StudyRecord_columns">
+        <![CDATA[
+			id as id,
+			study_id as study_id,
+			user_id as user_id,
+			study_situation as study_situation,
+			study_time as study_time,
+			user_type as user_type
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.pb.bean.StudyRecord" id="StudyRecordMap">
+        <id column="id" property="id"/>
+        <result column="study_id" property="studyId"/>
+        <result column="user_id" property="userId"/>
+        <result column="study_situation" property="studySituation"/>
+        <result column="study_time" property="studyTime"/>
+        <result column="user_type" property="userType"/>
+
+    </resultMap>
+
+
+    <insert id="add" parameterType="com.bit.module.pb.bean.Study" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into t_pb_study_record(
+           study_id,
+           user_id,
+           study_situation,
+           study_time,
+           user_type
+        )VALUES (
+           #{studyId,jdbcType=BIGINT},
+           #{userId,jdbcType=BIGINT},
+           #{studySituation,jdbcType=INTEGER},
+           #{studyTime,jdbcType=VARCHAR},
+           #{userType,jdbcType=INTEGER}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.bit.module.pb.bean.StudyRecord">
+        update t_pb_study_record
+        <set>
+            <if test="studyId !=null ">
+                study_id =#{studyId,jdbcType=BIGINT},
+            </if>
+            <if test="userId !=null ">
+                user_id =#{userId,jdbcType=BIGINT},
+            </if>
+            <if test="studySituation !=null">
+                study_situation =#{studySituation,jdbcType=INTEGER},
+            </if>
+            <if test="studyTime !=null">
+                study_time =#{studyTime,jdbcType=VARCHAR},
+            </if>
+            <if test="userType !=null">
+                user_type =#{userType,jdbcType=INTEGER},
+            </if>
+            
+        </set>
+        where id =#{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        delete from t_pb_study_record
+        where id =#{id,jdbcType=BIGINT}
+    </delete>
+
+
+    <select id="queryByParam" parameterType="com.bit.module.pb.bean.StudyRecord" resultType="com.bit.module.pb.bean.StudyRecord">
+        SELECT <include refid="StudyRecord_columns"/>
+        FROM t_pb_study_record
+        <where>
+            <if test="studyId !=null">and study_id = #{studyId,jdbcType=BIGINT}</if>
+            <if test="userType !=null">and user_type = #{userType,jdbcType=INTEGER}</if>
+            <if test="studySituation !=null">and study_situation = #{studySituation,jdbcType=INTEGER}</if>
+            <if test="userId !=null">and user_id = #{userId,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+    
+
+    <insert id="batchAdd" parameterType="list">
+        insert into t_pb_study_record(
+           study_id,
+           user_id,
+           study_situation,
+           study_time,
+           user_type
+        )VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (
+            #{item.studyId,jdbcType=BIGINT},
+            #{item.userId,jdbcType=BIGINT},
+            #{item.studySituation,jdbcType=INTEGER},
+            #{item.studyTime,jdbcType=TIMESTAMP},
+            #{item.userType,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="batchDelete" parameterType="long">
+        DELETE FROM t_pb_study_record
+        where id IN (
+        <foreach collection="ids" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </delete>
+
+
+    <select id="listPage" parameterType="com.bit.module.pb.vo.StudyRecordVO" resultType="com.bit.module.pb.bean.StudyRecord">
+        SELECT t2.id as studyId,t2.theme,t2.release_time,t3.`name` from t_pb_study_record t1
+        INNER JOIN t_pb_study t2
+        on t1.study_id = t2.id
+        INNER JOIN t_pb_organization t3
+        on t2.pborg_id = t3.id
+        <where>
+            <if test="studyId !=null">and t2.study_id =#{studyId,jdbcType=BIGINT}</if>
+            <if test="userId!=null">and t1.user_id =#{userId,jdbcType=BIGINT}</if>
+            <if test="studySituation!=null">and t1.study_situation =#{studySituation,jdbcType=INTEGER}</if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">and t2.release_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            <if test="theme!=null and theme!=''">and t2.theme like #{theme,jdbcType=VARCHAR}"%"</if>
+        </where>
+    </select>
+
+
+    
+</mapper>

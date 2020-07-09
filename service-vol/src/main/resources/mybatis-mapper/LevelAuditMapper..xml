@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.vol.dao.LevelAuditDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="LevelAudit_columns">
+        <![CDATA[
+			id as id,
+			volunteer_id as volunteer_id,
+			apply_level as apply_level,
+			audit_status as audit_status,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			update_time as update_time,
+			update_user_id as update_user_id,
+			audit_station_id as audit_station_id,
+			belong_station_id as belong_station_id,
+			version as version,
+			old_level as old_level
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.vol.bean.LevelAudit" id="LevelAuditMap">
+        <id column="id" property="id"/>
+        <result column="volunteer_id" property="volunteerId"/>
+        <result column="apply_level" property="applyLevel"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="audit_station_id" property="auditStationId"/>
+        <result column="belong_station_id" property="belongStationId"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_user_id" property="updateUserId"/>
+        <result column="version" property="version"/>
+        <result column="old_level" property="oldLevel"/>
+    </resultMap>
+
+    <sql id="columns">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="volunteerId!=null ">
+            volunteer_id,
+        </if>
+        <if test="applyLevel!=null ">
+            apply_level,
+        </if>
+        <if test="auditStatus!=null ">
+            audit_status,
+        </if>
+        <if test="createTime!=null ">
+            create_time,
+        </if>
+        <if test="createUserId!=null ">
+            create_user_id,
+        </if>
+        <if test="auditStationId!=null">
+            audit_station_id,
+        </if>
+        <if test="belongStationId!=null ">
+            belong_station_id,
+        </if>
+        <if test="updateTime!=null">
+            update_time,
+        </if>
+        <if test="updateUserId!=null ">
+            update_user_id,
+        </if>
+        <if test="version!=null">
+            version,
+        </if>
+            <if test="oldLevel!=null">
+                old_level
+            </if>
+        </trim>
+    </sql>
+
+    <sql id="values">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="volunteerId!=null ">
+            #{volunteerId,jdbcType=BIGINT},
+        </if>
+        <if test="applyLevel!=null ">
+            #{applyLevel,jdbcType=INTEGER},
+        </if>
+        <if test="auditStatus!=null ">
+            #{auditStatus,jdbcType=INTEGER},
+        </if>
+        <if test="createTime!=null ">
+            #{createTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="createUserId!=null ">
+            #{createUserId,jdbcType=BIGINT},
+        </if>
+        <if test="auditStationId!=null">
+            #{auditStationId,jdbcType=BIGINT},
+        </if>
+        <if test="belongStationId!=null ">
+            #{belongStationId,jdbcType=BIGINT},
+        </if>
+        <if test="updateTime!=null">
+            #{updateTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="updateUserId!=null ">
+            #{updateUserId,jdbcType=BIGINT},
+        </if>
+        <if test="version!=null">
+            #{version,jdbcType=INTEGER},
+        </if>
+            <if test="oldLevel!=null">
+                #{oldLevel,jdbcType=INTEGER}
+            </if>
+        </trim>
+    </sql>
+
+    <insert id="add" parameterType="com.bit.module.vol.bean.LevelAudit" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        INSERT into t_volunteer_level_audit
+          <include refid="columns"/>
+        VALUES
+          <include refid="values"/>
+
+    </insert>
+
+
+    <update id="update" parameterType="com.bit.module.vol.bean.LevelAudit">
+        UPDATE t_volunteer_level_audit
+        <set>
+            <if test="volunteerId!=null ">
+                volunteer_id = #{volunteerId,jdbcType=BIGINT},
+            </if>
+            <if test="applyLevel!=null ">
+                apply_level = #{applyLevel,jdbcType=INTEGER},
+            </if>
+            <if test="auditStatus!=null ">
+                audit_status = #{auditStatus,jdbcType=INTEGER},
+            </if>
+            <if test="createUserId!=null ">
+                create_time = #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="auditStationId!=null">
+                audit_station_id = #{auditStationId,jdbcType=BIGINT},
+            </if>
+            <if test="belongStationId!=null ">
+                belong_station_id = #{belongStationId,jdbcType=BIGINT},
+            </if>
+            <if test="updateTime!=null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId!=null ">
+                update_user_id = #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="version!=null">
+                version = #{version,jdbcType=INTEGER} + 1,
+            </if>
+            <if test="oldLevel!=null">
+                old_level = #{oldLevel,jdbcType=INTEGER}
+            </if>
+        </set>
+        <where>
+            <if test="id!=null"> and id = #{id,jdbcType=BIGINT}</if>
+            <if test="version!=null"> and version = #{version,jdbcType=INTEGER}</if>
+        </where>
+    </update>
+
+    <select id="reflect" parameterType="long" resultType="com.bit.module.vol.bean.VolunteerLevel">
+        SELECT	t1.serial_number,	t1.real_name,	t1.station_id,	t1.campaign_count,
+        t1.campaign_hour,	t1.donate_money,	t1.point,	t1.sex,	t1.birthday,	t1.card_id,
+        t1.people,	t1.experience,	t1.mobile,	t1.education,	t1.health,	t1.wechat_id,
+        t1.political,	t1.marriage,	t1.service_time,	t1.service_type,	t1.hobby,
+        t1.native_place,	t1.living_place,	t1.company,t1.service_level,t2.id as auditid,
+        t2.volunteer_id,t2.audit_status,t2.create_time as auditcreateTime,	t2.apply_level,	t2.create_time,
+        t2.create_user_id,t2.update_time,t2.update_user_id,t2.audit_station_id,t2.belong_station_id,t2.version
+        FROM t_volunteer_volunteer_info t1
+        INNER JOIN t_volunteer_level_audit t2 ON t1.id = t2.volunteer_id
+        <where>
+            <if test="id!=null">and t2.id = #{id,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <select id="zlistPage" parameterType="com.bit.module.vol.vo.LevelAuditVO" resultType="com.bit.module.vol.bean.LevelAuditVolunteer">
+        SELECT t1.*,t2.card_id,t2.real_name,t2.mobile,t2.serial_number,t2.service_level,t3.station_name as auditStationName from t_volunteer_level_audit t1
+        INNER JOIN t_volunteer_volunteer_info t2
+        on t1.volunteer_id = t2.id
+        INNER JOIN t_volunteer_station t3
+        on t1.belong_station_id = t3.id
+        <where>
+            <if test="stationName!=null and stationName!=''">
+                and t3.station_name like concat("%",#{stationName,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="realName!=null and realName!=''">
+                and t2.real_name like concat("%",#{realName,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="cardId!=null and cardId!=''">
+                and t2.card_id like concat("%",#{cardId,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="applyLevel!=null ">
+                and t1.apply_level = #{applyLevel,jdbcType=INTEGER}
+            </if>
+            <if test="auditStatus!=null and (auditStatus == 0 or auditStatus == 1)">
+                and t1.audit_status in (0,1)
+            </if>
+            <if test="auditStatus!=null and auditStatus !=0 and auditStatus!=1">
+                and t1.audit_status = #{auditStatus,jdbcType=INTEGER}
+            </if>
+            <if test="auditStationId!=null ">
+                and t1.audit_station_id = #{auditStationId,jdbcType=BIGINT}
+            </if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+
+    <select id="flistPage" parameterType="com.bit.module.vol.vo.LevelAuditVO" resultType="com.bit.module.vol.bean.LevelAuditVolunteer">
+        SELECT t1.*,t2.card_id,t2.real_name,t2.mobile,t2.serial_number,t2.service_level,t3.station_name as auditStationName from t_volunteer_level_audit t1
+        INNER JOIN t_volunteer_volunteer_info t2
+        on t1.volunteer_id = t2.id
+        INNER JOIN t_volunteer_station t3
+        on t1.belong_station_id = t3.id
+        <where>
+            <if test="stationName!=null and stationName!=''">
+                and t3.station_name like concat("%",#{stationName,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="realName!=null and realName!=''">
+                and t2.real_name like concat("%",#{realName,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="cardId!=null and cardId!=''">
+                and t2.card_id like concat("%",#{cardId,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="applyLevel!=null ">
+                and t1.apply_level = #{applyLevel,jdbcType=INTEGER}
+            </if>
+            <if test="auditStatus!=null and (auditStatus == 0 or auditStatus == 1)">
+                and t1.audit_status in (0,1)
+            </if>
+            <if test="auditStatus!=null and auditStatus !=0 and auditStatus!=1">
+                and t1.audit_status = #{auditStatus,jdbcType=INTEGER}
+            </if>
+            <if test="belongStationId!=null ">
+                and t1.belong_station_id = #{belongStationId,jdbcType=BIGINT}
+            </if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <select id="findById" parameterType="long" resultMap="LevelAuditMap">
+        SELECT <include refid="LevelAudit_columns"/>
+        FROM t_volunteer_level_audit
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="findByParam" parameterType="com.bit.module.vol.bean.LevelAudit" resultMap="LevelAuditMap">
+        SELECT <include refid="LevelAudit_columns"/>
+        FROM t_volunteer_level_audit
+        <where>
+            <if test="volunteerId!=null">and volunteer_id = #{volunteerId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+
+    <select id="queryLogByVolunteerId" parameterType="com.bit.module.vol.bean.LevelAudit" resultType="com.bit.module.vol.bean.LevelLog">
+        SELECT apply_level,create_time,audit_status,old_level FROM t_volunteer_level_audit
+        <where>
+            <if test="volunteerId!=null">and volunteer_id = #{volunteerId,jdbcType=BIGINT}</if>
+            <if test="auditStatus!=null">and audit_status = #{auditStatus,jdbcType=INTEGER}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="queryTheLastOne" parameterType="long" resultMap="LevelAuditMap">
+        SELECT <include refid="LevelAudit_columns"/>
+        FROM t_volunteer_level_audit
+        <where>
+            <if test="volunteerId!=null">and volunteer_id = #{volunteerId,jdbcType=BIGINT}</if>
+        </where>
+        order by create_time desc
+        limit 1
+    </select>
+</mapper>

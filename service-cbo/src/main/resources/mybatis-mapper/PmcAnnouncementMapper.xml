@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.PmcAnnouncementDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="PmcAnnouncement_columns">
+        <![CDATA[
+			id as id,
+			title as title,
+			org_id as org_id,
+			content as content,
+			author_name as author_name,
+			community_id as community_id,
+			create_time as create_time,
+			create_pmc_user_id as create_pmc_user_id,
+			publish_time as publish_time,
+			publish_pmc_user_id as publish_pmc_user_id,
+			status as status
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.cbo.bean.PmcAnnouncement" id="pmcAnnouncementMap">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="author_name" property="authorName"/>
+        <result column="org_id" property="orgId"/>
+        <result column="community_id" property="communityId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_pmc_user_id" property="createPmcUserId"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="publish_pmc_user_id" property="publishPmcUserId"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <!-- 新增物业公司 -->
+    <insert id="add" parameterType="com.bit.module.cbo.bean.PmcAnnouncement" keyProperty="id" useGeneratedKeys="true">
+        insert INTO t_cbo_pmc_announcement
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                title,
+            </if>
+            <if test="content!=null and content!=''">
+                content,
+            </if>
+            <if test="authorName!=null and authorName!=''">
+                author_name,
+            </if>
+            <if test="orgId!=null">
+                org_id,
+            </if>
+            <if test="communityId!=null">
+                community_id,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="createPmcUserId!=null">
+                create_pmc_user_id,
+            </if>
+            <if test="publishTime!=null">
+                publish_time,
+            </if>
+            <if test="publishPmcUserId!=null">
+                publish_pmc_user_id,
+            </if>
+            <if test="status!=null">
+                status,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content!=null and content!=''">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="authorName!=null and authorName!=''">
+                #{authorName,jdbcType=VARCHAR},
+            </if>
+            <if test="orgId!=null">
+                #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="communityId!=null">
+                #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createPmcUserId!=null">
+                #{createPmcUserId,jdbcType=BIGINT},
+            </if>
+            <if test="publishTime!=null">
+                #{publishTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishPmcUserId!=null">
+                #{publishPmcUserId,jdbcType=BIGINT},
+            </if>
+            <if test="status!=null">
+                #{status,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 修改物业公司 -->
+    <update id="modify" parameterType="com.bit.module.cbo.bean.PmcAnnouncement">
+        update t_cbo_pmc_announcement
+        <trim prefix="set" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content!=null and content!=''">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="authorName!=null and authorName!=''">
+                author_name = #{authorName,jdbcType=VARCHAR},
+            </if>
+            <if test="orgId!=null">
+                org_id = #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="communityId!=null">
+                community_id = #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime!=null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createPmcUserId!=null">
+                create_pmc_user_id = #{createPmcUserId,jdbcType=BIGINT},
+            </if>
+            <if test="publishTime!=null">
+                publish_time = #{publishTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishPmcUserId!=null">
+                publish_pmc_user_id = #{publishPmcUserId,jdbcType=BIGINT},
+            </if>
+            <if test="status!=null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+        </trim>
+        where
+          id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 根据ID删除物业公司 -->
+    <delete id="delete" parameterType="java.lang.Long">
+      DELETE FROM
+        t_cbo_pmc_announcement
+      WHERE
+        id = #{id,jdbcType=BIGINT}
+    </delete>
+
+
+
+    <select id="getPmcAnnouncementById" parameterType="long" resultType="com.bit.module.cbo.bean.PmcAnnouncement">
+        SELECT * FROM t_cbo_pmc_announcement
+        <where>
+            <if test="id!=null">and id = #{id,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+
+    <select id="appListPage" parameterType="com.bit.module.cbo.vo.PmcAnnouncementPageVO" resultType="com.bit.module.cbo.vo.PmcAnnouncementVO">
+        SELECT t1.*,t2.community_name
+        FROM t_cbo_pmc_announcement t1
+        INNER JOIN t_cbo_community t2
+        on t1.community_id = t2.id
+        <where>
+            <if test="status!=null">and t1.status = #{status,jdbcType=INTEGER}</if>
+            <if test="communityId!=null">and t1.community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="communityIds!=null and communityIds.size()>0">
+                and t1.community_id in
+                <foreach collection="communityIds" item="communityId" index="index" open="(" close=")" separator=",">
+                    #{communityId,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+        order by t1.status asc,t1.publish_time desc
+    </select>
+
+    <select id="webListPage" parameterType="com.bit.module.cbo.vo.PmcAnnouncementPageVO" resultType="com.bit.module.cbo.vo.PmcAnnouncementVO">
+        <!--不是社区办-->
+        <if test="flag == 0">
+            SELECT DISTINCT t1.*,t2.community_name FROM t_cbo_pmc_announcement t1
+            INNER JOIN t_cbo_community t2
+            on t1.community_id = t2.id
+            <where>
+                <if test="title!=null and title!=''">and t1.title LIKE concat("%",#{title,jdbcType=VARCHAR},"%")</if>
+                <if test="orgId!=null">and t1.org_id = #{orgId,jdbcType=BIGINT}</if>
+                <if test="communityId!=null">and t1.community_id = #{communityId,jdbcType=BIGINT}</if>
+                <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">
+                    and t1.publish_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+            </where>
+            order by t1.status asc,t1.publish_time desc
+        </if>
+        <!--是社区办-->
+        <if test="flag == 1">
+            SELECT DISTINCT t1.*,t2.community_name FROM t_cbo_pmc_announcement t1
+            INNER JOIN t_cbo_community t2
+            on t1.community_id = t2.id
+            <where>
+                and t1.status = 1
+                <if test="title!=null and title!=''">and t1.title LIKE concat("%",#{title,jdbcType=VARCHAR},"%")</if>
+                <if test="communityId!=null">
+                    and t1.community_id = #{communityId,jdbcType=BIGINT}
+                </if>
+                <if test="communityIds!=null and communityIds.size()>0">
+                    and t1.community_id in
+                    <foreach collection="communityIds" item="communityId" index="index" open="(" close=")" separator=",">
+                        #{communityId,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+                <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">and t1.publish_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR} </if>
+            </where>
+            order by t1.publish_time desc
+        </if>
+
+    </select>
+
+</mapper>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.RectificationNoticeDao">
+  <resultMap id="BaseResultMap" type="com.bit.module.sv.bean.RectificationNotice">
+    
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="task_id" jdbcType="BIGINT" property="taskId" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="deadline" jdbcType="TIMESTAMP" property="deadline" />
+    <result column="demand" jdbcType="VARCHAR" property="demand" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+    <result column="result" jdbcType="OTHER" property="result" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="rectification_basis" jdbcType="OTHER" property="rectificationBasis" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+  </resultMap>
+
+  <resultMap id="IllegalResultMap" type="com.bit.module.sv.vo.IllegalVO">
+
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="task_no" jdbcType="VARCHAR" property="taskNo" />
+    <result column="deadline" jdbcType="TIMESTAMP" property="deadline" />
+    <result column="demand" jdbcType="VARCHAR" property="demand" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" />
+    <result column="violation_regulations" jdbcType="OTHER" property="violationRegulations" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="injuria" jdbcType="OTHER" property="injuria" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="rectification_basis" jdbcType="OTHER" property="rectificationBasis" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    
+    id, task_id, type, deadline, demand, create_at, update_at,
+    result, rectification_basis
+  </sql>
+  <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    
+    select 
+    <include refid="Base_Column_List" />
+    from t_sv_rectification_notice
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteById" parameterType="java.lang.Long">
+    
+    delete from t_sv_rectification_notice
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.RectificationNotice" useGeneratedKeys="true">
+    
+    insert into t_sv_rectification_notice (task_id, type, deadline, demand,
+      create_at, update_at, result, rectification_basis
+      )
+    values (#{taskId,jdbcType=BIGINT}, #{type,jdbcType=INTEGER}, #{deadline,jdbcType=TIMESTAMP}, #{demand,jdbcType=VARCHAR},
+      #{createAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP},
+      #{result,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{rectificationBasis,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.RectificationNotice" useGeneratedKeys="true">
+    
+    insert into t_sv_rectification_notice
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">
+        task_id,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="deadline != null">
+        deadline,
+      </if>
+      <if test="demand != null">
+        demand,
+      </if>
+      <if test="createAt != null">
+        create_at,
+      </if>
+      <if test="updateAt != null">
+        update_at,
+      </if>
+      <if test="result != null">
+        result,
+      </if>
+      <if test="rectificationBasis != null">
+        rectification_basis,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">
+        #{taskId,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=BIGINT},
+      </if>
+      <if test="deadline != null">
+        #{deadline,jdbcType=TIMESTAMP},
+      </if>
+      <if test="demand != null">
+        #{demand,jdbcType=VARCHAR},
+      </if>
+      <if test="createAt != null">
+        #{createAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateAt != null">
+        #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="result != null">
+        #{result,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="rectificationBasis != null">
+        #{rectificationBasis,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByIdSelective" parameterType="com.bit.module.sv.bean.RectificationNotice">
+    
+    update t_sv_rectification_notice
+    <set>
+      <if test="taskId != null">
+        task_id = #{taskId,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=BIGINT},
+      </if>
+      <if test="deadline != null">
+        deadline = #{deadline,jdbcType=TIMESTAMP},
+      </if>
+      <if test="demand != null">
+        demand = #{demand,jdbcType=VARCHAR},
+      </if>
+      <if test="createAt != null">
+        create_at = #{createAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateAt != null">
+        update_at = #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="result != null">
+        result = #{result,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="rectificationBasis != null">
+        rectification_basis = #{rectificationBasis,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateById" parameterType="com.bit.module.sv.bean.RectificationNotice">
+    
+    update t_sv_rectification_notice
+    set
+      task_id = #{taskId,jdbcType=BIGINT},
+      type = #{type,jdbcType=BIGINT},
+      deadline = #{deadline,jdbcType=TIMESTAMP},
+      demand = #{demand,jdbcType=VARCHAR},
+      create_at = #{createAt,jdbcType=TIMESTAMP},
+      update_at = #{updateAt,jdbcType=TIMESTAMP},
+      result = #{result,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      rectification_basis = #{rectificationBasis,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
+    
+    insert into t_sv_rectification_notice
+    (task_id, type, deadline, demand, create_at, update_at, result, rectification_basis)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.taskId,jdbcType=BIGINT}, #{item.type,jdbcType=INTEGER}, #{item.deadline,jdbcType=TIMESTAMP},
+        #{item.demand,jdbcType=VARCHAR}, #{item.createAt,jdbcType=TIMESTAMP}, #{item.updateAt,jdbcType=TIMESTAMP},
+        #{item.result,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+        #{item.rectificationBasis,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler}
+        )
+    </foreach>
+  </insert>
+
+  <select id="selectByTaskId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+    select
+    <include refid="Base_Column_List" />
+    from t_sv_rectification_notice
+    where task_id = #{taskId,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByTaskId" parameterType="java.lang.Long">
+
+    delete from t_sv_rectification_notice
+    where task_id = #{taskId,jdbcType=BIGINT}
+  </delete>
+
+  <select id="incrementRectificationNotices" resultMap="IllegalResultMap">
+    select
+    n.id as id, n.deadline as deadline, n.demand as demand, n.create_at as create_at,
+    t.description as injuria, t.violation_regulations as violation_regulations, t.`no` task_no,
+    n.rectification_basis as rectification_basis
+    from t_sv_rectification_notice n left join t_sv_task t on n.task_id = t.id
+    <where>
+      t.unit_id = #{unitId,jdbcType=BIGINT}
+      <if test="direction == 0">
+        <if test="previous != null">
+          and n.id &lt; #{previous,jdbcType=BIGINT}
+        </if>
+        ORDER BY n.id DESC
+      </if>
+      <if test="direction == 1">
+        <if test="previous != null">
+          and n.id &gt; #{previous,jdbcType=BIGINT}
+        </if>
+        ORDER BY n.id asc
+      </if>
+      LIMIT #{limit,jdbcType=INTEGER}
+    </where>
+  </select>
+</mapper>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.VehicleDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Vehicle_columns">
+	    <![CDATA[
+			id as id,
+			plate_type as plate_type,
+			plate_no as plate_no,
+			vin as vin,
+			engine_no as engine_no,
+		
+			brand as brand,
+			vehicle_type as vehicle_type,
+			color as color,
+			seating_capacity as seating_capacity,
+			power as power,
+		
+			photo as photo,
+			idle as idle,
+			status as status
+	    ]]>
+	</sql>
+	<sql id="Vehicle_simple_columns">
+		id as id,
+		plate_no as plate_no,
+		brand as brand,
+		vehicle_type as vehicle_type,
+		seating_capacity as seating_capacity,
+		status as status
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.Vehicle" id="vehicleMap">
+		<id column="id" property="id"/>
+	    <result column="plate_type" property="plateType"/>
+	    <result column="plate_no" property="plateNo"/>
+	    <result column="vin" property="vin"/>
+	    <result column="engine_no" property="engineNo"/>
+	    <result column="brand" property="brand"/>
+	    <result column="vehicle_type" property="vehicleType"/>
+	    <result column="color" property="color"/>
+	    <result column="seating_capacity" property="seatingCapacity"/>
+	    <result column="power" property="power"/>
+	    <result column="photo" property="photo"/>
+	    <result column="idle" property="idle"/>
+	    <result column="status" property="status"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.vo.vehicle.SimpleVehicleVO" id="vehicleSimpleMap">
+		<id column="id" property="id"/>
+		<result column="plate_no" property="plateNo"/>
+		<result column="brand" property="brand"/>
+		<result column="vehicle_type" property="vehicleType"/>
+		<result column="seating_capacity" property="seatingCapacity"/>
+		<result column="status" property="status" />
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="vehicleMap" parameterType="com.bit.module.oa.vo.vehicle.VehicleVO">
+		select <include refid="Vehicle_columns" /> from t_oa_vehicle
+		<where>
+			<if test="plateNo != null and plateNo != '' " >and plate_no like concat('%', #{plateNo,jdbcType=VARCHAR}, '%')</if>
+			<if test="vehicleType != null and vehicleType != '' " >and vehicle_type =#{vehicleType,jdbcType=VARCHAR}</if>
+			<if test="plateType != null and plateType != '' " >and plate_type =#{plateType,jdbcType=VARCHAR}</if>
+			<if test="power != null and power != '' " >and power =#{power,jdbcType=VARCHAR}</if>
+			<if test="status != null" >and status =#{status,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="vehicleSimpleMap">
+		select <include refid="Vehicle_simple_columns" /> from t_oa_vehicle
+		<where>
+			status = 1
+			<if test="plateNo != null and plateNo != ''" >and plate_no like concat('%', #{plateNo,jdbcType=VARCHAR}, '%')</if>
+		</where>
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="vehicleMap" parameterType="com.bit.module.oa.bean.Vehicle">
+		select <include refid="Vehicle_columns" /> 
+		from t_oa_vehicle
+		where 
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+	<select id="countByPlateNo" resultType="java.lang.Integer">
+		select count(id) from t_oa_vehicle where plate_no = #{plateNo} and status = 1
+	</select>
+	<select id="findByPlateNo" resultType="com.bit.module.oa.bean.Vehicle">
+		select <include refid="Vehicle_columns" />
+		from t_oa_vehicle
+		where
+		plate_no =#{plateNo,jdbcType=VARCHAR}
+	</select>
+	<select id="findByIds" resultMap="vehicleSimpleMap">
+		select <include refid="Vehicle_simple_columns" />
+		from t_oa_vehicle where id in
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+    <select id="findByCondition" resultMap="vehicleMap">
+		select <include refid="Vehicle_columns" /> from t_oa_vehicle
+		<where>
+			<if test="plateNo != null and plateNo != '' " >and plate_no like concat('%', #{plateNo,jdbcType=VARCHAR}, '%')</if>
+			<if test="vehicleType != null and vehicleType != '' " >and vehicle_type =#{vehicleType,jdbcType=VARCHAR}</if>
+			<if test="plateType != null and plateType != '' " >and plate_type =#{plateType,jdbcType=VARCHAR}</if>
+			<if test="power != null and power != '' " >and power =#{power,jdbcType=VARCHAR}</if>
+		</where>
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Vehicle">
+	insert INTO t_oa_vehicle (
+		plate_type ,
+		plate_no ,
+		vin ,
+		engine_no ,
+		brand ,
+		vehicle_type ,
+		color ,
+		seating_capacity ,
+		power ,
+		photo ,
+		idle ,
+		status
+	) VALUES (
+		#{plateType,jdbcType=VARCHAR},
+		#{plateNo,jdbcType=VARCHAR},
+		#{vin,jdbcType=VARCHAR},
+		#{engineNo,jdbcType=VARCHAR},
+		#{brand,jdbcType=VARCHAR},
+		#{vehicleType,jdbcType=VARCHAR},
+		#{color,jdbcType=VARCHAR},
+		#{seatingCapacity,jdbcType=TINYINT},
+		#{power,jdbcType=VARCHAR},
+		#{photo,jdbcType=VARCHAR},
+		#{idle,jdbcType=TINYINT},
+		#{status,jdbcType=TINYINT}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.Vehicle">
+		update t_oa_vehicle
+		<set>
+		<if test="plateType != null">
+		 plate_type =#{plateType,jdbcType=VARCHAR},
+		</if>
+		<if test="plateNo != null">
+		 plate_no =#{plateNo,jdbcType=VARCHAR},
+		</if>
+		<if test="vin != null">
+		 vin =#{vin,jdbcType=VARCHAR},
+		</if>
+		<if test="engineNo != null">
+		 engine_no =#{engineNo,jdbcType=VARCHAR},
+		</if>
+		<if test="brand != null">
+		 brand =#{brand,jdbcType=VARCHAR},
+		</if>
+		<if test="vehicleType != null">
+		 vehicle_type =#{vehicleType,jdbcType=VARCHAR},
+		</if>
+		<if test="color != null">
+		 color =#{color,jdbcType=VARCHAR},
+		</if>
+		<if test="seatingCapacity != null">
+		 seating_capacity =#{seatingCapacity,jdbcType=TINYINT},
+		</if>
+		<if test="power != null">
+		 power =#{power,jdbcType=VARCHAR},
+		</if>
+		<if test="photo != null">
+		 photo =#{photo,jdbcType=VARCHAR},
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateStatus">
+		update t_oa_vehicle set status = #{status,jdbcType=TINYINT} where id = #{id,jdbcType=BIGINT}
+	</update>
+    <update id="releaseVehicleByApplicationId">
+		update wt_oa.t_oa_vehicle set idle = 1 where id in (
+		<include refid="selectBusyVehicleByApplicationId" />
+		)
+	</update>
+	<sql id="selectBusyVehicleByApplicationId">
+		select log.vehicle_id
+		from wt_oa.t_oa_vehicle_log log
+			join wt_oa.t_oa_vehicle_application app on log.application_id = app.id
+		where app.id = #{applicationId}
+	</sql>
+	<update id="occupyVehicleById">
+		update wt_oa.t_oa_vehicle set idle = 0 where id in
+		<foreach collection="list" item="id" separator="," open="(" close=")" >
+			#{id}
+		</foreach>
+
+	</update>
+    <!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Vehicle">
+		delete from t_oa_vehicle 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_oa_vehicle where
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+</mapper>

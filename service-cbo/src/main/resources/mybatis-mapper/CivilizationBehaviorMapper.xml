@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.cbo.dao.CivilizationBehaviorDao" >
+  <resultMap id="BaseResultMap" type="com.bit.module.cbo.bean.CivilizationBehavior" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="pic_ids" property="picIds" jdbcType="VARCHAR" />
+    <result column="org_id" property="orgId" jdbcType="BIGINT" />
+    <result column="org_name" property="orgName" jdbcType="VARCHAR" />
+    <result column="community_id" property="communityId" jdbcType="BIGINT" />
+    <result column="community_name" property="communityName" jdbcType="VARCHAR" />
+    <result column="data_type" property="dataType" jdbcType="TINYINT" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="create_user_id" property="createUserId" jdbcType="BIGINT" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="create_user_mobile" property="createUserMobile" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="feedback_user_id" property="feedbackUserId" jdbcType="BIGINT" />
+    <result column="feedback_user_name" property="feedbackUserName" jdbcType="VARCHAR" />
+    <result column="feedback_content" property="feedbackContent" jdbcType="VARCHAR" />
+    <result column="feedback_time" property="feedbackTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="update_user_id" property="updateUserId" jdbcType="BIGINT" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, title, content, address, pic_ids, org_id, org_name, community_id, community_name, 
+    data_type, status, version, create_user_id, create_user_name, create_user_mobile,create_time, feedback_user_id,
+    feedback_user_name, feedback_content, feedback_time, update_time, update_user_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_cbo_civilization_behavior
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <!-- 查询文明上报列表 -->
+  <select id="findAll" resultType="com.bit.module.cbo.bean.CivilizationBehavior">
+    SELECT
+        t.id,
+        t.title,
+        t.content,
+        t.address,
+        t.pic_ids picIds,
+        t.org_id orgId,
+        t.org_name orgName,
+        t.community_id communityId,
+        t.community_name communityName,
+        t.data_type dataType,
+        t.status,
+        t.create_user_id createUserId,
+        t.create_user_name createUserName,
+        t.create_user_mobile createUserMobile,
+        t.create_time createTime,
+        t.feedback_user_id feedbackUserId,
+        t.feedback_user_name feedbackUserName,
+        t.feedback_content feedbackContent,
+        t.feedback_time feedbackTime
+    FROM
+        t_cbo_civilization_behavior t
+    <where>
+      <if test="record.orgId != null">
+        t.org_id = #{record.orgId}
+      </if>
+      <if test="record.communityId != null">
+        and t.community_id = #{record.communityId}
+      </if>
+      <if test="record.status != null">
+        and t.status = #{record.status}
+      </if>
+      <if test="record.title != null">
+        and t.title LIKE CONCAT('%',#{record.title},'%')
+      </if>
+      <if test="record.createBeginTime != null and record.createEndTime != null">
+        and t.create_time between #{record.createBeginTime} and #{record.createEndTime}
+      </if>
+      <if test=" record.feedbackBeginTime != null and record.feedbackEndTime != null">
+        and t.feedback_time between #{record.feedbackBeginTime} and #{record.feedbackEndTime}
+      </if>
+      <if test=" record.createUserId != null">
+        and t.create_user_id = #{record.createUserId}
+      </if>
+    </where>
+    order by t.create_time desc
+  </select>
+
+  <!-- 根据主键和状态查询明细 -->
+  <select id="selectByIdAndStatus" resultType="com.bit.module.cbo.bean.CivilizationBehavior">
+    select
+    <include refid="Base_Column_List" />
+    from t_cbo_civilization_behavior
+    where id = #{id,jdbcType=BIGINT}
+    and status = #{status,jdbcType=TINYINT}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_cbo_civilization_behavior
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!-- 增加一条文明行为 -->
+  <insert id="add" parameterType="com.bit.module.cbo.bean.CivilizationBehavior" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+    insert into t_cbo_civilization_behavior
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="picIds != null" >
+        pic_ids,
+      </if>
+      <if test="orgId != null" >
+        org_id,
+      </if>
+      <if test="orgName != null" >
+        org_name,
+      </if>
+      <if test="communityId != null" >
+        community_id,
+      </if>
+      <if test="communityName != null" >
+        community_name,
+      </if>
+      <if test="dataType != null" >
+        data_type,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="createUserMobile != null" >
+        create_user_mobile,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="feedbackUserId != null" >
+        feedback_user_id,
+      </if>
+      <if test="feedbackUserName != null" >
+        feedback_user_name,
+      </if>
+      <if test="feedbackContent != null" >
+        feedback_content,
+      </if>
+      <if test="feedbackTime != null" >
+        feedback_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="picIds != null" >
+        #{picIds,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=BIGINT},
+      </if>
+      <if test="orgName != null" >
+        #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="communityId != null" >
+        #{communityId,jdbcType=BIGINT},
+      </if>
+      <if test="communityName != null" >
+        #{communityName,jdbcType=VARCHAR},
+      </if>
+      <if test="dataType != null" >
+        #{dataType,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserMobile != null" >
+        #{createUserMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="feedbackUserId != null" >
+        #{feedbackUserId,jdbcType=BIGINT},
+      </if>
+      <if test="feedbackUserName != null" >
+        #{feedbackUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="feedbackContent != null" >
+        #{feedbackContent,jdbcType=VARCHAR},
+      </if>
+      <if test="feedbackTime != null" >
+        #{feedbackTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null" >
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+
+  <!-- 修改文明行为状态 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.bit.module.cbo.bean.CivilizationBehavior" >
+    update t_cbo_civilization_behavior
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="picIds != null" >
+        pic_ids = #{picIds,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        org_id = #{orgId,jdbcType=BIGINT},
+      </if>
+      <if test="orgName != null" >
+        org_name = #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="communityId != null" >
+        community_id = #{communityId,jdbcType=BIGINT},
+      </if>
+      <if test="communityName != null" >
+        community_name = #{communityName,jdbcType=VARCHAR},
+      </if>
+      <if test="dataType != null" >
+        data_type = #{dataType,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+        version = #{version}+1,
+      <if test="feedbackUserId != null" >
+        feedback_user_id = #{feedbackUserId,jdbcType=BIGINT},
+      </if>
+      <if test="feedbackUserName != null" >
+        feedback_user_name = #{feedbackUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="feedbackContent != null" >
+        feedback_content = #{feedbackContent,jdbcType=VARCHAR},
+      </if>
+      <if test="feedbackTime != null" >
+        feedback_time = #{feedbackTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+    and version = #{version}
+  </update>
+</mapper>

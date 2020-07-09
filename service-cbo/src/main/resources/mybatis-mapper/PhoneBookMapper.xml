@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.PhoneBookDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="PhoneBook_columns">
+        <![CDATA[
+			id as id,
+			org_id as org_id,
+			community_id as community_id,
+			tel_one as tel_one,
+			tel_two as tel_two,
+			type as type
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.cbo.bean.PhoneBook" id="phoneBookMap">
+        <id column="id" property="id"/>
+        <result column="org_id" property="orgId"/>
+        <result column="community_id" property="communityId"/>
+        <result column="tel_one" property="telOne"/>
+        <result column="tel_two" property="telTwo"/>
+        <result column="type" property="type"/>
+    </resultMap>
+
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.PhoneBook" keyProperty="id" useGeneratedKeys="true">
+        insert INTO t_cbo_phone_book
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orgId!=null">
+                org_id,
+            </if>
+            <if test="communityId!=null">
+                community_id,
+            </if>
+            <if test="telOne!=null and telOne!=''">
+                tel_one,
+            </if>
+            <if test="telTwo!=null and telTwo!=''">
+                tel_two,
+            </if>
+            <if test="type!=null">
+                type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orgId!=null">
+                #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="communityId!=null">
+                #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="telOne!=null and telOne!=''">
+                #{telOne,jdbcType=VARCHAR},
+            </if>
+            <if test="telTwo!=null and telTwo!=''">
+                #{telTwo,jdbcType=VARCHAR},
+            </if>
+            <if test="type!=null">
+                #{type,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="modify" parameterType="com.bit.module.cbo.bean.PhoneBook">
+        update t_cbo_phone_book
+        <trim prefix="set" suffixOverrides=",">
+            <if test="orgId!=null">
+                org_id = #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="communityId!=null">
+                community_id = #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="telOne!=null and telOne!=''">
+                tel_one = #{telOne,jdbcType=VARCHAR},
+            </if>
+            <if test="telTwo!=null ">
+                tel_two = #{telTwo,jdbcType=VARCHAR},
+            </if>
+            <if test="type!=null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+        </trim>
+        where
+          id = #{id,jdbcType=BIGINT}
+    </update>
+
+
+
+    <select id="getOrgTelInfoByToken" parameterType="com.bit.module.cbo.vo.PhoneBookVO" resultMap="phoneBookMap">
+        SELECT <include refid="PhoneBook_columns"/>
+        FROM t_cbo_phone_book
+        <where>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="type!=null">and type = #{type,jdbcType=INTEGER}</if>
+            <if test="orgIds!=null and orgIds.size()>0">
+                and org_id IN
+                <foreach collection="orgIds" item="id" index="index" separator="," open="(" close=")">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    
+    <select id="webListPage" parameterType="com.bit.module.cbo.vo.PhoneBookVO" resultType="com.bit.module.cbo.vo.PhoneBookCommunityCompanyVO">
+        SELECT t2.*,t1.community_name,t1.id as communityId,t3.company_name as pmcCompanyName,t1.id as comid FROM t_cbo_community t1
+        LEFT JOIN (
+        SELECT * from t_cbo_phone_book
+        <where>
+            <if test="type!=null">
+                and type = #{type,jdbcType=INTEGER}
+            </if>
+            
+        </where>
+        )  t2
+        on t1.id = t2.community_id
+        INNER JOIN t_cbo_pmc_company t3
+        on t1.pmc_company_id = t3.id
+        <where>
+            <if test="orgId!=null">and t1.org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="orgIds!=null and orgIds.size()>0">
+                and t1.org_id IN
+                <foreach collection="orgIds" item="id" index="index" separator="," open="(" close=")">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getTelInfoByCommunityIds" parameterType="com.bit.module.cbo.vo.AppOrgPmcTelInfo" resultType="com.bit.module.cbo.vo.PhoneBookCommunityCompanyVO">
+
+        SELECT t2.org_id,t2.community_name,t1.tel_one,t1.tel_two FROM t_cbo_phone_book t1
+        INNER JOIN t_cbo_community t2
+        on t1.community_id = t2.id
+        <where>
+            <if test="type!=null">
+                and t1.type = #{type,jdbcType=INTEGER}
+            </if>
+
+            <if test="communityIds!=null and communityIds.size()>0">
+                and t1.community_id IN
+                <foreach collection="communityIds" item="id" index="index" separator="," open="(" close=")">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+
+        </where>
+
+    </select>
+
+    <select id="getTelInfoByOrgIds" parameterType="com.bit.module.cbo.vo.AppOrgPmcTelInfo" resultType="com.bit.module.cbo.vo.PhoneBookCommunityCompanyVO">
+        SELECT * FROM t_cbo_phone_book
+        <where>
+            <if test="type!=null">
+                and type = #{type,jdbcType=INTEGER}
+            </if>
+            <if test="orgIds!=null and orgIds.size()>0">
+                and org_id IN
+                <foreach collection="orgIds" item="id" index="index" separator="," open="(" close=")">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getTelsByOrgIds" parameterType="com.bit.module.cbo.vo.PhoneBookVO" resultType="com.bit.module.cbo.vo.PhoneBookCommunityCompanyVO">
+        SELECT <include refid="PhoneBook_columns"/>
+        FROM t_cbo_phone_book
+        <where>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="type!=null">and type = #{type,jdbcType=INTEGER}</if>
+            <if test="orgIds!=null and orgIds.size()>0">
+                and org_id IN
+                <foreach collection="orgIds" item="id" index="index" separator="," open="(" close=")">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

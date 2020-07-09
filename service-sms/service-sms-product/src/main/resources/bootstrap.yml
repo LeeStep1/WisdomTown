@@ -1,0 +1,14 @@
+#读取nacos配置
+spring:
+  application:
+    name: service-sms-product
+  cloud:
+    nacos:
+      config:
+        server-addr: 39.106.84.9:8848
+        file-extension: yml
+        group: sms_dev_lyj
+        prefix: service-sms
+#  解决jar 读取nacos  问题 java -Dfile.encoding=utf-8 -jar
+
+          #applyrefuse_296623_2,applypass_297037_1

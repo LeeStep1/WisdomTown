@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.pb.dao.TodoDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Todo_columns">
+	    <![CDATA[
+			id as id,
+			topic as topic,
+			action as action,
+			correlation_id as correlation_id,
+			content as content,
+		
+			last_handler_name as last_handler_name,
+			assignee_type as assignee_type,
+			assignee as assignee,
+			submit_time as submit_time
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.bean.Todo" id="todoMap">
+		<id column="id" property="id"/>
+	    <result column="topic" property="topic"/>
+	    <result column="action" property="action"/>
+	    <result column="correlation_id" property="correlationId"/>
+	    <result column="content" property="content"/>
+	    <result column="last_handler_name" property="lastHandlerName"/>
+	    <result column="assignee_type" property="assigneeType"/>
+	    <result column="assignee" property="assignee"/>
+	    <result column="submit_time" property="submitTime"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="todoMap" parameterType="com.bit.module.pb.vo.TodoVO">
+		select <include refid="Todo_columns" /> from t_pb_todo
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="topic != null and topic != '' " >and topic =#{topic,jdbcType=TINYINT}</if>
+			<if test="action != null and action != '' " >and action =#{action,jdbcType=TINYINT}</if>
+			<if test="correlationId != null and correlationId != '' " >and correlation_id =#{correlationId,jdbcType=BIGINT}</if>
+			<if test="content != null and content != '' " >and content =#{content,jdbcType=VARCHAR}</if>
+			<if test="lastHandlerName != null and lastHandlerName != '' " >and last_handler_name =#{lastHandlerName,jdbcType=VARCHAR}</if>
+			<if test="assigneeType != null and assigneeType != '' " >and assignee_type =#{assigneeType,jdbcType=TINYINT}</if>
+			<if test="assignee != null and assignee != '' " >and assignee =#{assignee,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="todoMap" parameterType="String">
+		select <include refid="Todo_columns" /> from t_pb_todo
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="todoMap" parameterType="com.bit.module.pb.bean.Todo">
+		select <include refid="Todo_columns" /> 
+		from t_pb_todo
+		where
+		correlation_id =#{correlationId,jdbcType=BIGINT}
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findByCorrelationId" resultMap="todoMap" parameterType="com.bit.module.pb.bean.Todo">
+		select <include refid="Todo_columns" />
+		from t_pb_todo
+		where
+		correlation_id =#{correlationId,jdbcType=BIGINT} AND topic =#{topic,jdbcType=TINYINT}
+
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.pb.bean.Todo">
+	insert INTO t_pb_todo (
+		topic ,
+		action ,
+		correlation_id ,
+		content ,
+		last_handler_name ,
+		assignee_type ,
+		assignee ,
+		submit_time 
+	) VALUES (
+		#{topic,jdbcType=TINYINT},
+		#{action,jdbcType=TINYINT},
+		#{correlationId,jdbcType=BIGINT},
+		#{content,jdbcType=VARCHAR},
+		#{lastHandlerName,jdbcType=VARCHAR},
+		#{assigneeType,jdbcType=TINYINT},
+		#{assignee,jdbcType=VARCHAR},
+		#{submitTime,jdbcType=TIMESTAMP}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.pb.bean.Todo">
+		update t_pb_todo
+		<set>
+		<if test="topic != null">
+		 topic =#{topic,jdbcType=TINYINT},
+		</if>
+		<if test="action != null">
+		 action =#{action,jdbcType=TINYINT},
+		</if>
+		<if test="correlationId != null">
+		 correlation_id =#{correlationId,jdbcType=BIGINT},
+		</if>
+		<if test="content != null">
+		 content =#{content,jdbcType=VARCHAR},
+		</if>
+		<if test="lastHandlerName != null">
+		 last_handler_name =#{lastHandlerName,jdbcType=VARCHAR},
+		</if>
+		<if test="assigneeType != null">
+		 assignee_type =#{assigneeType,jdbcType=TINYINT},
+		</if>
+		<if test="assignee != null">
+		 assignee =#{assignee,jdbcType=VARCHAR},
+		</if>
+		<if test="submitTime != null">
+		 submit_time =#{submitTime,jdbcType=TIMESTAMP}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.pb.bean.Todo">
+		delete from t_pb_todo 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_pb_todo
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+
+	<delete id="deleteByCorrelationId" parameterType="com.bit.module.pb.bean.Todo">
+		delete from t_pb_todo
+		where
+		correlation_id =#{correlationId,jdbcType=BIGINT} AND topic=#{topic,jdbcType=TINYINT}
+	</delete>
+</mapper>

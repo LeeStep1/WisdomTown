@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.vol.dao.PartnerOrgDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Partner_columns">
+        <![CDATA[
+			id as id,
+			partner_org_name as partner_org_name,
+			partner_org_address as partner_org_address,
+			charge_man as charge_man,
+			charge_man_mobile as charge_man_mobile,
+			partner_org_introduction as partner_org_introduction,
+			partner_org_number as partner_org_number,
+			create_time as create_time,
+			audit_state as audit_state,
+			update_time as update_time,
+			update_user_id as update_user_id,
+			version as version,
+			reject_reason as reject_reason
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.vol.bean.PartnerOrg" id="PartnerOrgMap">
+        <id column="id" property="id"/>
+        <result column="partner_org_name" property="partnerOrgName"/>
+        <result column="partner_org_address" property="partnerOrgAddress"/>
+        <result column="charge_man" property="chargeMan"/>
+        <result column="charge_man_mobile" property="chargeManMobile"/>
+        <result column="partner_org_introduction" property="partnerOrgIntroduction"/>
+        <result column="partner_org_number" property="partnerOrgNumber"/>
+        <result column="create_time" property="createTime"/>
+        <result column="audit_state" property="auditState"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_user_id" property="updateUserId"/>
+        <result column="version" property="version"/>
+        <result column="reject_reason" property="rejectReason"/>
+    </resultMap>
+
+    <sql id="columns">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+        <if test="partnerOrgName!=null and partnerOrgName!=''">
+            partner_org_name,
+        </if>
+        <if test="partnerOrgAddress!=null and partnerOrgAddress!=''">
+            partner_org_address,
+        </if>
+        <if test="chargeMan!=null and chargeMan!=''">
+            charge_man,
+        </if>
+        <if test="chargeManMobile!=null and chargeManMobile!=''">
+            charge_man_mobile,
+        </if>
+        <if test="partnerOrgIntroduction!=null and partnerOrgIntroduction!=''">
+            partner_org_introduction,
+        </if>
+        <if test="partnerOrgNumber!=null and partnerOrgNumber!=''">
+            partner_org_number,
+        </if>
+        <if test="createTime!=null">
+            create_time,
+        </if>
+        <if test="auditState!=null ">
+            audit_state,
+        </if>
+        <if test="updateTime!=null">
+            update_time,
+        </if>
+        <if test="updateUserId!=null ">
+            update_user_id,
+        </if>
+        <if test="version!=null">
+            version,
+        </if>
+        <if test="rejectReason!=null and rejectReason!=''">
+            reject_reason
+        </if>
+        </trim>
+    </sql>
+
+    <sql id="values">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+        <if test="partnerOrgName!=null and partnerOrgName!=''">
+            #{partnerOrgName,jdbcType=VARCHAR},
+        </if>
+        <if test="partnerOrgAddress!=null and partnerOrgAddress!=''">
+            #{partnerOrgAddress,jdbcType=VARCHAR},
+        </if>
+        <if test="chargeMan!=null and chargeMan!=''">
+            #{chargeMan,jdbcType=VARCHAR},
+        </if>
+        <if test="chargeManMobile!=null and chargeManMobile!=''">
+            #{chargeManMobile,jdbcType=VARCHAR},
+        </if>
+        <if test="partnerOrgIntroduction!=null and partnerOrgIntroduction!=''">
+            #{partnerOrgIntroduction,jdbcType=VARCHAR},
+        </if>
+        <if test="partnerOrgNumber!=null and partnerOrgNumber!=''">
+            #{partnerOrgNumber,jdbcType=VARCHAR},
+        </if>
+        <if test="createTime!=null">
+            #{createTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="auditState!=null ">
+            #{auditState,jdbcType=INTEGER},
+        </if>
+        <if test="updateTime!=null">
+            #{updateTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="updateUserId!=null ">
+            #{updateUserId,jdbcType=BIGINT},
+        </if>
+        <if test="version!=null">
+            #{version,jdbcType=INTEGER},
+        </if>
+        <if test="rejectReason!=null and rejectReason!=''">
+            #{rejectReason,jdbcType=VARCHAR}
+        </if>
+        </trim>
+    </sql>
+
+    <insert id="add" parameterType="com.bit.module.vol.bean.PartnerOrg" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        INSERT into t_partner_org_audit
+          <include refid="columns"/>
+        VALUES
+          <include refid="values"/>
+
+    </insert>
+
+
+    <update id="update" parameterType="com.bit.module.vol.bean.PartnerOrg">
+        UPDATE t_partner_org_audit
+        <set>
+
+            <if test="partnerOrgName!=null and partnerOrgName!=''">
+                partner_org_name = #{partnerOrgName,jdbcType=VARCHAR},
+            </if>
+            <if test="partnerOrgAddress!=null and partnerOrgAddress!=''">
+                partner_org_address = #{partnerOrgAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="chargeMan!=null and chargeMan!=''">
+                charge_man = #{chargeMan,jdbcType=VARCHAR},
+            </if>
+            <if test="chargeManMobile!=null and chargeManMobile!=''">
+                charge_man_mobile = #{chargeManMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="partnerOrgIntroduction!=null and partnerOrgIntroduction!=''">
+                partner_org_introduction = #{partnerOrgIntroduction,jdbcType=VARCHAR},
+            </if>
+            <if test="partnerOrgNumber!=null and partnerOrgNumber!=''">
+                partner_org_number = #{partnerOrgNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime!=null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="auditState!=null ">
+                audit_state = #{auditState,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime!=null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId!=null ">
+                update_user_id = #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="version!=null">
+                version = #{version,jdbcType=INTEGER} + 1,
+            </if>
+            <if test="rejectReason!=null and rejectReason!=''">
+                reject_reason = #{rejectReason,jdbcType=VARCHAR}
+            </if>
+        </set>
+        <where>
+            <if test="id!=null"> and id = #{id,jdbcType=BIGINT}</if>
+            <if test="version!=null"> and version = #{version,jdbcType=INTEGER}</if>
+        </where>
+    </update>
+
+    <select id="reflect" parameterType="long" resultMap="PartnerOrgMap">
+        SELECT <include refid="Partner_columns"/>
+        FROM t_partner_org_audit
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="listPage" parameterType="com.bit.module.vol.vo.PartnerOrgVO" resultMap="PartnerOrgMap">
+        SELECT <include refid="Partner_columns"/>
+        FROM t_partner_org_audit
+        <where>
+            <if test="partnerOrgName!=null and partnerOrgName!=''">
+                and partner_org_name like concat("%",#{partnerOrgName,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="chargeMan!=null and chargeMan!=''">
+                and charge_man like concat("%",#{chargeMan,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="chargeManMobile!=null and chargeManMobile!=''">
+                and charge_man_mobile like concat("%",#{chargeManMobile,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="auditState!=null ">
+                and audit_state = #{auditState,jdbcType=INTEGER}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="countSamepartnerOrgName"  resultType="integer">
+        SELECT COUNT(1) FROM t_partner_org_audit
+        <where>
+            <if test="partnerOrgName!=null and partnerOrgName!=''">
+                and partner_org_name = #{partnerOrgName,jdbcType=VARCHAR}
+            </if>
+            and audit_state != 2
+        </where>
+
+
+
+    </select>
+
+
+</mapper>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.CheckInDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+            id,
+            inspect_id,
+            execute_id,
+            spot_id,
+            spot_name,
+            spot_lng,
+            spot_lat,
+            check_in_at,
+            user_id,
+            user_name,
+            create_at
+    </sql>
+    <sql id="CheckIn_columns">
+	    <![CDATA[
+			id as id,
+			inspect_id as inspect_id,
+			execute_id as execute_id,
+			spot_id as spot_id,
+			spot_name as spot_name,
+			spot_lng as spot_lng,
+			spot_lat as spot_lat,
+			check_in_at as check_in_at,
+			user_id as user_id,
+			user_name as user_name,
+			create_at as create_at
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.CheckIn" id="checkInMap">
+		<id column="id" property="id"/>
+	    <result column="inspect_id" property="inspectId"/>
+	    <result column="execute_id" property="executeId"/>
+	    <result column="spot_id" property="spotId"/>
+	    <result column="spot_name" property="spotName"/>
+	    <result column="spot_lng" property="spotLng"/>
+	    <result column="spot_lat" property="spotLat"/>
+	    <result column="check_in_at" property="checkInAt"/>
+	    <result column="user_id" property="userId"/>
+	    <result column="user_name" property="userName"/>
+	    <result column="create_at" property="createAt"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByCondition" resultMap="checkInMap" parameterType="com.bit.module.oa.vo.checkIn.CheckInVO">
+		select <include refid="CheckIn_columns" /> from t_oa_inspect_check_in
+		<where>
+			<if test="userId != null" >and user_id = #{userId}</if>
+			<if test="inspectId != null" >and inspect_id =#{inspectId}</if>
+		</where>
+		ORDER BY user_id asc, check_in_at asc
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="checkInMap" parameterType="com.bit.module.oa.bean.CheckIn">
+		select <include refid="CheckIn_columns" />
+		from t_oa_inspect_check_in
+		where
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+	<select id="findByExecuteId" resultMap="checkInMap">
+		select <include refid="CheckIn_columns" />
+		from t_oa_inspect_check_in
+		where
+		execute_id =#{executeId,jdbcType=BIGINT}
+
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.CheckIn">
+	insert INTO t_oa_inspect_check_in (
+			inspect_id,
+			execute_id,
+			spot_id,
+			spot_name,
+			spot_lng,
+			spot_lat,
+			check_in_at,
+			user_id,
+			user_name,
+			create_at
+	) VALUES (
+		#{inspectId},
+		#{executeId},
+		#{spotId},
+		#{spotName},
+		#{spotLng},
+		#{spotLat},
+		#{checkInAt},
+		#{userId},
+		#{userName},
+		#{createAt}
+	)
+	</insert>
+	<insert id="batchAdd">
+		insert into t_oa_inspect_check_in
+		(
+		inspect_id,
+		execute_id,
+		spot_id,
+		spot_name,
+		spot_lng,
+		spot_lat,
+		check_in_at,
+		user_id,
+		user_name,
+		create_at
+		) values
+		<foreach collection="checkIns" item="checkIn" separator=",">
+			(
+			#{checkIn.inspectId},
+			#{checkIn.executeId},
+			#{checkIn.spotId},
+			#{checkIn.spotName},
+			#{checkIn.spotLng},
+			#{checkIn.spotLat},
+			#{checkIn.checkInAt},
+			#{checkIn.userId},
+			#{checkIn.userName},
+			#{checkIn.createAt}
+			)
+		</foreach>
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.CheckIn">
+		update t_oa_inspect_check_in
+		<set>
+			<if test="inspectId != null">
+				inspect_id =#{inspectId},
+			</if>
+			<if test="executeId != null">
+				execute_id =#{executeId},
+			</if>
+			<if test="spotId != null">
+				spot_id =#{spotId},
+			</if>
+			<if test="spotName != null">
+				spot_name =#{spotName},
+			</if>
+			<if test="spotLng != null">
+				spot_lng =#{spotLng},
+			</if>
+			<if test="spotLat != null">
+				spot_lat =#{spotLat},
+			</if>
+			<if test="checkInAt != null">
+				check_in_at =#{checkInAt},
+			</if>
+			<if test="userId != null">
+				user_id =#{userId},
+			</if>
+			<if test="userName != null">
+				user_name =#{userName},
+			</if>
+			<if test="createAt != null">
+				create_at =#{createAt}
+			</if>
+		</set>
+		where
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateCheckInStatus">
+		update t_oa_inspect_check_in
+		<set>
+			<if test="checkInAt != null">
+				check_in_at =#{checkInAt},
+			</if>
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.CheckIn">
+		delete from t_oa_inspect_check_in
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_oa_inspect_check_in
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+
+    <select id="findByInspectId" resultMap="checkInMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_oa_inspect_check_in
+        where inspect_id=#{inspectId}
+    </select>
+</mapper>

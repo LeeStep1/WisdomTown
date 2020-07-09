@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.pb.dao.PartyMemberDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PartyMemberPage_columns">
+		<![CDATA[
+			p.id as id,
+			p.name as name,
+			p.member_type as member_type,
+			p.mobile as mobile,
+			p.join_time as join_time,
+			o.name as org_name,
+			p.status as status
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.vo.partyMember.PartyMemberPageVO" id="partyMemberPageMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="member_type" property="memberType"/>
+		<result column="mobile" property="mobile"/>
+		<result column="join_time" property="joinTime"/>
+		<result column="org_name" property="orgName"/>
+		<result column="status" property="status"/>
+	</resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PartyMember_columns">
+	    <![CDATA[
+			id as id,
+			`name` as `name`,
+			photo as photo,
+			sex as sex,
+			birthdate as birthdate,
+		
+			id_card as id_card,
+			nation as nation,
+			join_time as join_time,
+			education as education,
+			member_type as member_type,
+		
+			police_station as police_station,
+			company as company,
+			mobile as mobile,
+			address as address,
+			org_id as org_id,
+
+			insert_time as insert_time,
+			status as status
+	    ]]>
+	</sql>
+	<!-- 用于查询组织代码所在的层级 -->
+	<sql id="Organization_level">
+		<![CDATA[
+		select
+			mysql.help_topic.help_topic_id + 1 as `level`
+		from
+			mysql.help_topic
+		where
+			mysql.help_topic.help_topic_id < 8
+		  and ( #{orgId, jdbcType=BIGINT} << 8 * mysql.help_topic.help_topic_id ) != 0
+		order by
+			mysql.help_topic.help_topic_id desc
+			limit 1
+		]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.bean.PartyMember" id="partyMemberMap">
+		<id column="id" property="id"/>
+	    <result column="name" property="name"/>
+	    <result column="photo" property="photo"/>
+	    <result column="sex" property="sex"/>
+	    <result column="birthdate" property="birthdate"/>
+	    <result column="id_card" property="idCard"/>
+	    <result column="nation" property="nation"/>
+	    <result column="join_time" property="joinTime"/>
+	    <result column="education" property="education"/>
+	    <result column="member_type" property="memberType"/>
+	    <result column="police_station" property="policeStation"/>
+	    <result column="company" property="company"/>
+	    <result column="mobile" property="mobile"/>
+	    <result column="address" property="address"/>
+	    <result column="org_id" property="orgId"/>
+		<result column="insert_time" property="insertTime"/>
+	    <result column="status" property="status"/>
+		<association column="org_id" property="orgName" select="getOraganization"/>
+	</resultMap>
+	<select id="getOraganization" parameterType="String" resultType="String">
+		SELECT name as orgName FROM t_pb_organization WHERE id=#{org_id}
+	</select>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="partyMemberPageMap" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		select <include refid="PartyMemberPage_columns" /> from t_pb_party_member p LEFT JOIN t_pb_organization o ON p.org_id = o.id
+		<where>
+			<if test="orgId != null and orgMaxId == null">AND p.org_id = #{orgId,jdbcType=BIGINT}</if>
+			<if test="orgId != null and orgMaxId != null">AND p.org_id >= #{orgId,jdbcType=BIGINT} AND p.org_id &lt; #{orgMaxId,jdbcType=BIGINT}</if>
+			<if test="memberType != null" >and p.member_type =#{memberType,jdbcType=TINYINT}</if>
+			<if test="statuses != null and statuses.size() > 0">and p.status IN
+				<foreach collection="statuses" item="statuses" index="index" open="(" close=")" separator=",">
+					#{statuses}
+				</foreach>
+			</if>
+			<if test="orgName != null and orgName != '' " >and o.name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+			<if test="name != null and name != '' " >and p.name LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+		</where>
+		ORDER BY p.insert_time DESC
+	</select>
+
+	<!-- 在册党员 -->
+	<select id="findByRegisteredPage" resultType="com.bit.module.pb.vo.partyMember.PartyMemberPageVO" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		select
+			p.id as id,
+			p.name as name,
+			p.join_time as joinTime,
+			p.member_type as memberType,
+			p.mobile as mobile,
+            p.photo as photo,
+			p.status as status,
+			IF(pb.id, 1, 0) as isExServiceman,
+			o.name as orgName
+		from t_pb_party_member p LEFT JOIN t_pb_organization o ON o.id = p.org_id LEFT JOIN t_pb_ex_serviceman pb ON p.id_card = pb.id_card
+		<where>
+			<if test="memberType != null" >and p.member_type =#{memberType,jdbcType=TINYINT}</if>
+			<if test="orgId != null and orgMaxId == null">and p.org_id =#{orgId,jdbcType=BIGINT}</if>
+			<if test="orgId != null and orgMaxId != null">and p.org_id >=#{orgId,jdbcType=BIGINT} and p.org_id &lt; #{orgMaxId,jdbcType=BIGINT}</if>
+			<if test="statuses != null and statuses.size()>0">
+				and p.status IN
+				<foreach collection="statuses" item="statuses" index="index" open="(" close=")" separator=",">
+					#{statuses}
+				</foreach>
+			</if>
+			<if test="orgName != null and orgName !='' ">and o.name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+			<if test="name != null and name != '' " >and p.name LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+		</where>
+		ORDER BY p.status ASC, p.insert_time DESC
+	</select>
+
+	<!-- 查询停用的党员 -->
+	<select id="findByDisablePage" resultType="com.bit.module.pb.vo.partyMember.PartyMemberPageVO" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		select
+			p.id as id,
+			p.name as name,
+			o.name as orgName,
+			p.mobile as mobile,
+			p.member_type as memberType,
+			p.status as status,
+            p.photo as photo,
+			p.update_time as complete_time,
+			p.reason as reason,
+			p.insert_time as insert_time
+		from t_pb_party_member p LEFT JOIN t_pb_organization o ON p.org_id = o.id
+		<where>
+			<if test="status != null">and p.status = 2</if>
+			<if test="orgId != null and orgMaxId == null">and p.org_id =#{orgId,jdbcType=BIGINT}</if>
+			<if test="orgId != null and orgMaxId != null">and p.org_id >=#{orgId,jdbcType=BIGINT} and p.org_id &lt; #{orgMaxId,jdbcType=BIGINT}</if>
+			<if test="reason != null">and p.reason = #{reason,jdbcType=TINYINT}</if>
+			<if test="name != null and name != '' ">and LOCATE(CONCAT(#{name,jdbcType=VARCHAR}), p.name) > 0</if>
+		</where>
+        order by p.update_time
+	</select>
+
+	<select id="findDisableParty" resultType="com.bit.module.pb.vo.partyMember.DisablePartyExportVO" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		select
+			p.id as id,
+			p.name as name,
+			o.name as orgName,
+			p.sex as sex,
+			p.birthdate as birthdate,
+
+			p.id_card as id_card,
+			p.nation as nation,
+			p.join_time as join_time,
+			p.education as education,
+
+			p.police_station as police_station,
+			p.company as company,
+			p.address as address,
+
+			p.mobile as mobile,
+			p.member_type as memberType,
+			p.status as status,
+			update_time as complete_time,
+			reason as reason,
+			insert_time as insert_time
+		from t_pb_party_member p LEFT JOIN t_pb_organization o ON p.org_id = o.id
+		<where>
+			<if test="status != null">and p.status = 2</if>
+			<if test="orgId != null and orgMaxId == null">and p.org_id =#{orgId,jdbcType=BIGINT}</if>
+			<if test="orgId != null and orgMaxId != null">and p.org_id >=#{orgId,jdbcType=BIGINT} and p.org_id &lt; #{orgMaxId,jdbcType=BIGINT}</if>
+			<if test="reason != null">and p.reason = #{reason,jdbcType=TINYINT}</if>
+			<if test="name != null and name != '' ">and LOCATE(CONCAT(#{p.name,jdbcType=VARCHAR}), p.name) > 0</if>
+		</where>
+        order by p.update_time
+	</select>
+
+	<!-- 查询退伍党员信息 -->
+	<select id="findExServicemanPage" resultType="com.bit.module.pb.vo.partyMember.PartyMemberExServiceman" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		SELECT
+			p.id as id,
+			p.name as name,
+			p.org_id as orgId,
+			p.mobile as mobile,
+			p.status as status,
+			pb.original_troops as originalTroops,
+			pb.retire_time as retireTime,
+			pb.is_self_employment as isSelfEmployment,
+			o.name as orgName
+		FROM t_pb_party_member p LEFT JOIN t_pb_organization o ON p.org_id = o.id, t_pb_ex_serviceman pb
+		<where>
+			p.id_card = pb.id_card AND p.status != 2
+			<if test="isSelfEmployment !=null">and pb.is_self_employment =#{isSelfEmployment,jdbcType=TINYINT}</if>
+			<if test="orgId != null and orgMaxId == null">and p.org_id = #{orgId,jdbcType=BIGINT}</if>
+			<if test="orgId != null and orgMaxId != null">and p.org_id >=#{orgId,jdbcType=BIGINT} and p.org_id &lt; #{orgMaxId,jdbcType=BIGINT}</if>
+			<if test="orgName != null and orgName != '' " >and o.name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+			<if test="originalTroops != null and originalTroops != '' ">and pb.original_troops LIKE CONCAT("%"#{originalTroops,jdbcType=VARCHAR}"%")</if>
+			<if test="name != null and name != '' " >and p.name LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+		</where>
+		ORDER BY p.insert_time DESC
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultType="com.bit.module.pb.vo.partyMember.PartyMemberExportVO" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		select
+			p.id as id,
+			p.name as name,
+			p.sex as sex,
+			p.birthdate as birthdate,
+
+			p.id_card as idCard,
+			p.nation as nation,
+			p.join_time as joinTime,
+			p.education as education,
+			p.member_type as memberType,
+
+			p.police_station as policeStation,
+			p.company as company,
+			p.mobile as mobile,
+			p.address as address,
+			p.org_id as orgId,
+			o.name as orgName,
+
+			e.origin as origin,
+			e.original_troops as originalTroops,
+			e.retire_time as retireTime,
+			e.is_self_employment as isSelfEmployment,
+
+			e.rel_transfer_time as relTransferTime,
+			e.org_name as branchName
+		from t_pb_party_member p LEFT JOIN t_pb_organization o ON p.org_id = o.id
+		LEFT JOIN t_pb_ex_serviceman e ON p.id_card = e.id_card
+		<where>
+			<if test="orgId !=null and orgMaxId == null">AND p.org_id =#{orgId,jdbcType=VARCHAR}</if>
+			<if test="memberType != null and memberType != '' " >and p.member_type =#{memberType,jdbcType=TINYINT}</if>
+			<if test="statuses != null and statuses.size()>0">
+				and p.status IN
+				<foreach collection="statuses" item="item" index="index" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="orgId != null and orgMaxId != null">
+				and p.org_id >=#{orgId,jdbcType=BIGINT} and p.org_id &lt; #{orgMaxId,jdbcType=BIGINT}
+			</if>
+			<if test="name != null and name != '' " >and p.name LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+			<if test="orgName != null and orgName != '' " >and o.name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+		</where>
+        ORDER BY p.status ASC, p.insert_time DESC
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findByCondition" resultMap="partyMemberMap" parameterType="com.bit.module.pb.bean.PartyMember">
+		select <include refid="PartyMember_columns" /> 
+		from t_pb_party_member
+		<where>
+			<if test="id != null">AND id =#{id,jdbcType=BIGINT}</if>
+			<if test="idCard != null and idCard != '' ">AND id_card = #{idCard,jdbcType=VARCHAR}</if>
+		</where>
+	</select>
+
+	<!-- 查询已转出的党员记录 -->
+	<select id="findRollOutsByOrgId" resultMap="partyMemberMap">
+		select
+			<include refid="PartyMember_columns" />
+		from
+	  		t_pb_party_member a,
+			(<include refid="Organization_level" />) b
+		where
+		<![CDATA[
+			(
+			a.org_id < #{orgId, jdbcType=BIGINT} OR a.org_id >= ( @org_id >> ( 64 - 8 * b.`level` ) ) + 1 << ( 64 - 8 * b.`level` )
+			)
+			and exists (
+			select
+			1
+			from
+			t_pb_relationship_transfer
+			where
+			a.id = member_id
+			and from_org_id between @org_id
+			and ( #{orgid, jdbcType=BIGINT} >> ( 64 - 8 * b.`level` ) ) + 1 << ( 64 - 8 * b.`level` )
+			and `status` = 5
+			)
+		]]>
+	</select>
+
+	<!-- 查询停用的党员记录 -->
+	<select id="findDisableMembersByOrgId" resultMap="partyMemberMap">
+		select
+			a.*
+		from
+			t_pb_party_member a,
+			(<include refid="Organization_level" />) b
+		where
+		<![CDATA[
+			a.org_id >= #{orgId, jdbcType=BIGINT}
+			and a.org_id < ( #{orgId, jdbcType=BIGINT} >> ( 64 - 8 * b.`level` )
+			) + 1 << ( 64 - 8 * b.`level` )
+			and a.`status` = 2
+		]]>
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.pb.bean.PartyMember">
+		<selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert IGNORE INTO t_pb_party_member (
+			`name` ,
+			photo ,
+			sex ,
+			birthdate ,
+			id_card ,
+			nation ,
+			join_time ,
+			education ,
+			member_type ,
+			police_station ,
+			company ,
+			mobile ,
+			address ,
+			org_id ,
+			insert_time ,
+			status
+		) VALUES (
+			#{name,jdbcType=VARCHAR},
+			#{photo,jdbcType=VARCHAR},
+			#{sex,jdbcType=VARCHAR},
+			#{birthdate,jdbcType=TIMESTAMP},
+			#{idCard,jdbcType=VARCHAR},
+			#{nation,jdbcType=VARCHAR},
+			#{joinTime,jdbcType=TIMESTAMP},
+			#{education,jdbcType=VARCHAR},
+			#{memberType,jdbcType=TINYINT},
+			#{policeStation,jdbcType=VARCHAR},
+			#{company,jdbcType=VARCHAR},
+			#{mobile,jdbcType=VARCHAR},
+			#{address,jdbcType=VARCHAR},
+			#{orgId,jdbcType=BIGINT},
+			#{insertTime,jdbcType=TIMESTAMP},
+			#{status,jdbcType=TINYINT}
+		) ON DUPLICATE KEY UPDATE
+			`name` = #{name,jdbcType=VARCHAR} ,
+			photo = #{photo,jdbcType=VARCHAR},
+			sex = #{sex,jdbcType=VARCHAR},
+			birthdate = #{birthdate,jdbcType=TIMESTAMP},
+			id_card = #{idCard,jdbcType=VARCHAR},
+			nation = #{nation,jdbcType=VARCHAR},
+			join_time = #{joinTime,jdbcType=TIMESTAMP},
+			education = #{education,jdbcType=VARCHAR},
+			member_type = #{memberType,jdbcType=TINYINT},
+			police_station = #{policeStation,jdbcType=VARCHAR},
+			company = #{company,jdbcType=VARCHAR},
+			mobile = #{mobile,jdbcType=VARCHAR},
+			address = #{address,jdbcType=VARCHAR},
+			org_id = #{orgId,jdbcType=BIGINT}
+	</insert>
+
+	<!-- 批量添加 -->
+	<insert id="batchAdd" parameterType="java.util.List">
+		insert IGNORE INTO t_pb_party_member (
+			name ,
+			photo ,
+			sex ,
+			birthdate ,
+			id_card ,
+			nation ,
+			join_time ,
+			education ,
+			member_type ,
+			police_station ,
+			company ,
+			mobile ,
+			address ,
+			org_id ,
+			insert_time ,
+			status
+		) VALUES
+		<foreach collection="list" item="partyMember" index="index" separator=","> (
+			#{partyMember.name,jdbcType=VARCHAR},
+			#{partyMember.photo,jdbcType=VARCHAR},
+			#{partyMember.sex,jdbcType=VARCHAR},
+			#{partyMember.birthdate,jdbcType=TIMESTAMP},
+			#{partyMember.idCard,jdbcType=VARCHAR},
+			#{partyMember.nation,jdbcType=VARCHAR},
+			#{partyMember.joinTime,jdbcType=TIMESTAMP},
+			#{partyMember.education,jdbcType=VARCHAR},
+			#{partyMember.memberType,jdbcType=TINYINT},
+			#{partyMember.policeStation,jdbcType=VARCHAR},
+			#{partyMember.company,jdbcType=VARCHAR},
+			#{partyMember.mobile,jdbcType=VARCHAR},
+			#{partyMember.address,jdbcType=VARCHAR},
+			#{partyMember.orgId,jdbcType=BIGINT},
+			#{partyMember.insertTime,jdbcType=TIMESTAMP},
+			#{partyMember.status,jdbcType=TINYINT}
+		)
+		</foreach>
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.pb.bean.PartyMember">
+		update t_pb_party_member
+		<set>
+		<if test="name != null">
+		 name =#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="photo != null">
+		 photo =#{photo,jdbcType=VARCHAR},
+		</if>
+		<if test="sex != null">
+		 sex =#{sex,jdbcType=VARCHAR},
+		</if>
+		<if test="birthdate != null">
+		 birthdate =#{birthdate,jdbcType=TIMESTAMP},
+		</if>
+		<if test="idCard != null">
+		 id_card =#{idCard,jdbcType=VARCHAR},
+		</if>
+		<if test="nation != null">
+		 nation =#{nation,jdbcType=VARCHAR},
+		</if>
+		<if test="joinTime != null">
+		 join_time =#{joinTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="education != null">
+		 education =#{education,jdbcType=VARCHAR},
+		</if>
+		<if test="memberType != null">
+		 member_type =#{memberType,jdbcType=TINYINT},
+		</if>
+		<if test="policeStation != null">
+		 police_station =#{policeStation,jdbcType=VARCHAR},
+		</if>
+		<if test="company != null">
+		 company =#{company,jdbcType=VARCHAR},
+		</if>
+		<if test="mobile != null">
+		 mobile =#{mobile,jdbcType=VARCHAR},
+		</if>
+		<if test="address != null">
+		 address =#{address,jdbcType=VARCHAR},
+		</if>
+		<if test="status != null">
+		 status =#{status,jdbcType=TINYINT},
+		</if>
+		<if test="orgId != null">
+		 org_id =#{orgId,jdbcType=BIGINT}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 党员转移更改状态 -->
+	<update id="updateByTransfer" parameterType="com.bit.module.pb.bean.PartyMember">
+		update t_pb_party_member
+		SET org_id =#{orgId,jdbcType=BIGINT},
+		 previous_org_id = #{previousOrgId,jdbcType=BIGINT},
+		 current_org_name = #{currentOrgName,jdbcType=VARCHAR},
+		 update_time = NOW()
+		WHERE id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 更改状态 -->
+	<update id="updateByStatus" parameterType="com.bit.module.pb.bean.PartyMember">
+		UPDATE t_pb_party_member SET status =#{status,jdbcType=TINYINT}, reason=#{reason,jdbcType=TINYINT}, update_time = NOW()
+		WHERE id = #{id,jdbcType=BIGINT} AND status !=#{status,jdbcType=TINYINT}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.pb.bean.PartyMember">
+		delete from t_pb_party_member 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+
+	<!-- 导出退伍军人 -->
+	<select id="findExServiceman" resultType="com.bit.module.pb.vo.partyMember.PartyMemberExportVO" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		SELECT
+			p.id as id,
+			p.name as name,
+			p.sex as sex,
+			p.birthdate as birthdate,
+
+			p.id_card as idCard,
+			p.nation as nation,
+			p.join_time as joinTime,
+			p.education as education,
+			p.member_type as memberType,
+
+			p.police_station as policeStation,
+			p.company as company,
+			p.mobile as mobile,
+			p.address as address,
+			o.name as orgName,
+			e.origin as origin,
+			e.original_troops as originalTroops,
+			e.retire_time as retireTime,
+			IF(e.is_self_employment = 1, 1, 0) as isSelfEmployment,
+
+			e.rel_transfer_time as relTransferTime,
+			e.org_name as branchName
+		FROM t_pb_party_member p LEFT JOIN t_pb_organization o ON p.org_id = o.id, t_pb_ex_serviceman e
+		<where>
+			p.id_card = e.id_card
+			<if test="isSelfEmployment != null">AND e.is_self_employment =#{isSelfEmployment,jdbcType=TINYINT}</if>
+			<if test="orgId != null and orgMaxId == null">and p.org_id =#{orgId,jdbcType=BIGINT}</if>
+			<if test="orgId != null and orgMaxId != null">and p.org_id >=#{orgId,jdbcType=BIGINT} and p.org_id &lt; #{orgMaxId,jdbcType=BIGINT}</if>
+			<if test="name !=null and name !='' ">AND p.name LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+			<if test="orgName !=null and orgName !='' ">AND o.name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+			<if test="originalTroops != null and originalTroops !='' ">AND e.original_troops LIKE CONCAT("%"#{originalTroops,jdbcType=VARCHAR}"%")</if>
+		</where>
+	</select>
+
+    <select id="countPartyMemberByNameAndIdCard" resultType="java.lang.Integer">
+		select count(id) from t_pb_party_member
+		<where>
+			NOT ISNULL(org_id) and status in (0, 1)
+			<if test="name != null and name != ''" >and name = #{name}</if>
+			<if test="idCard != null and idCard != ''">and id_card = #{idCard}</if>
+		</where>
+	</select>
+
+	<select id="findByIdCardAndStatus" resultMap="partyMemberMap">
+		select <include refid="PartyMember_columns" /> from t_pb_party_member
+		<where>
+			NOT ISNULL(org_id) and status in (0, 1)
+			<if test="idCard != null and idCard != ''">and id_card = #{idCard}</if>
+		</where>
+	</select>
+
+	<!-- 根据身份证集合获取党员信息 -->
+	<select id="findByIdCards" resultMap="partyMemberMap" parameterType="java.util.List">
+		SELECT <include refid="PartyMember_columns" />
+		FROM t_pb_party_member
+		<where>
+			NOT ISNULL(org_id) and status in (0, 1)
+			and id_card IN
+			<foreach collection="list" item="idCard" index="index" open="(" close=")" separator=",">
+				#{idCard,jdbcType=VARCHAR}
+			</foreach>
+		</where>
+	</select>
+
+	<select id="countByOrgId" parameterType="com.bit.module.pb.bean.PartyMemberCount" resultType="java.lang.Integer">
+		SELECT COUNT(1)
+	  	FROM t_pb_party_member
+	  	<where>
+			<if test="status!=null">and status = #{status,jdbcType = INTEGER}</if>
+			<if test="orgId!=null">and org_id = #{orgId,jdbcType = BIGINT}</if>
+			<if test="time!=null">and  <![CDATA[ insert_time < #{time,jdbcType = TIMESTAMP} ]]> </if>
+		</where>
+	</select>
+
+
+	<select id="batchSelectByIds" parameterType="long" resultType="java.lang.String">
+		SELECT id_card FROM t_pb_party_member
+		WHERE id in
+		<foreach collection="pmIds" item="id" index="index" open="(" close=")" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+	<select id="findMemberIdsByOrgId" parameterType="long" resultType="java.lang.Long">
+		SELECT id FROM t_pb_party_member
+		<where>
+			<if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+		</where>
+	</select>
+
+	<select id="findMemberIdsByOrgIds" parameterType="long" resultType="java.lang.Long">
+		SELECT id FROM t_pb_party_member
+		WHERE org_id in
+		<foreach collection="orgIds" item="id" index="index" open="(" close=")" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+	<select id="queryUserbatchSelectByIds" parameterType="long" resultMap="partyMemberMap">
+		SELECT <include refid="PartyMember_columns"/> FROM t_pb_party_member
+		WHERE id in
+		<foreach collection="pmIds" item="id" index="index" open="(" close=")" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+	<select id="batchFindMemberByOrgIds" parameterType="long" resultMap="partyMemberMap">
+		SELECT <include refid="PartyMember_columns"/> FROM t_pb_party_member
+		WHERE org_id in
+		<foreach collection="orgIds" item="id" index="index" open="(" close=")" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+	<select id="findDetailByMemberIds" parameterType="long" resultType="com.bit.module.pb.bean.PartyMemberOrgName">
+		SELECT t1.id,
+        t1.`name` as partyMemberName,
+        t2.id as pbOrgId,
+        t2.`name` as pbOrgName
+        FROM t_pb_party_member t1
+		INNER JOIN t_pb_organization t2
+		on t1.org_id = t2.id
+		WHERE t1.id in
+		<foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+    <select id="findMembersByOrgId" parameterType="long" resultMap="partyMemberMap">
+        SELECT <include refid="PartyMember_columns"/> FROM t_pb_party_member
+        WHERE org_id = #{orgId,jdbcType=BIGINT} and status != 2
+    </select>
+
+    <select id="findMembersByBiggerThanOrgId" parameterType="long" resultMap="partyMemberMap">
+        SELECT <include refid="PartyMember_columns"/> FROM t_pb_party_member
+        WHERE  <![CDATA[ org_id > #{orgId,jdbcType=BIGINT} and status != 2]]>
+    </select>
+
+	<select id="batchFindMemberDetailByIdCard" parameterType="string" resultMap="partyMemberMap">
+		SELECT <include refid="PartyMember_columns"/>
+		FROM t_pb_party_member
+		WHERE id_card IN
+		<foreach collection="idcards" item="idcard" open="(" close=")" separator=",">
+			#{idcard,jdbcType=VARCHAR}
+		</foreach>
+		and status = 1
+	</select>
+
+	<!-- 根据组织ID集合获取党员的联系电话 -->
+	<select id="findContacts" resultType="com.bit.module.pb.bean.PartyMember" parameterType="string">
+		SELECT
+			p.name AS name,
+			p.mobile AS mobile,
+			p.org_id AS orgId,
+			o.name AS orgName
+		FROM t_pb_party_member p, t_pb_organization o
+		WHERE p.org_id = o.id AND p.status != 2 AND p.org_id IN
+		<foreach collection="orgIds" item="id" index="index" open="(" close=")" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+	<select id="getPartyMembersByLikeName" parameterType="com.bit.module.pb.bean.PartyMemberSearch" resultMap="partyMemberMap">
+        select t1.*,t2.`name` as orgName  from t_pb_party_member t1
+        LEFT JOIN t_pb_organization t2
+        ON t1.org_id = t2.id
+        <where>
+            and t1.status != 2
+            <if test="name!=null and name!=''">and t1.`name` LIKE concat("%",#{name,jdbcType=VARCHAR},"%")</if>
+            <if test="orgIds!=null and orgIds.size > 0">
+                and t1.org_id in
+                <foreach collection="orgIds" item="id" open="(" close=")" separator="," index="index">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="findAllLimit" resultMap="partyMemberMap">
+		select <include refid="PartyMember_columns"/>
+	 	from t_pb_party_member order by id
+	 	limit #{start,jdbcType=INTEGER} , #{end,jdbcType=INTEGER}
+	</select>
+
+	<select id="findByIdCard" resultMap="partyMemberMap">
+		select <include refid="PartyMember_columns" /> from t_pb_party_member
+		<where>
+			<if test="idCard != null and idCard != ''">and id_card = #{idCard}</if>
+		</where>
+	</select>
+
+	<!-- 党员转出 -->
+	<select id="findByRollOutPage" resultType="com.bit.module.pb.vo.partyMember.PartyMemberPageVO" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		SELECT
+			p.id AS id,
+			p.name AS name,
+			p.mobile AS mobile,
+			o.name AS fromOrgName,
+			p.current_org_name AS orgName,
+			p.update_time AS completeTime,
+			p.id_card AS idCard
+		FROM t_pb_party_member p LEFT JOIN t_pb_organization o ON p.previous_org_id = o.id
+		<where>
+			<if test="name != null and name != ''">AND LOCATE(CONCAT(#{name,jdbcType=VARCHAR}), p.name) > 0 </if>
+			<if test="fromOrgId != null">AND p.previous_org_id = #{fromOrgId,jdbcType=BIGINT}</if>
+			<if test="toOrgName != null and toOrgName != ''">AND LOCATE(CONCAT(#{toOrgName,jdbcType=VARCHAR}), p.current_org_name) > 0</if>
+			<if test="orgId != null and orgMaxId != null">
+				AND p.previous_org_id >=#{orgId,jdbcType=BIGINT} AND p.previous_org_id &lt; #{orgMaxId,jdbcType=BIGINT}
+				AND ((p.org_id IS NULL) OR (p.org_id NOT BETWEEN #{orgId,jdbcType=BIGINT} AND #{orgMaxId,jdbcType=BIGINT}))
+			</if>
+		</where>
+        ORDER BY p.update_time DESC
+	</select>
+
+	<!-- 党员转出 -->
+	<select id="findByRollOutExport" resultType="com.bit.module.pb.vo.partyMember.TransferPartyMemberExportVO" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		SELECT
+			o.name AS fromOrgName,
+			p.current_org_name AS toOrgName,
+			p.update_time AS completeTime,
+			p.name AS memberName,
+			p.sex AS sex,
+			p.birthdate AS birthdate,
+			p.id_card AS idCard,
+			p.nation AS nation,
+			p.join_time AS joinTime,
+			p.education AS education,
+			p.member_type AS memberType,
+			p.police_station AS policeStation,
+			p.company AS company,
+			p.mobile AS mobile,
+			p.address AS address
+		FROM t_pb_party_member p LEFT JOIN t_pb_organization o ON p.previous_org_id = o.id
+		<where>
+			<if test="name != null and name != ''">AND LOCATE(CONCAT(#{name,jdbcType=VARCHAR}), p.name) > 0 </if>
+			<if test="fromOrgId != null">AND p.previous_org_id = #{fromOrgId,jdbcType=BIGINT}</if>
+			<if test="toOrgName != null and toOrgName != ''">AND LOCATE(CONCAT(#{toOrgName,jdbcType=VARCHAR}), p.current_org_name) > 0</if>
+			<if test="orgId != null and orgMaxId != null">
+				AND p.previous_org_id >=#{orgId,jdbcType=BIGINT} AND p.previous_org_id &lt; #{orgMaxId,jdbcType=BIGINT}
+				AND ((p.org_id IS NULL) OR (p.org_id NOT BETWEEN #{orgId,jdbcType=BIGINT} AND #{orgMaxId,jdbcType=BIGINT}))
+			</if>
+		</where>
+        ORDER BY p.update_time DESC
+	</select>
+
+</mapper>

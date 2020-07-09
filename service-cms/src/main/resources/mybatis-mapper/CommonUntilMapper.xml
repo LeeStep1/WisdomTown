@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.manager.dao.CommonUntilDao">
+
+	<!--根据站点获得所有导航-->
+	<select id="getMaxIdAndRankForCategorySql" resultType="com.bit.module.manager.bean.BaseTableInfo">
+		SELECT
+			MAX(id) id,
+			MAX(rank) rank
+		FROM
+            ${tableName}
+		<where>
+            <choose>
+                <when test="parentId != null and parentId != ''">
+                    id LIKE CONCAT('%',#{parentId},'%')
+                    and id != #{parentId}
+                </when>
+                <otherwise>
+                    navigation_id = #{navigationId}
+                    and LENGTH(id) = #{idLength}
+                </otherwise>
+            </choose>
+        </where>
+	</select>
+
+    <!-- 获取指定表中当前栏目最大ID和最大排名 -->
+    <select id="getMaxIdAndRankSql" resultType="com.bit.module.manager.bean.BaseTableInfo">
+        SELECT
+			MAX(id) id,
+			MAX(rank) rank
+		FROM
+            ${tableName}
+    </select>
+
+</mapper>

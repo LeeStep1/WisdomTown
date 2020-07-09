@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.ExecutorDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Executor_columns">
+	    <![CDATA[
+			id as id,
+			inspect_id as inspect_id,
+			inspect_no as inspect_no,
+			inspect_name as inspect_name,
+			inspect_type as inspect_type,
+		
+			inspect_start_time as inspect_start_time,
+			inspect_end_time as inspect_end_time,
+			inspect_deps as inspect_deps,
+			executor_id as executor_id,
+			check_in_status as check_in_status,
+		
+			apply_status as apply_status,
+			create_at as create_at,
+			abort_reason as abort_reason,
+			`status` AS `status`,
+       		version as version
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.Executor" id="executorMap">
+		<id column="id" property="id"/>
+	    <result column="inspect_id" property="inspectId"/>
+	    <result column="inspect_no" property="inspectNo"/>
+	    <result column="inspect_name" property="inspectName"/>
+	    <result column="inspect_type" property="inspectType"/>
+	    <result column="inspect_start_time" property="inspectStartTime"/>
+	    <result column="inspect_end_time" property="inspectEndTime"/>
+	    <result column="inspect_deps" property="inspectDeps" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+	    <result column="executor_id" property="executorId"/>
+	    <result column="check_in_status" property="checkInStatus"/>
+	    <result column="apply_status" property="applyStatus"/>
+	    <result column="create_at" property="createAt"/>
+	    <result column="abortReason" property="abortReason"/>
+	    <result column="status" property="status"/>
+	    <result column="version" property="version"/>
+	</resultMap>
+	<resultMap id="pageMap" type="com.bit.module.oa.vo.executor.ExecutorPageVO" extends="executorMap">
+	</resultMap>
+	<resultMap id="detailMap" type="com.bit.module.oa.vo.executor.InspectExecuteDetail" extends="executorMap">
+		<result column="inspect_content" property="inspectContent"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="pageMap" parameterType="com.bit.module.oa.vo.executor.ExecutorVO">
+		select <include refid="Executor_columns" /> from t_oa_inspect_executor
+		<where>
+			<if test="inspectType != null">and inspect_type = #{inspectType,jdbcType=INTEGER} </if>
+			<if test="inspectName != null and inspectName != '' " >and inspect_name like concat('%', #{inspectName,jdbcType=VARCHAR}, '%')</if>
+			<if test="status != null" >and status =#{status}</if>
+			<if test="checkInStatus != null" >and check_in_status =#{checkInStatus}</if>
+			<if test="applyStatus != null" >and apply_status =#{applyStatus}</if>
+			<if test="inspectStartTime != null and inspectEndTime == null">
+				and inspect_start_time >= DATE_FORMAT(#{inspectStartTime}, '%Y-%m-%d %T') and inspect_end_time >= DATE_FORMAT(#{inspectStartTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="inspectStartTime == null and inspectEndTime != null">
+				<![CDATA[and inspect_start_time <= DATE_FORMAT(#{inspectEndTime}, '%Y-%m-%d %T') and inspect_end_time <= DATE_FORMAT(#{inspectEndTime}, '%Y-%m-%d %T')]]>
+			</if>
+			<if test="inspectStartTime != null and inspectEndTime != null">
+				and inspect_start_time between DATE_FORMAT(#{inspectStartTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{inspectEndTime}, '%Y-%m-%d %T')
+				and inspect_end_time between DATE_FORMAT(#{inspectStartTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{inspectEndTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="executorId != null">and executor_id =#{executorId,jdbcType=BIGINT}</if>
+
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findAllDetailById" resultMap="detailMap" parameterType="com.bit.module.oa.bean.Executor">
+		select
+			e.id as id,
+			inspect_id as inspect_id,
+			inspect_no as inspect_no,
+			inspect_name as inspect_name,
+			inspect_type as inspect_type,
+		    i.content as inspect_content,
+
+			inspect_start_time as inspect_start_time,
+			inspect_end_time as inspect_end_time,
+			inspect_deps as inspect_deps,
+			executor_id as executor_id,
+			check_in_status as check_in_status,
+
+			apply_status as apply_status,
+			abort_reason as abort_reason,
+			e.status AS `status`
+		from t_oa_inspect_executor e join t_oa_inspect i on e.inspect_id = i.id
+		where
+        	e.id =#{id,jdbcType=BIGINT}
+
+	</select>
+	<select id="findByInspectId" resultMap="executorMap">
+		select  <include refid="Executor_columns" />
+		from t_oa_inspect_executor
+		where
+		inspect_id =#{inspectId,jdbcType=BIGINT}
+	</select>
+	<select id="findExportList" resultType="com.bit.module.oa.vo.executor.ExecutorExportVO">
+		select <include refid="Executor_columns" /> from t_oa_inspect_executor
+		<where>
+			<if test="inspectName != null and inspectName != '' " >and inspect_name like concat('%', #{inspectName,jdbcType=VARCHAR}, '%')</if>
+			<if test="status != null" >and status =#{status}</if>
+			<if test="checkInStatus != null" >and check_in_status =#{checkInStatus}</if>
+			<if test="applyStatus != null" >and apply_status =#{applyStatus}</if>
+			<if test="inspectStartTime != null and inspectEndTime == null">
+				and inspect_start_time >= DATE_FORMAT(#{inspectStartTime}, '%Y-%m-%d %T') and inspect_end_time >= DATE_FORMAT(#{inspectStartTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="inspectStartTime == null and inspectEndTime != null">
+				<![CDATA[and inspect_start_time <= DATE_FORMAT(#{inspectEndTime}, '%Y-%m-%d %T') and inspect_end_time <= DATE_FORMAT(#{inspectEndTime}, '%Y-%m-%d %T')]]>
+			</if>
+			<if test="inspectStartTime != null and inspectEndTime != null">
+				and inspect_start_time between DATE_FORMAT(#{inspectStartTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{inspectEndTime}, '%Y-%m-%d %T')
+				and inspect_end_time between DATE_FORMAT(#{inspectStartTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{inspectEndTime}, '%Y-%m-%d %T')
+			</if>
+		</where>
+	</select>
+	<select id="findByInspectIdAndExecutorId" resultMap="executorMap">
+		select  <include refid="Executor_columns" />
+		from t_oa_inspect_executor
+		where
+		inspect_id =#{inspectId,jdbcType=BIGINT} and executor_id = #{executorId,jdbcType=BIGINT}
+	</select>
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Executor">
+	insert INTO t_oa_inspect_executor (
+		inspect_id ,
+		inspect_no ,
+		inspect_name ,
+		inspect_type ,
+
+		inspect_start_time ,
+		inspect_end_time ,
+		inspect_deps ,
+		executor_id ,
+		check_in_status ,
+
+		apply_status ,
+		create_at ,
+		abort_reason ,
+		status,
+	    version
+	) VALUES (
+		#{inspectId},
+		#{inspectNo},
+		#{inspectName},
+		#{inspectType},
+
+		#{inspectStartTime},
+		#{inspectEndTime},
+		#{inspectDeps,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+		#{executorId},
+		#{checkInStatus},
+
+		#{applyStatus},
+		#{createAt},
+		#{abortReason},
+		#{status},
+		0
+	)
+	</insert>
+	<insert id="batchAdd">
+		insert into
+		t_oa_inspect_executor (
+		inspect_id ,
+		inspect_no ,
+		inspect_name ,
+		inspect_type ,
+
+		inspect_start_time ,
+		inspect_end_time ,
+		inspect_deps ,
+		executor_id ,
+		create_at ,
+		abort_reason,
+		status,
+		version
+		)
+		values
+		<foreach collection="executors" item="executor" separator=",">
+			(
+				#{executor.inspectId},
+				#{executor.inspectNo},
+				#{executor.inspectName},
+				#{executor.inspectType},
+
+				#{executor.inspectStartTime},
+				#{executor.inspectEndTime},
+				#{executor.inspectDeps,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+				#{executor.executorId},
+				#{executor.createAt},
+				#{executor.abortReason},
+				#{executor.status},
+		  		0
+			)
+		</foreach>
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.Executor">
+		update t_oa_inspect_executor
+		<set>
+			<if test="inspectId != null">
+				inspect_id =#{inspectId},
+			</if>
+			<if test="inspectNo != null">
+				inspect_no =#{inspectNo},
+			</if>
+			<if test="inspectName != null">
+				inspect_name =#{inspectName},
+			</if>
+			<if test="inspectType != null">
+				inspect_type =#{inspectType},
+			</if>
+
+			<if test="inspectStartTime != null">
+				inspect_start_time =#{inspectStartTime},
+			</if>
+			<if test="inspectEndTime != null">
+				inspect_end_time =#{inspectEndTime},
+			</if>
+			<if test="inspectDeps != null">
+				inspect_deps =#{inspectDeps,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			</if>
+			<if test="executorId != null">
+				executor_id =#{executorId},
+			</if>
+			<if test="checkInStatus != null">
+				check_in_status =#{checkInStatus},
+			</if>
+
+			<if test="applyStatus != null">
+				apply_status =#{applyStatus},
+			</if>
+			<if test="createAt != null">
+				create_at =#{createAt},
+			</if>
+			<if test="abortReason != null">
+				abort_reason =#{abortReason},
+			</if>
+			<if test="status != null">
+				status =#{status},
+			</if>
+			version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where
+			 id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+	<update id="giveUp">
+		update t_oa_inspect_executor
+		<set>
+			<if test="status != null">
+				status =#{status},
+			</if>
+			<if test="abortReason != null">
+				abort_reason =#{abortReason},
+			</if>
+			version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+	<update id="updateStatus">
+		update t_oa_inspect_executor
+		<set>
+			<if test="status != null">
+				status =#{status},
+			</if>
+			version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+    <update id="end">
+		update t_oa_inspect_executor
+		<set>
+			<if test="status != null">
+				status =#{status},
+			</if>
+			<if test="checkInStatus != null">
+				check_in_status =#{checkInStatus},
+			</if>
+			version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+    <!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Executor">
+		delete from t_oa_inspect_executor
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+	<sql id="selectInspectIdByExecutorId">
+		select inspect_id
+		from t_oa_inspect_executor
+		where
+		executor_id =#{inspectVO.queryId,jdbcType=BIGINT}
+	</sql>
+    <select id="batchUpdateStatus">
+		update t_oa_inspect_executor
+		set status = #{status}, check_in_status =#{checkInStatus}, version = version + 1
+		where id in
+	<foreach collection="executors" open="(" close=")" separator="," item="executor">
+		#{executor.id}
+	</foreach>
+    </select>
+
+	<select id="findById" resultMap="executorMap">
+		select
+		<include refid="Executor_columns"/>
+		from t_oa_inspect_executor
+		where id=#{id}
+	</select>
+    <select id="countAllByExecutorId" resultType="java.lang.Integer">
+		select count(id) from t_oa_inspect_executor
+		<where>
+			executor_id = #{userId,jdbcType=BIGINT}
+			<if test="startAt != null and endAt != null">
+				and (inspect_start_time between DATE_FORMAT(#{startAt}, '%Y-%m-%d %T') and DATE_FORMAT(#{endAt}, '%Y-%m-%d %T')
+				or inspect_end_time between DATE_FORMAT(#{startAt}, '%Y-%m-%d %T') and DATE_FORMAT(#{endAt}, '%Y-%m-%d %T'))
+			</if>
+		</where>
+    </select>
+	<select id="countCompletedByExecutorId" resultType="java.lang.Integer">
+		select count(id) from t_oa_inspect_executor
+		<where>
+			executor_id = #{userId,jdbcType=BIGINT} and status = 3
+			<if test="startAt != null and endAt != null">
+				and (inspect_start_time between DATE_FORMAT(#{startAt}, '%Y-%m-%d %T') and DATE_FORMAT(#{endAt}, '%Y-%m-%d %T')
+				or inspect_end_time between DATE_FORMAT(#{startAt}, '%Y-%m-%d %T') and DATE_FORMAT(#{endAt}, '%Y-%m-%d %T'))
+			</if>
+		</where>
+	</select>
+	<select id="countApplicationByExecutorId" resultType="java.lang.Integer">
+		select count(id) from t_oa_inspect_executor
+		<where>
+			executor_id = #{userId,jdbcType=BIGINT} and check_in_status = 0
+			<if test="startAt != null and endAt != null">
+				and (inspect_start_time between DATE_FORMAT(#{startAt}, '%Y-%m-%d %T') and DATE_FORMAT(#{endAt}, '%Y-%m-%d %T')
+				or inspect_end_time between DATE_FORMAT(#{startAt}, '%Y-%m-%d %T') and DATE_FORMAT(#{endAt}, '%Y-%m-%d %T'))
+			</if>
+		</where>
+	</select>
+</mapper>

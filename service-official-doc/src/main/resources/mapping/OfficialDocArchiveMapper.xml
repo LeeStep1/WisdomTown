@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.officialdoc.dao.OfficialDocArchiveDao">
+
+    <!-- 翻页查询 -->
+    <select id="queryFolder" resultType="com.bit.officialdoc.vo.FolderDoc" parameterType="com.bit.officialdoc.vo.FolderQuery">
+        select
+          cf.id as id,
+          cf.name as name,
+          (SELECT COUNT(id) FROM t_official_doc_archive WHERE folder_id = cf.id AND `read`=FALSE) as unRead,
+          (SELECT COUNT(id) FROM t_official_doc_archive WHERE folder_id = cf.id AND `read`=TRUE) as `read`
+        from t_official_doc_custom_folder cf
+        <where>
+            <if test="owner != null">AND cf.owner_id = #{owner,jdbcType=BIGINT}</if>
+            <if test="name != null and name !='' ">AND cf.name LIKE CONCAT(#{name,jdbcType=VARCHAR}'%')</if>
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+
+    <!-- 获取个人文件夹列表 -->
+    <select id="findByOwnerId" resultType="com.bit.officialdoc.entity.CustomFolder" parameterType="com.bit.officialdoc.entity.CustomFolder">
+        SELECT
+          id as id,
+          name as name
+        FROM t_official_doc_custom_folder
+        WHERE owner_id=#{ownerId,jdbcType=BIGINT}
+    </select>
+
+    <!-- 获取文件夹和存档数量 -->
+    <select id="findCustorAndNumById" resultType="com.bit.officialdoc.vo.FolderParam" parameterType="com.bit.officialdoc.entity.CustomFolder">
+        SELECT
+            fd.id AS id,
+            fd.`name` AS NAME,
+            IFNULL( ar.num, 0 ) AS num,
+            IFNULL( br.unread, 0 ) AS unread
+        FROM
+            t_official_doc_custom_folder fd
+            LEFT JOIN ( SELECT COUNT( a.id ) AS num, a.folder_id FROM t_official_doc_archive a WHERE a.deleted = FALSE GROUP BY a.folder_id ) ar ON ar.folder_id = fd.id
+            LEFT JOIN ( SELECT COUNT( b.id ) AS unread, b.folder_id FROM t_official_doc_archive b WHERE b.deleted = FALSE AND b.`read`=FALSE GROUP BY b.folder_id ) br ON br.folder_id = fd.id
+        <where>
+            <if test="ownerId != null">AND fd.owner_id = #{ownerId,jdbcType=BIGINT}</if>
+            <if test="name != null and name !='' ">AND fd.name LIKE CONCAT(#{name,jdbcType=VARCHAR}"%")</if>
+        </where>
+    </select>
+
+    <!-- 获取各个箱数量 -->
+    <select id="findCountByOwnerId" resultType="java.lang.Integer" parameterType="com.bit.officialdoc.entity.CustomFolder">
+        ( SELECT COUNT( * ) FROM t_official_doc WHERE sent = FALSE AND deleted=FALSE AND `read`=FALSE AND sender_id = #{ownerId,jdbcType=BIGINT} ) UNION ALL
+        ( SELECT COUNT( * ) FROM t_official_doc WHERE sent = TRUE AND deleted=FALSE AND `read`=FALSE AND sender_id = #{ownerId,jdbcType=BIGINT} ) UNION ALL
+        ( SELECT COUNT( * ) FROM t_official_doc_inbox WHERE processed = FALSE AND deleted=FALSE AND `read`=FALSE AND receiver_id = #{ownerId,jdbcType=BIGINT} ) UNION ALL
+        ( SELECT COUNT( * ) FROM t_official_doc_inbox WHERE processed = TRUE AND deleted=FALSE AND `read`=FALSE AND receiver_id = #{ownerId,jdbcType=BIGINT} ) UNION ALL
+        ( SELECT COUNT( * ) FROM t_official_doc_recycle_bin WHERE `read`=FALSE AND owner_id = #{ownerId,jdbcType=BIGINT} )
+    </select>
+
+    <!-- 新增个人文件夹 -->
+    <insert id="createFolder" parameterType="com.bit.officialdoc.entity.CustomFolder">
+        INSERT INTO t_official_doc_custom_folder(
+          owner_id,
+          name,
+          remark,
+          create_at
+        ) VALUES (
+          #{ownerId,jdbcType=BIGINT},
+          #{name,jdbcType=VARCHAR},
+          #{remark,jdbcType=VARCHAR},
+          #{createAt,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改文件夹名称 -->
+    <update id="modifyFolder" parameterType="com.bit.officialdoc.entity.CustomFolder">
+        UPDATE t_official_doc_custom_folder SET name = #{name,jdbcType=VARCHAR} WHERE id=#{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 删除文件夹 -->
+    <delete id="deleteFolder" parameterType="com.bit.officialdoc.entity.CustomFolder">
+        DELETE FROM t_official_doc_custom_folder WHERE id=#{id,jdbcType=BIGINT} AND owner_id=#{ownerId,jdbcType=BIGINT}
+    </delete>
+
+    <!-- 个人文件夹存档 -->
+
+    <!-- 用于select查询分页抽取的列 -->
+    <sql id="officialDocArchive_page_columns">
+        <![CDATA[
+			id as id,
+			owner_id as doc_receiver_id,
+			doc_id as doc_id,
+			doc_title as doc_title,
+			doc_text_number as doc_text_number,
+
+			doc_sender_id as doc_sender_id,
+			doc_sender_name as doc_sender_name,
+			doc_receivers as doc_receivers,
+			doc_create_at as doc_create_at,
+			`read` as `read`
+        ]]>
+    </sql>
+
+    <!-- 用于select查询详细抽取的列 -->
+    <sql id="officialDocArchive_columns">
+        <![CDATA[
+
+			id as id,
+			doc_id as doc_id,
+			doc_title as doc_title,
+			doc_text_number as doc_text_number,
+
+            doc_sender_id as doc_sender_id,
+			doc_sender_name as doc_sender_name,
+
+            doc_receivers as doc_receivers,
+            `read` as `read`,
+            doc_create_at as doc_create_at
+        ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.officialdoc.vo.SimpleDoc" id="officialDocArchivePageMap">
+        <id column="id" property="id"/>
+        <result column="doc_id" property="docId"/>
+        <result column="doc_title" property="docTitle"/>
+        <result column="doc_text_number" property="docTextNumber"/>
+
+        <result column="doc_sender_id" property="docSenderId"/>
+        <result column="doc_sender_name" property="docSenderName"/>
+        <result column="doc_receivers" property="receivers" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="doc_create_at" property="docCreateAt"/>
+        <result column="read" property="read"/>
+    </resultMap>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.officialdoc.vo.FullDoc" id="officialDocArchiveMap">
+        <id column="id" property="id"/>
+        <result column="doc_id" property="docId"/>
+        <result column="doc_title" property="docTitle"/>
+        <result column="doc_text_number" property="docTextNumber"/>
+        <result column="doc_sender_id" property="docSenderId"/>
+        <result column="doc_sender_name" property="docSenderName"/>
+        <result column="doc_receivers" property="receivers" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="read" property="read"/>
+        <result column="doc_create_at" property="docCreateAt"/>
+    </resultMap>
+
+    <!-- 翻页查询 -->
+    <select id="queryArchive" resultMap="officialDocArchivePageMap" parameterType="com.bit.officialdoc.vo.DocQuery">
+        select
+        <include refid="officialDocArchive_page_columns"/>
+        from t_official_doc_archive
+        <where>
+            <if test="owner != null">AND owner_id = #{owner,jdbcType=BIGINT} AND deleted=FALSE</if>
+            <if test="folderId != null">AND folder_id = #{folderId,jdbcType=BIGINT}</if>
+            <if test="begin != null">and DATE_FORMAT(receive_at,'%Y-%m-%d') &gt;= DATE_FORMAT(#{begin,jdbcType=TIMESTAMP},'%Y-%m-%d')</if>
+            <if test="end != null">and DATE_FORMAT(receive_at,'%Y-%m-%d') &lt;= DATE_FORMAT(#{end,jdbcType=TIMESTAMP},'%Y-%m-%d')</if>
+            <if test="title != null and title != '' ">and doc_title LIKE CONCAT(#{title,jdbcType=VARCHAR}"%")</if>
+            <if test="textNumber != null and textNumber != '' ">and doc_text_number LIKE CONCAT(#{textNumber,jdbcType=VARCHAR}"%")</if>
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+
+    <!-- 查询多个存档 -->
+    <select id="findArchiveByIds" resultMap="officialDocArchiveMap">
+        SELECT <include refid="officialDocArchive_columns"/>
+        FROM t_official_doc_archive
+        WHERE id IN
+        <foreach collection="array" item="ids" index="index" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </select>
+
+    <!-- 批量新增 -->
+    <insert id="createArchive" parameterType="java.util.List">
+        <![CDATA[
+        insert IGNORE INTO t_official_doc_archive (
+            owner_id,
+            folder_id,
+            doc_id,
+            doc_title,
+            doc_text_number,
+            doc_sender_id,
+            doc_sender_name,
+            doc_receivers,
+            doc_create_at,
+            `read`,
+            deleted
+         ]]>
+        ) VALUES
+        <foreach collection="list" item="archive" index="index" separator=","> (
+            #{archive.ownerId,jdbcType=BIGINT},
+            #{archive.folderId,jdbcType=BIGINT},
+            #{archive.docId,jdbcType=BIGINT},
+            #{archive.docTitle,jdbcType=VARCHAR},
+            #{archive.docTextNumber,jdbcType=VARCHAR},
+            #{archive.docSenderId,jdbcType=BIGINT},
+            #{archive.docSenderName,jdbcType=VARCHAR},
+            #{archive.docReceivers,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            #{archive.docCreateAt,jdbcType=TIMESTAMP},
+            #{archive.read,jdbcType=TINYINT},
+            #{archive.deleted,jdbcType=TINYINT}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 逻辑删除 -->
+    <update id="logicDelete">
+        UPDATE t_official_doc_archive SET deleted = TRUE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND deleted=FALSE
+    </update>
+
+    <!-- 删除整个文件夹的存档 -->
+    <delete id="deleteArchive" parameterType="com.bit.officialdoc.entity.OfficialDocArchive">
+        DELETE FROM t_official_doc_archive WHERE folder_id=#{folderId,jdbcType=BIGINT} AND owner_id=#{ownerId,jdbcType=BIGINT}
+    </delete>
+
+    <!-- 标记已读 -->
+    <update id="markRead">
+        UPDATE t_official_doc_archive SET `read` = TRUE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND `read` = FALSE
+    </update>
+
+    <!-- 标记未读 -->
+    <update id="markUnRead">
+        UPDATE t_official_doc_archive SET `read` = FALSE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND `read` = TRUE
+    </update>
+
+    <!-- 转移存档 -->
+    <update id="move" parameterType="com.bit.officialdoc.vo.ArchiveParam">
+        UPDATE t_official_doc_archive SET folder_id=#{targetFolderId},`read`=FALSE WHERE id IN
+        <foreach collection="archiveIds" item="ids" index="index" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </update>
+
+    <!-- 根据ID获取公文ID和读取状态 -->
+    <select id="findDocIdAndReadById" resultType="com.bit.officialdoc.entity.OfficialDocArchive" parameterType="com.bit.officialdoc.entity.OfficialDocArchive">
+        SELECT id as id, doc_id as docId, `read` as `read` FROM t_official_doc_archive WHERE id=#{id,jdbcType=BIGINT}
+    </select>
+
+    <update id="restore">
+        UPDATE t_official_doc_archive SET deleted = FALSE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND deleted=TRUE
+    </update>
+
+    <!-- 统计数量 -->
+    <select id="countUnRead" parameterType="com.bit.officialdoc.entity.OfficialDocArchive" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM t_official_doc_archive
+        <where>
+            <if test="ownerId != null">AND owner_id=#{ownerId,jdbcType=BIGINT} AND `read`=FALSE AND deleted=FALSE</if>
+            <if test="folderId != null">AND folder_id=#{folderId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+</mapper>

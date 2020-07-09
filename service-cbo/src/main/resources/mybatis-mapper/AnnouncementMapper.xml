@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.AnnouncementDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Announcement_columns">
+        <![CDATA[
+			id as id,
+			title as title,
+			content as content,
+			author_name as author_name,
+			pic as pic,
+			org_id as org_id,
+			create_user_id as create_user_id,
+			create_time as create_time,
+			publish_time as publish_time,
+			publish_user_id as publish_user_id,
+			status as status
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.cbo.bean.Announcement" id="announcementMap">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="author_name" property="authorName"/>
+        <result column="org_id" property="orgId"/>
+        <result column="pic" property="pic"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="publish_user_id" property="publishUserId"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.Announcement" keyProperty="id" useGeneratedKeys="true">
+        insert INTO t_cbo_announcement
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                title,
+            </if>
+            <if test="content!=null and content!=''">
+                content,
+            </if>
+            <if test="authorName!=null and authorName!=''">
+                author_name,
+            </if>
+            <if test="pic!=null">
+                pic,
+            </if>
+            <if test="orgId!=null">
+                org_id,
+            </if>
+            <if test="createUserId!=null">
+                create_user_id,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="publishTime!=null">
+                publish_time,
+            </if>
+            <if test="publishUserId!=null">
+                publish_user_id,
+            </if>
+            <if test="status!=null">
+                status,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content!=null and content!=''">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="authorName!=null and authorName!=''">
+                #{authorName,jdbcType=VARCHAR},
+            </if>
+            <if test="pic!=null">
+                #{pic,jdbcType=BIGINT},
+            </if>
+            <if test="orgId!=null">
+                #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="createUserId!=null">
+                #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishTime!=null">
+                #{publishTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishUserId!=null">
+                #{publishUserId,jdbcType=BIGINT},
+            </if>
+            <if test="status!=null">
+                #{status,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="modify" parameterType="com.bit.module.cbo.bean.Announcement" >
+        update t_cbo_announcement
+        <trim prefix="set" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content!=null and content!=''">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="authorName!=null and authorName!=''">
+                author_name = #{authorName,jdbcType=VARCHAR},
+            </if>
+            <if test="pic!=null">
+                pic = #{pic,jdbcType=BIGINT},
+            </if>
+            <if test="orgId!=null">
+                org_id = #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="createUserId!=null">
+                create_user_id = #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime!=null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishTime!=null">
+                publish_time = #{publishTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="publishUserId!=null">
+                publish_user_id = #{publishUserId,jdbcType=BIGINT},
+            </if>
+            <if test="status!=null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+        </trim>
+        where
+          id = #{id,jdbcType=BIGINT}
+    </update>
+
+
+
+    <select id="getAnnouncementById" parameterType="long" resultMap="announcementMap">
+        SELECT <include refid="Announcement_columns"/>
+        FROM t_cbo_announcement
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+    <!--是不是社区办的表示 0-不是 1-是-->
+    <select id="webListPage" parameterType="com.bit.module.cbo.vo.AnnouncementPageVO" resultType="com.bit.module.cbo.vo.AnnouncementVO">
+        <if test="flag==0">
+            SELECT <include refid="Announcement_columns"/>
+            FROM t_cbo_announcement
+            <where>
+                <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+                <if test="title!=null and title!=''">and title like concat("%",#{title,jdbcType=VARCHAR},"%")</if>
+                <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">
+                    and publish_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+            </where>
+            order by status asc, publish_time desc
+        </if>
+        <if test="flag==1">
+            SELECT <include refid="Announcement_columns"/>
+            FROM t_cbo_announcement
+            <where>
+                and status = 1
+                <if test="title!=null and title!=''">and title like concat("%",#{title,jdbcType=VARCHAR},"%")</if>
+                <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">
+                    and publish_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+                <if test="orgIds!=null and orgIds.size()>0">
+                    and org_id IN
+                    <foreach collection="orgIds" item="id" index="index" separator="," open="(" close=")">
+                        #{id,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+                order by publish_time desc
+            </where>
+        </if>
+
+
+    </select>
+
+
+    <select id="appListPage" parameterType="com.bit.module.cbo.vo.AnnouncementPageVO" resultType="com.bit.module.cbo.vo.AnnouncementVO">
+        SELECT <include refid="Announcement_columns"/>
+        FROM t_cbo_announcement
+        <where>
+            and status = 1
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="orgIds!=null and orgIds.size()>0">
+                and org_id IN
+                <foreach collection="orgIds" item="id" index="index" separator="," open="(" close=")">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            order by publish_time desc
+        </where>
+
+    </select>
+
+    <delete id="delById" parameterType="long">
+        DELETE FROM t_cbo_announcement
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+
+</mapper>

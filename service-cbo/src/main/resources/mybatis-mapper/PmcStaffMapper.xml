@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.PmcStaffDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PmcStaff_columns">
+	    <![CDATA[
+			id as id,
+			name as name,
+			mobile as mobile,
+			password as password,
+			salt as salt,
+			role as role,
+			status as status,
+			company_id as company_id,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			create_type as create_type,
+			token as token
+	    ]]>
+	</sql>
+
+
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.cbo.bean.PmcStaff" id="pmcStaffMap">
+		<id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="mobile" property="mobile"/>
+        <result column="password" property="password"/>
+        <result column="salt" property="salt"/>
+        <result column="role" property="role"/>
+		<result column="status" property="status"/>
+        <result column="company_id" property="companyId"/>
+        <result column="create_time" property="createTime"/>
+		<result column="create_user_id" property="createUserId"/>
+        <result column="create_type" property="createType"/>
+        <result column="token" property="token"/>
+	</resultMap>
+
+
+    <select id="checkPmcStaffExist" resultType="int" parameterType="string">
+        SELECT count(1)
+        FROM t_cbo_pmc_staff
+        <where>
+            <if test="mobile!=null and mobile!=''">and mobile = #{mobile,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+
+    <select id="modifyCheckPmcStaffExist" resultType="int">
+        SELECT count(1)
+        FROM t_cbo_pmc_staff
+        where
+             mobile = #{mobile,jdbcType=VARCHAR}
+        and id != #{id}
+    </select>
+
+    <select id="getPmcStaffByMobile" resultType="com.bit.module.cbo.bean.PmcStaff" parameterType="string">
+        SELECT <include refid="PmcStaff_columns"/>
+        FROM t_cbo_pmc_staff
+        <where>
+            <if test="mobile!=null and mobile!=''">and mobile = #{mobile,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+
+    <select id="getPmcStaffById" resultMap="pmcStaffMap" parameterType="long">
+        SELECT <include refid="PmcStaff_columns"/>
+        FROM t_cbo_pmc_staff
+        <where>
+            <if test="id!=null">and id = #{id,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <!-- 根据物业公司ID查询该公司下的员工个数 -->
+    <select id="staffByPmcCountSql" parameterType="java.lang.Long"
+            resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id) staffCount
+        FROM
+            t_cbo_pmc_staff t
+        WHERE
+            t.company_id = #{companyId}
+    </select>
+
+    <!-- 根据ID获取用户详情 -->
+    <select id="findByIdSql" parameterType="java.lang.Long"
+            resultType="com.bit.module.cbo.bean.PmcStaff">
+        SELECT
+            t.id,
+            t.name,
+            t.mobile,
+            t.role,
+            t.token,
+            t.status,
+            t.company_id companyId,
+            tc.company_name companyName,
+            t.create_time
+        FROM
+            t_cbo_pmc_staff t
+            LEFT JOIN t_cbo_pmc_company tc ON t.company_id = tc.id
+        WHERE t.id = #{id}
+    </select>
+
+    <!-- 返回物业人员列表 -->
+    <select id="findAll" parameterType="com.bit.module.cbo.vo.PmcStaffVO"
+            resultType="com.bit.module.cbo.bean.PmcStaff">
+        SELECT
+            t.id,
+            t.name,
+            t.mobile,
+            t.role,
+            t.token,
+            t.status,
+            t.create_time createTime,
+            t.company_id companyId,
+            tc.company_name companyName
+        FROM
+            t_cbo_pmc_staff t
+        LEFT JOIN t_cbo_pmc_company tc ON t.company_id = tc.id
+        <where>
+            <if test="pmcStaff.name != null and pmcStaff.name != ''">
+                t.name LIKE concat('%', #{pmcStaff.name}, '%')
+            </if>
+            <if test="pmcStaff.mobile != null and pmcStaff.mobile != ''">
+                and t.mobile LIKE concat('%', #{pmcStaff.mobile}, '%')
+            </if>
+            <if test="pmcStaff.status != null">
+                and t.status = #{pmcStaff.status}
+            </if>
+            <if test="pmcStaff.role != null">
+                and t.role = #{pmcStaff.role}
+            </if>
+            <if test="pmcStaff.companyId != null">
+                and t.company_id = #{pmcStaff.companyId}
+            </if>
+        </where>
+        order by t.create_time desc
+    </select>
+
+    <!-- 根据物业员工查询所属公司明细 -->
+    <select id="findCompanyByStaffId" parameterType="java.lang.Long"
+            resultType="com.bit.module.cbo.bean.PmcCompany">
+        SELECT
+            tcpc.id,
+            tcpc.company_name companyName,
+            tcpc.status
+        FROM
+            t_cbo_pmc_company tcpc
+        WHERE
+            tcpc.id = (
+                SELECT
+                    t.company_id
+                FROM
+                    t_cbo_pmc_staff t
+                WHERE
+                    t.id = #{StaffId}
+            )
+    </select>
+
+    <!-- 查询物业公司下面的员工 -->
+    <select id="staffCountByCompanyId" resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id) count
+        FROM
+            t_cbo_pmc_staff t
+        WHERE
+            t.company_id = #{companyId}
+        and t.status = #{status}
+    </select>
+
+    <update id="updatePmcStaff" parameterType="com.bit.module.cbo.bean.PmcStaff">
+        UPDATE t_cbo_pmc_staff
+        <trim prefix="set" suffixOverrides=",">
+            <if test="name!=null and name!=''">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                mobile = #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="password!=null and password!=''">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="salt!=null and salt!=''">
+                salt = #{salt,jdbcType=VARCHAR},
+            </if>
+            <if test="role!=null">
+                role = #{role,jdbcType=INTEGER},
+            </if>
+            <if test="status!=null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="createTime!=null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserId!=null">
+                create_user_id = #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="createType!=null">
+                create_type = #{createType,jdbcType=INTEGER},
+            </if>
+            <if test="token!=null and token!=''">
+                token = #{token,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 修改物业公司明细 -->
+    <update id="modify" parameterType="com.bit.module.cbo.bean.PmcStaff">
+        update t_cbo_pmc_staff
+            <set>
+                <if test="pmcStaff.name != null and pmcStaff.name!=''">
+                    name =#{pmcStaff.name},
+                </if>
+                <if test="pmcStaff.role != null">
+                    role =#{pmcStaff.role},
+                </if>
+                <if test="pmcStaff.status != null">
+                    status =#{pmcStaff.status},
+                </if>
+                <if test="pmcStaff.companyId != null">
+                    company_id =#{pmcStaff.companyId},
+                </if>
+                <if test="pmcStaff.token != null and pmcStaff.token!=''">
+                    token =#{pmcStaff.token}
+                </if>
+                <if test="pmcStaff.password != null and pmcStaff.password!=''">
+                    password =#{pmcStaff.password}
+                </if>
+                <if test="pmcStaff.mobile != null and pmcStaff.mobile!=''">
+                    mobile =#{pmcStaff.mobile}
+                </if>
+            </set>
+        where
+          id = #{pmcStaff.id}
+    </update>
+
+    <!-- 新增物业员工 -->
+    <insert id="insertPmcstaff" parameterType="com.bit.module.cbo.bean.PmcStaff" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        INSERT INTO t_cbo_pmc_staff
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name!=null and name!=''">
+                name,
+            </if>
+            <if test="companyId!=null and companyId!=''">
+                company_id,
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                mobile,
+            </if>
+            <if test="role!=null">
+                role,
+            </if>
+            <if test="status!=null">
+                status,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="createUserId!=null">
+                create_user_id,
+            </if>
+            <if test="createType!=null">
+                create_type,
+            </if>
+            <if test="token!=null and token!=''">
+                token,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name!=null and name!=''">
+                #{name},
+            </if>
+            <if test="companyId!=null and companyId!=''">
+                #{companyId},
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                #{mobile},
+            </if>
+            <if test="role!=null">
+                #{role},
+            </if>
+            <if test="status!=null">
+                #{status},
+            </if>
+            <if test="createTime!=null">
+                #{createTime},
+            </if>
+            <if test="createUserId!=null">
+                #{createUserId},
+            </if>
+            <if test="createType!=null">
+                #{createType},
+            </if>
+            <if test="token!=null and token!=''">
+                #{token},
+            </if>
+        </trim>
+
+    </insert>
+
+    <delete id="delById" parameterType="long">
+        DELETE FROM t_cbo_pmc_staff
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <select id="batchSelectByIds" parameterType="list" resultMap="pmcStaffMap">
+        SELECT <include refid="PmcStaff_columns"/>
+        FROM t_cbo_pmc_staff
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="findByParam" parameterType="com.bit.module.cbo.bean.PmcStaff" resultMap="pmcStaffMap">
+        SELECT <include refid="PmcStaff_columns"/>
+        FROM t_cbo_pmc_staff
+        <where>
+            <if test="companyId!=null">and company_id = #{companyId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+</mapper>

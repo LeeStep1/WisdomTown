@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.manager.dao.ServiceTypeDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="ServiceType_columns">
+	    <![CDATA[
+			id as id,
+			title as title,
+			status as status,
+			rank as rank,
+			category_id as category_id,
+			common_status as common_status,
+			application_require as application_require,
+			application_materials as application_materials,
+			handling_process as handling_process,
+			frequently_asked_questions as frequently_asked_questions,
+			operation_user_id as operation_user_id,
+		
+			operation_user_name as operation_user_name,
+			files_detail as files_detail
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.manager.bean.ServiceType" id="serviceTypeMap">
+		<id column="id" property="id"/>
+	    <result column="title" property="title"/>
+	    <result column="status" property="status"/>
+	    <result column="rank" property="rank"/>
+		<result column="common_status" property="commonStatus"/>
+	    <result column="category_id" property="categoryId"/>
+	    <result column="application_require" property="applicationRequire"/>
+	    <result column="application_materials" property="applicationMaterials"/>
+	    <result column="handling_process" property="handlingProcess"/>
+	    <result column="frequently_asked_questions" property="frequentlyAskedQuestions"/>
+	    <result column="operation_user_id" property="operationUserId"/>
+	    <result column="operation_user_name" property="operationUserName"/>
+	    <result column="files_detail" property="filesDetail"/>
+	</resultMap>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="serviceTypeMap">
+		select
+			<include refid="ServiceType_columns" />
+		from t_service_type
+		WHERE
+			del_status = #{delStatus}
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="serviceTypeMap" parameterType="com.bit.module.manager.bean.ServiceType">
+		select <include refid="ServiceType_columns" />
+		from t_service_type
+		where
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.manager.vo.ServiceTypeVO">
+	insert INTO t_service_type (
+		<if test="id != null ">
+			id ,
+		</if>
+		<if test="title != null and title != '' ">
+			title ,
+		</if>
+		<if test="status != null and status != '' ">
+			status ,
+		</if>
+		<if test="delStatus != null and delStatus != '' ">
+			del_status ,
+		</if>
+		<if test="rank != null and rank != '' ">
+			rank ,
+		</if>
+		<if test="categoryId != null ">
+			category_id ,
+		</if>
+		<if test="applicationRequire != null and applicationRequire != '' ">
+			application_require ,
+		</if>
+		<if test="applicationMaterials != null and applicationMaterials != '' ">
+			application_materials ,
+		</if>
+		<if test="handlingProcess != null and handlingProcess != '' ">
+			handling_process ,
+		</if>
+		<if test="frequentlyAskedQuestions != null and frequentlyAskedQuestions != ''  ">
+			frequently_asked_questions ,
+		</if>
+		operation_user_id ,
+		operation_user_name ,
+		<if test="filesDetail != null and filesDetail != '' ">
+			files_detail
+		</if>
+
+	) VALUES (
+		<if test="id != null ">
+			#{id,jdbcType=BIGINT},
+		</if>
+		<if test="title != null and title != '' ">
+			#{title,jdbcType=VARCHAR},
+		</if>
+		<if test="status != null and status != '' ">
+			#{status,jdbcType=TINYINT},
+		</if>
+		<if test="delStatus != null and delStatus != '' ">
+			#{delStatus,jdbcType=TINYINT},
+		</if>
+		<if test="rank != null and rank != '' ">
+			#{rank,jdbcType=INTEGER},
+		</if>
+		<if test="categoryId != null ">
+			#{categoryId,jdbcType=BIGINT},
+		</if>
+		<if test="applicationRequire != null and applicationRequire != '' ">
+			#{applicationRequire,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="applicationMaterials != null and applicationMaterials != '' ">
+			#{applicationMaterials,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="handlingProcess != null and handlingProcess != '' ">
+			#{handlingProcess,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="frequentlyAskedQuestions != null and frequentlyAskedQuestions != ''  ">
+			#{frequentlyAskedQuestions,jdbcType=LONGVARCHAR},
+		</if>
+		#{operationUserId,jdbcType=BIGINT},
+		#{operationUserName,jdbcType=VARCHAR},
+		<if test="filesDetail != null and filesDetail != '' ">
+			#{filesDetail,jdbcType=LONGVARCHAR}
+		</if>
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.manager.bean.ServiceType">
+		update t_service_type
+		<set>
+		<if test="title != null">
+			title =#{title,jdbcType=VARCHAR},
+		</if>
+		<if test="status != null">
+		 status =#{status,jdbcType=TINYINT},
+		</if>
+		<if test="rank != null">
+		 rank =#{rank,jdbcType=INTEGER},
+		</if>
+		<if test="categoryId != null">
+		 category_id =#{categoryId,jdbcType=BIGINT},
+		</if>
+		<if test="applicationRequire != null">
+		 application_require =#{applicationRequire,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="applicationMaterials != null">
+		 application_materials =#{applicationMaterials,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="handlingProcess != null">
+		 handling_process =#{handlingProcess,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="frequentlyAskedQuestions != null">
+		 frequently_asked_questions =#{frequentlyAskedQuestions,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="commonStatus != null">
+			common_status =#{commonStatus,jdbcType=TINYINT},
+		</if>
+		<if test="operationUserId != null">
+		 operation_user_id =#{operationUserId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserName != null">
+		 operation_user_name =#{operationUserName,jdbcType=VARCHAR},
+		</if>
+		<if test="filesDetail != null">
+		 files_detail =#{filesDetail,jdbcType=VARCHAR}
+		</if>
+		</set>
+		where
+			 id = #{id,jdbcType=BIGINT}
+
+	</update>
+	<!-- 删除一条记录 -->
+	<update id="delete" parameterType="com.bit.module.manager.bean.ServiceType">
+		update t_service_type SET
+			del_status = #{serviceType.delStatus,jdbcType=BIGINT}
+		where
+			id = #{serviceType.id,jdbcType=BIGINT}
+
+	</update>
+
+	<!-- 根据栏目ID查询服务类型 -->
+	<select id="queryByCategoryId" parameterType="long" resultMap="serviceTypeMap">
+		SELECT
+			id as id,
+			title as title,
+			status as status,
+			rank as rank,
+			common_status as common_status,
+			category_id as categoryId,
+			operation_user_id as operationUserId,
+			operation_user_name as operationUserName
+		FROM t_service_type
+		WHERE category_id =#{categoryId,jdbcType=BIGINT}
+        order by rank asc
+	</select>
+
+    <update id="batchUpdateRank" parameterType="com.bit.module.manager.bean.ServiceType">
+        UPDATE t_service_type
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="rank = case" suffix="end,">
+                <foreach collection="list" item="item" index="index" >
+                    <if test="item.rank!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.rank,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="list" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT}
+            </foreach>
+
+        </where>
+    </update>
+</mapper>

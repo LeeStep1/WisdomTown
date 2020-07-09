@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.officialdoc.dao.OfficialDocInboxDao">
+
+    <!-- 用于select查询分页抽取的列 -->
+    <sql id="officialDocInbox_page_columns">
+        <![CDATA[
+
+			id as id,
+			receiver_id as doc_receiver_id,
+			doc_id as doc_id,
+			doc_title as doc_title,
+			doc_text_number as doc_text_number,
+
+			doc_sender_id as doc_sender_id,
+			doc_sender_name as doc_sender_name,
+			doc_receivers as doc_receivers,
+			receive_at as doc_create_at,
+            `read` as `read`,
+            is_attach as is_attach
+        ]]>
+    </sql>
+
+    <!-- 用于select查询详细抽取的列 -->
+    <sql id="officialDocInbox_columns">
+        <![CDATA[
+
+			id as id,
+			doc_id as doc_id,
+			doc_title as doc_title,
+			doc_text_number as doc_text_number,
+
+            doc_sender_id as doc_sender_id,
+			doc_sender_name as doc_sender_name,
+
+            doc_receivers as doc_receivers,
+            `read` as `read`,
+            doc_create_at as doc_create_at
+        ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.officialdoc.vo.SimpleDoc" id="officialDocInboxPageMap">
+        <id column="id" property="id"/>
+        <result column="doc_id" property="docId"/>
+        <result column="doc_title" property="docTitle"/>
+        <result column="doc_text_number" property="docTextNumber"/>
+        <result column="doc_sender_id" property="docSenderId"/>
+        <result column="doc_sender_name" property="docSenderName"/>
+        <result column="doc_receivers" property="receivers" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="doc_create_at" property="docCreateAt"/>
+        <result column="read" property="read"/>
+        <result column="is_attach" property="isAttach"/>
+    </resultMap>
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.officialdoc.vo.FullDoc" id="officialDocInboxMap">
+        <id column="id" property="id"/>
+        <result column="doc_id" property="docId"/>
+        <result column="doc_title" property="docTitle"/>
+        <result column="doc_text_number" property="docTextNumber"/>
+        <result column="doc_sender_id" property="docSenderId"/>
+        <result column="doc_sender_name" property="docSenderName"/>
+        <result column="doc_receivers" property="receivers" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="read" property="read"/>
+        <result column="doc_create_at" property="docCreateAt"/>
+    </resultMap>
+
+    <!-- 翻页查询 -->
+    <select id="query" resultMap="officialDocInboxPageMap" parameterType="com.bit.officialdoc.vo.DocQuery">
+        select
+        <include refid="officialDocInbox_page_columns"/>
+        from t_official_doc_inbox
+        <where>
+            <if test="owner != null">AND receiver_id = #{owner,jdbcType=BIGINT} AND deleted=FALSE</if>
+            <if test="processed != null">AND processed = #{processed,jdbcType=TINYINT}</if>
+            <if test="begin != null">and DATE_FORMAT(receive_at,'%Y-%m-%d') &gt;= DATE_FORMAT(#{begin,jdbcType=TIMESTAMP},'%Y-%m-%d')</if>
+            <if test="end != null">and DATE_FORMAT(receive_at,'%Y-%m-%d') &lt;= DATE_FORMAT(#{end,jdbcType=TIMESTAMP},'%Y-%m-%d')</if>
+            <if test="title != null and title != '' ">and doc_title LIKE CONCAT(#{title,jdbcType=VARCHAR}"%")</if>
+            <if test="textNumber != null and textNumber != '' ">and text_number LIKE CONCAT(#{textNumber,jdbcType=VARCHAR}"%")</if>
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+
+    <!-- 查询多条记录 -->
+    <select id="findByIds" resultMap="officialDocInboxMap">
+        SELECT <include refid="officialDocInbox_columns"/>
+        FROM t_official_doc_inbox
+        WHERE id IN
+        <foreach collection="array" item="ids" index="index" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </select>
+
+    <!-- 获取公文ID和读取状态 -->
+    <select id="findDocIdAndReadById" resultType="com.bit.officialdoc.entity.OfficialDocInbox" parameterType="com.bit.officialdoc.entity.OfficialDocInbox">
+        SELECT
+          id as id,
+          doc_id as docId,
+          `read` as `read`
+        FROM t_official_doc_inbox
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 新增待办公文 -->
+    <insert id="batchCreate" parameterType="java.util.List">
+        <![CDATA[
+        insert INTO t_official_doc_inbox (
+            receiver_id,
+            receive_at,
+            doc_id,
+            doc_title,
+            doc_text_number,
+            doc_sender_id,
+            doc_sender_name,
+            doc_create_at,
+            doc_receivers,
+            processed,
+            `read`,
+            replied,
+            deleted,
+            is_attach
+         ]]>
+        ) VALUES
+        <foreach collection="list" item="inbox" index="index" separator=","> (
+            #{inbox.receiverId,jdbcType=BIGINT},
+            #{inbox.receiveAt,jdbcType=TIMESTAMP},
+            #{inbox.docId,jdbcType=BIGINT},
+            #{inbox.docTitle,jdbcType=VARCHAR},
+            #{inbox.docTextNumber,jdbcType=VARCHAR},
+            #{inbox.docSenderId,jdbcType=BIGINT},
+            #{inbox.docSenderName,jdbcType=VARCHAR},
+            #{inbox.docCreateAt,jdbcType=TIMESTAMP},
+            #{inbox.docReceivers,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            #{inbox.processed,jdbcType=TINYINT},
+            #{inbox.read,jdbcType=TINYINT},
+            #{inbox.replied,jdbcType=TINYINT},
+            #{inbox.deleted,jdbcType=TINYINT},
+            #{inbox.isAttach,jdbcType=TINYINT}
+        )
+        </foreach>
+    </insert>
+
+    <!-- 逻辑删除 -->
+    <update id="logicDelete">
+        UPDATE t_official_doc_inbox SET deleted = TRUE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND deleted=FALSE
+    </update>
+
+    <!-- 恢复删除数据 -->
+    <update id="restore">
+        UPDATE t_official_doc_inbox SET deleted = FALSE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND deleted=TRUE
+    </update>
+
+    <!-- 办理 -->
+    <update id="dispose" parameterType="com.bit.officialdoc.entity.OfficialDocInbox">
+        UPDATE t_official_doc_inbox SET processed=TRUE WHERE id=#{id,jdbcType=BIGINT} AND processed=FALSE
+    </update>
+
+    <!-- 标记已读 -->
+    <update id="markRead">
+        UPDATE t_official_doc_inbox SET `read` = TRUE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND `read` = FALSE
+    </update>
+
+    <!-- 标记未读 -->
+    <update id="markUnRead">
+        UPDATE t_official_doc_inbox SET `read` = FALSE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND `read` = TRUE
+    </update>
+
+    <!-- 获取未读数量 -->
+    <select id="countUnRead" parameterType="com.bit.officialdoc.entity.OfficialDocInbox" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM t_official_doc_inbox WHERE receiver_id=#{receiverId,jdbcType=BIGINT} AND processed=#{processed,jdbcType=TINYINT} AND `read`=FALSE AND deleted=FALSE
+    </select>
+    <select id="findByDocId" resultType="com.bit.officialdoc.entity.OfficialDocInbox" >
+        SELECT id, doc_id as docId, receiver_id as receiverId, doc_sender_name as docSenderName
+        FROM t_official_doc_inbox
+        WHERE doc_id = #{docId,jdbcType=BIGINT}
+    </select>
+
+</mapper>

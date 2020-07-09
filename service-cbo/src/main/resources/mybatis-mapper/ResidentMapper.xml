@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.ResidentDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Resident_columns">
+	    <![CDATA[
+			id as id,
+			real_name as real_name,
+			used_name as used_name,
+			password as password,
+			salt as salt,
+			mobile as mobile,
+			card_type as card_type,
+			card_num as card_num,
+			sex as sex,
+			birthday as birthday,
+			credentials_photo_ids as credentials_photo_ids,
+			icon as icon,
+			role as role,
+			faith as faith,
+			marital_status as marital_status,
+			nationality as nationality,
+			residence_type as residence_type,
+			create_type as create_type,
+			ethnicity as ethnicity,
+			service_unit as service_unit,
+			status as status,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			token as token,
+			resident_address as resident_address
+	    ]]>
+	</sql>
+
+
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.cbo.bean.Resident" id="residentMap">
+		<id column="id" property="id"/>
+		<result column="real_name" property="realName"/>
+        <result column="used_name" property="usedName"/>
+		<result column="password" property="password"/>
+        <result column="salt" property="salt"/>
+        <result column="mobile" property="mobile"/>
+		<result column="card_type" property="cardType"/>
+        <result column="card_num" property="cardNum"/>
+        <result column="sex" property="sex"/>
+        <result column="birthday" property="birthday"/>
+        <result column="credentials_photo_ids" property="credentialsPhotoIds"/>
+        <result column="icon" property="icon"/>
+        <result column="role" property="role"/>
+        <result column="faith" property="faith"/>
+        <result column="marital_status" property="maritalStatus"/>
+		<result column="nationality" property="nationality"/>
+		<result column="residence_type" property="residentType"/>
+		<result column="create_type" property="createType"/>
+		<result column="ethnicity" property="ethnicity"/>
+        <result column="service_unit" property="serviceUnit"/>
+		<result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+		<result column="create_user_id" property="createUserId"/>
+        <result column="token" property="token"/>
+        <result column="resident_address" property="residentAddress"/>
+	</resultMap>
+
+
+    <select id="checkResidentExist" resultType="int" parameterType="string">
+        SELECT count(1)
+        FROM t_cbo_resident
+        <where>
+            and status !=0
+            <if test="mobile!=null and mobile!=''">and mobile = #{mobile,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+
+    <select id="getResidentByMobile" resultType="com.bit.module.cbo.bean.Resident" parameterType="string">
+        SELECT <include refid="Resident_columns"/>
+        FROM t_cbo_resident
+        <where>
+            and status !=0
+            <if test="mobile!=null and mobile!=''">and mobile = #{mobile,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+
+    <update id="updateResident" parameterType="com.bit.module.cbo.bean.Resident">
+        UPDATE t_cbo_resident
+        <trim prefix="set" suffixOverrides=",">
+            <if test="realName!=null">
+                real_name = #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="usedName!=null">
+                used_name = #{usedName,jdbcType=VARCHAR},
+            </if>
+
+            <if test="password!=null and password!=''">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="salt!=null and salt!=''">
+                salt = #{salt,jdbcType=VARCHAR},
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                mobile = #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="cardType!=null">
+                card_type = #{cardType,jdbcType=INTEGER},
+            </if>
+            <if test="cardNum!=null">
+                card_num = #{cardNum,jdbcType=INTEGER},
+            </if>
+            <if test="sex!=null">
+                sex = #{sex,jdbcType=INTEGER},
+            </if>
+            <if test="birthday!=null and birthday!=''">
+                birthday = #{birthday,jdbcType=VARCHAR},
+            </if>
+            <if test="credentialsPhotoIds!=null">
+                credentials_photo_ids = #{credentialsPhotoIds,jdbcType=VARCHAR},
+            </if>
+            <if test="icon!=null">
+                icon = #{icon,jdbcType=INTEGER},
+            </if>
+            <if test="role!=null">
+                role = #{role,jdbcType=INTEGER},
+            </if>
+            <if test="faith!=null">
+                faith = #{faith,jdbcType=INTEGER},
+            </if>
+            <if test="maritalStatus!=null">
+                marital_status = #{maritalStatus,jdbcType=INTEGER},
+            </if>
+            <if test="nationality!=null">
+                nationality = #{nationality,jdbcType=INTEGER},
+            </if>
+            <if test="residentType!=null">
+                residence_type = #{residentType,jdbcType=INTEGER},
+            </if>
+            <if test="createType!=null">
+                create_type = #{createType,jdbcType=INTEGER},
+            </if>
+            <if test="ethnicity!=null">
+                ethnicity = #{ethnicity,jdbcType=INTEGER},
+            </if>
+            <if test="serviceUnit!=null ">
+                service_unit = #{serviceUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="status!=null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="createTime!=null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserId!=null">
+                create_user_id = #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="token!=null and token!=''">
+                token = #{token,jdbcType=VARCHAR},
+            </if>
+            <if test="residentAddress!=null ">
+                resident_address = #{residentAddress,jdbcType=VARCHAR},
+            </if>
+        </trim>
+
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <insert id="insertResident" parameterType="com.bit.module.cbo.bean.Resident" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO t_cbo_resident
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="realName!=null and realName!=''">
+                real_name,
+            </if>
+            <if test="usedName!=null and usedName!=''">
+                used_name,
+            </if>
+
+            <if test="password!=null and password!=''">
+                password,
+            </if>
+            <if test="salt!=null and salt!=''">
+                salt,
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                mobile,
+            </if>
+            <if test="cardType!=null">
+                card_type,
+            </if>
+            <if test="cardNum!=null">
+                card_num,
+            </if>
+            <if test="sex!=null">
+                sex,
+            </if>
+            <if test="birthday!=null and birthday!=''">
+                birthday,
+            </if>
+            <if test="credentialsPhotoIds!=null">
+                credentials_photo_ids,
+            </if>
+            <if test="icon!=null">
+                icon,
+            </if>
+            <if test="role!=null">
+                role,
+            </if>
+            <if test="faith!=null">
+                faith,
+            </if>
+            <if test="maritalStatus!=null">
+                marital_status,
+            </if>
+            <if test="nationality!=null">
+                nationality,
+            </if>
+            <if test="residentType!=null">
+                residence_type,
+            </if>
+            <if test="createType!=null">
+                create_type,
+            </if>
+            <if test="ethnicity!=null">
+                ethnicity,
+            </if>
+            <if test="serviceUnit!=null and serviceUnit!=''">
+                service_unit,
+            </if>
+            <if test="status!=null">
+                status,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="createUserId!=null">
+                create_user_id,
+            </if>
+            <if test="token!=null and token!=''">
+                token,
+            </if>
+            <if test="residentAddress!=null and residentAddress!=''">
+                resident_address,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="realName!=null and realName!=''">
+                #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="usedName!=null and usedName!=''">
+                #{usedName,jdbcType=VARCHAR},
+            </if>
+
+            <if test="password!=null and password!=''">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="salt!=null and salt!=''">
+                #{salt,jdbcType=VARCHAR},
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="cardType!=null">
+                #{cardType,jdbcType=INTEGER},
+            </if>
+            <if test="cardNum!=null">
+                #{cardNum,jdbcType=INTEGER},
+            </if>
+            <if test="sex!=null">
+                #{sex,jdbcType=INTEGER},
+            </if>
+            <if test="birthday!=null and birthday!=''">
+                #{birthday,jdbcType=VARCHAR},
+            </if>
+            <if test="credentialsPhotoIds!=null">
+                #{credentialsPhotoIds,jdbcType=VARCHAR},
+            </if>
+            <if test="icon!=null">
+                #{icon,jdbcType=INTEGER},
+            </if>
+            <if test="role!=null">
+                #{role,jdbcType=INTEGER},
+            </if>
+            <if test="faith!=null">
+                #{faith,jdbcType=INTEGER},
+            </if>
+            <if test="maritalStatus!=null">
+                #{maritalStatus,jdbcType=INTEGER},
+            </if>
+            <if test="nationality!=null">
+                #{nationality,jdbcType=INTEGER},
+            </if>
+            <if test="residentType!=null">
+                #{residentType,jdbcType=INTEGER},
+            </if>
+            <if test="createType!=null">
+                #{createType,jdbcType=INTEGER},
+            </if>
+            <if test="ethnicity!=null">
+                #{ethnicity,jdbcType=INTEGER},
+            </if>
+            <if test="serviceUnit!=null and serviceUnit!=''">
+                #{serviceUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="status!=null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserId!=null">
+                #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="token!=null and token!=''">
+                #{token,jdbcType=VARCHAR},
+            </if>
+            <if test="residentAddress!=null and residentAddress!=''">
+                #{residentAddress,jdbcType=VARCHAR},
+            </if>
+        </trim>
+
+    </insert>
+
+    <select id="getResidentById" parameterType="long" resultMap="residentMap">
+        SELECT <include refid="Resident_columns"/>
+        FROM t_cbo_resident
+        WHERE id = #{residentId,jdbcType=BIGINT} and status !=0
+    </select>
+    <!--flag 社区办标识 0-否 1-是-->
+    <select id="listPage" parameterType="com.bit.module.cbo.vo.ResidentPageVO" resultType="com.bit.module.cbo.vo.ResidentPageVO">
+        SELECT
+        t2.id,
+        t2.real_name,
+        t2.mobile,
+        t2.birthday,
+        t2.card_num,
+        t2.sex,
+        t2.`status`,
+        t3.extend_type,
+        t4.community_name,
+        t1.org_id,
+        t1.community_id
+        FROM
+        (
+
+        SELECT DISTINCT a.resident_id,a.org_id,a.community_id
+        FROM  t_cbo_resident_rel_location a
+        <where>
+            <if test="orgId!=null">and a.org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and a.community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="communityIds!=null and communityIds.size()>0">
+                and a.community_id in
+                <foreach collection="communityIds" item="communityId" index="index" separator="," open="(" close=")">
+                    #{communityId,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+        <!--<if test="flag == 1">-->
+            <!--SELECT DISTINCT a.resident_id,a.org_id,a.community_id-->
+            <!--FROM  t_cbo_resident_rel_location a-->
+            <!--<where>-->
+                <!--<if test="orgId!=null">and a.org_id = #{orgId,jdbcType=BIGINT}</if>-->
+                <!--<if test="communityId!=null">and a.community_id = #{communityId,jdbcType=BIGINT}</if>-->
+            <!--</where>-->
+        <!--</if>-->
+        <!--<if test="flag == 0">-->
+            <!--SELECT DISTINCT a.resident_id,a.org_id,a.community_id-->
+            <!--FROM  t_cbo_resident_rel_location a-->
+            <!--<where>-->
+                <!--<if test="orgId!=null">and a.org_id = #{orgId,jdbcType=BIGINT}</if>-->
+                <!--<if test="communityId!=null">and a.community_id = #{communityId,jdbcType=BIGINT}</if>-->
+            <!--</where>-->
+        <!--</if>-->
+
+        )t1
+        INNER JOIN t_cbo_resident t2
+        on t1.resident_id = t2.id
+        Left JOIN (
+        SELECT x.id,GROUP_CONCAT(y.extend_type) as extend_type  from t_cbo_resident x
+        INNER JOIN t_cbo_resident_extend y on x.id = y.resident_id
+        <where>
+            <if test="orgId!=null">
+                and y.org_id = #{orgId,jdbcType=BIGINT}
+            </if>
+        </where>
+        GROUP BY x.id
+        ) t3
+        ON t1.resident_id = t3.id
+        INNER JOIN t_cbo_community t4
+        on t1.community_id = t4.id
+        <where>
+            <if test="realName!=null">and t2.real_name like concat("%",#{realName,jdbcType=VARCHAR},"%")</if>
+            <if test="cardNum!=null">and t2.card_num like concat("%",#{cardNum,jdbcType=VARCHAR},"%") </if>
+            <if test="mobile!=null">and t2.mobile like concat("%",#{mobile,jdbcType=VARCHAR},"%") </if>
+            <if test="type!=null">and t3.extend_type like concat("%",#{type,jdbcType=VARCHAR},"%") </if>
+        </where>
+
+        order by t2.create_time desc
+    </select>
+
+
+    <select id="getResidentByCardNumAndCardType" parameterType="com.bit.module.cbo.vo.ResidentVO" resultMap="residentMap">
+        SELECT DISTINCT t1.*
+        FROM t_cbo_resident t1
+        LEFT JOIN t_cbo_resident_rel_location t2
+        on t1.id = t2.resident_id
+        <where>
+            and t1.status !=0
+            <if test="cardNum!=null and cardNum!=''">
+                and t1.card_num = #{cardNum,jdbcType=VARCHAR}
+            </if>
+            <if test="cardType!=null">
+                and t1.card_type = #{cardType,jdbcType=INTEGER}
+            </if>
+            <if test="orgId!=null">
+                and t2.org_id = #{orgId,jdbcType=BIGINT}
+            </if>
+            <if test="norgId!=null">
+                and t2.org_id != #{norgId,jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+
+    <!-- 获取所有居民基础信息 -->
+    <select id="findBaseResidentInfoSql" resultType="com.bit.module.cbo.bean.Resident">
+        SELECT DISTINCT
+            t.id,
+            t.real_name realName,
+            t.sex,
+            t.birthday,
+            t.card_type cardType,
+            t.card_num cardNum,
+            t.mobile
+        FROM
+            t_cbo_resident t LEFT JOIN t_cbo_resident_rel_location tl on t.id = tl.resident_id
+        where
+            t.role = 1
+            <if test="residentPageVO.realName != null and residentPageVO.realName != ''">
+                and t.real_name like concat('%', #{residentPageVO.realName}, '%')
+            </if>
+            <if test="residentPageVO.cardNum != null and residentPageVO.cardNum != ''">
+                and t.card_num like concat('%', #{residentPageVO.cardNum}, '%')
+            </if>
+            <if test="residentPageVO.orgId != null">
+                and tl.org_id = #{residentPageVO.orgId}
+            </if>
+    </select>
+
+    <select id="countResidentCardNumExist" resultType="integer">
+        SELECT COUNT(1) FROM t_cbo_resident
+        <where>
+            <if test="cardNum!=null and cardNum!=''">
+                and card_num = #{cardNum,jdbcType=VARCHAR}
+            </if>
+            <if test="cardType!=null">
+                and card_type = #{cardType,jdbcType=INTEGER}
+            </if>
+            <if test="residentId!=null">
+                and id != #{residentId,jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+
+    <!-- 导出居民管理 -->
+    <select id="exportToExcel" resultType="com.bit.module.cbo.vo.ResidentExcelVO">
+        SELECT
+            (@i:=@i+1) as orderId,
+            t.*
+        FROM(
+            SELECT
+                t2.id,
+                t2.real_name,
+                CASE t2.sex
+                    WHEN 1 THEN '男'
+                    WHEN 2 THEN '女'
+                END sex,
+                t2.mobile,
+                t2.birthday,
+                CASE t2.card_type
+                    WHEN 1 THEN '身份证'
+                    WHEN 2 THEN '士官证'
+                    WHEN 3 THEN '护照'
+                    WHEN 4 THEN '港澳通行证'
+                    ELSE '其他'
+                END cardTypeName,
+                t2.card_num,
+                CASE t2.status
+                    WHEN 0 THEN '停用'
+                    WHEN 1 THEN '正常'
+                    WHEN 2 THEN '待完善'
+                END status,
+                t2.nationality nationality,
+                t2.faith faith,
+                CASE t2.marital_status
+                    WHEN 0 THEN '未婚'
+                    WHEN 1 THEN '已婚'
+                    WHEN 2 THEN '离婚'
+                    WHEN 3 THEN '丧偶'
+                END maritalStatusName,
+                CASE t2.residence_type
+                    WHEN 1 THEN '本市户籍'
+                    WHEN 2 THEN '非本市户籍'
+                END residenceTypeName,
+                t2.ethnicity,
+                t3.extend_type extendType,
+                t1.org_id orgId,
+                t1.community_id,
+                t4.community_name
+            FROM
+            (
+                SELECT DISTINCT a.resident_id,a.org_id,a.community_id
+                FROM  t_cbo_resident_rel_location a
+                <where>
+                    <if test="orgId!=null">and a.org_id = #{orgId,jdbcType=BIGINT}</if>
+                    <if test="communityId!=null">and a.community_id = #{communityId,jdbcType=BIGINT}</if>
+                </where>
+            )t1
+            INNER JOIN t_cbo_resident t2 on t1.resident_id = t2.id
+            Left JOIN (
+                SELECT x.id,GROUP_CONCAT(y.extend_type) as extend_type  from t_cbo_resident x
+                INNER JOIN t_cbo_resident_extend y on x.id = y.resident_id
+                <where>
+                    <if test="orgId!=null">
+                        and y.org_id = #{orgId,jdbcType=BIGINT}
+                    </if>
+                </where>
+                GROUP BY x.id
+            ) t3
+            ON t1.resident_id = t3.id
+            INNER JOIN t_cbo_community t4 on t1.community_id = t4.id
+            <where>
+                <if test="realName!=null">and t2.real_name like concat("%",#{realName,jdbcType=VARCHAR},"%")</if>
+                <if test="cardNum!=null">and t2.card_num like concat("%",#{cardNum,jdbcType=VARCHAR},"%") </if>
+                <if test="mobile!=null">and t2.mobile like concat("%",#{mobile,jdbcType=VARCHAR},"%") </if>
+                <if test="type!=null">and t3.extend_type like concat("%",#{type,jdbcType=VARCHAR},"%") </if>
+            </where>
+            order by t2.create_time desc
+        ) t,
+        (select   @i:=0) as orderTable
+
+    </select>
+
+    <delete id="delById" parameterType="long">
+        DELETE FROM t_cbo_resident
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+</mapper>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bit.module.system.dao.MessageCategoryDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.bit.module.system.bean.MessageCategory" id="messageCategoryMap">
+        <result property="id" column="id"/>
+        <result property="remarks" column="remarks"/>
+        <result property="categoryName" column="category_name"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        remarks,
+        category_name
+    </sql>
+
+    <!-- 根据主键查询数据 -->
+    <select id="getMessageCategoryById" parameterType="Long" resultMap="messageCategoryMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sys_message_category
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 多参数查询数据 -->
+    <select id="findByParam" parameterType="com.bit.module.system.bean.MessageCategory"
+            resultMap="messageCategoryMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sys_message_category
+        <where>
+            <if test="remarks!=null and remarks!=''">
+                and remarks = #{remarks,jdbcType=VARCHAR}
+            </if>
+            <if test="categoryName!=null and categoryName!=''">
+                and category_name = #{categoryName,jdbcType=VARCHAR}
+            </if>
+
+        </where>
+    </select>
+
+
+    <!-- 新增数据 -->
+    <insert id="addMessageCategory" parameterType="com.bit.module.system.bean.MessageCategory" keyProperty="id"
+            useGeneratedKeys="true">
+        insert into t_sys_message_category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="remarks!=null and remarks!=''">
+                remarks,
+            </if>
+            <if test="categoryName!=null and categoryName!=''">
+                category_name,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="remarks!=null and remarks!=''">
+                #{remarks,jdbcType=VARCHAR},
+            </if>
+            <if test="categoryName!=null and categoryName!=''">
+                #{categoryName,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+
+    <!-- 编辑数据 -->
+    <update id="updateMessageCategory" parameterType="com.bit.module.system.bean.MessageCategory">
+        update t_sys_message_category
+        <trim prefix="set" suffixOverrides=",">
+            <if test="remarks!=null and remarks!=''">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+            <if test="categoryName!=null and categoryName!=''">
+                category_name = #{categoryName,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+
+    <!-- 删除数据 -->
+    <delete id="delMessageCategoryById" parameterType="Long">
+        delete from t_sys_message_category
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <!-- 分页查询数据 -->
+    <select id="listPage" parameterType="com.bit.module.system.vo.MessageCategoryPageVO"
+            resultType="com.bit.module.system.vo.MessageCategoryVO">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sys_message_category
+        <where>
+            <if test="remarks!=null and remarks!=''">
+                and remarks = #{remarks,jdbcType=VARCHAR}
+            </if>
+            <if test="categoryName!=null and categoryName!=''">
+                and category_name like concat("%",#{categoryName,jdbcType=VARCHAR},"%")
+            </if>
+        </where>
+    </select>
+
+</mapper>

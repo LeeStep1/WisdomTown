@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.website.dao.PageDisplayDao">
+
+	<!--根据站点获得所有导航-->
+	<select id="getAllNavigationSql" parameterType="com.bit.module.manager.bean.PortalNavigation"
+			resultType="com.bit.module.manager.bean.PortalNavigation">
+		SELECT
+			t.id,
+			t.navigation_name navigationName,
+			t.status,
+			t.station_id stationId
+		FROM
+			t_portal_navigation t
+		where t.station_id = #{navigation.stationId}
+	</select>
+
+	<!-- 首页多个导航栏同时展示 -->
+	<select id="getContentListByCategoryIdListSql" parameterType="com.bit.module.manager.vo.PortalCategoryVO"
+			resultType="com.bit.module.manager.bean.PortalContent">
+		SELECT
+		t.id categoryId,
+		t.category_name categoryName,
+		tpc.id,
+		tpc.category_id categoryId,
+		tpc.content_name contentName,
+		tpc.video_id videoId,
+		tpc.video_url videoUrl,
+		tpc.cover_id coverId,
+		tpc.cover_url coverUrl,
+		tpc.title,
+		tpc.sub_title subTitle,
+		t.station_id stationId,
+		tpc.publish_time publishTime
+		FROM
+		t_portal_content tpc,
+		t_portal_category t
+		WHERE
+		t.id = tpc.category_id
+		AND t.id in
+		<foreach collection="portalCategoryVO.categoryIdList" item="ids" index="index" open="(" close=")" separator=",">
+			#{ids}
+		</foreach>
+		AND t.station_id = #{portalCategoryVO.stationId}
+		AND tpc.status = #{portalCategoryVO.status}
+		order by tpc.publish_time DESC
+	</select>
+
+	<!-- 根据导航ID和栏目获取单个下内容明细 -->
+	<select id="getContentListByCategoryIdSql" parameterType="com.bit.module.manager.vo.PortalContentVO"
+			resultType="com.bit.module.manager.bean.PortalContent">
+		SELECT
+			t.id categoryId,
+			t.category_name categoryName,
+			tpc.id,
+			tpc.content_name contentName,
+			tpc.publish_status publishStatus,
+			tpc.video_id videoId,
+			tpc.video_url videoUrl,
+			tpc.cover_id coverId,
+			tpc.cover_url coverUrl,
+			tpc.title,
+			tpc.sub_title subTitle,
+			t.station_id stationId,
+			tpc.publish_time publishTime
+		FROM
+			t_portal_content tpc,
+			t_portal_category t
+		WHERE
+			t.id = tpc.category_id
+		AND tpc.category_id = #{portalContentVO.categoryId}
+		AND tpc.station_id = #{portalContentVO.stationId}
+		AND tpc.status = #{portalContentVO.status}
+		AND tpc.publish_status = #{portalContentVO.publishStatus}
+		order by tpc.publish_time DESC
+	</select>
+
+	<!-- 根据栏目ID和内容ID获取内容明细 -->
+	<select id="getContentDetailByContentIdSql" parameterType="com.bit.module.manager.bean.PortalContent"
+			resultType="com.bit.module.manager.bean.PortalContent">
+		SELECT
+			t.id,
+			t.content_name contentName,
+			t.title,
+			t.sub_title subTitle,
+			t.cover_id coverId,
+			t.cover_url coverUrl,
+			t.video_id videoId,
+			t.video_url videoUrl,
+			t.content,
+			t.publish_time publishTime
+		FROM
+			t_portal_content t
+		WHERE
+			t.id = #{portalContent.id}
+		AND t.category_id = #{portalContent.categoryId}
+		AND t.station_id = #{portalContent.stationId}
+		AND t.publish_status = #{portalContent.publishStatus}
+		AND t.status = #{portalContent.status}
+	</select>
+
+	<!-- 根据根据栏目ID 查询栏目下的推荐内容 -->
+	<select id="getRecommendContentList" parameterType="com.bit.module.manager.vo.PortalContentVO"
+			resultType="com.bit.module.manager.bean.PortalContent">
+		SELECT
+			t.id,
+			t.content_name contentName,
+			t.publish_status publishStatus,
+			t.video_id videoId,
+			t.video_url videoUrl,
+			t.cover_id coverId,
+			t.cover_url coverUrl,
+			t.category_id categoryId,
+			t.title,
+			t.sub_title subTitle,
+			t.sub_title subTitle,
+			t.publish_time publishTime
+		FROM
+			t_portal_content t
+		where
+			t.category_id = #{portalContentVO.categoryId}
+		AND t.status = #{portalContentVO.status}
+		AND t.publish_status = #{portalContentVO.publishStatus}
+		<if test="portalContentVO.id != null">
+			AND t.id != #{portalContentVO.id}
+		</if>
+		ORDER BY RAND() DESC
+		LIMIT ${portalContentVO.pageSize}
+	</select>
+</mapper>

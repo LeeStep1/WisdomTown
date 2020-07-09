@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.MessageDao">
+
+    <sql id="Message_columns">
+        <![CDATA[
+			id as id,
+			app_id as app_id,
+			category_id as category_id,
+			title as title,
+			create_time as create_time
+	    ]]>
+    </sql>
+
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.system.bean.Message" id="messageMap">
+        <id column="id" property="id"/>
+        <result column="app_id" property="appId"/>
+        <result column="title" property="title"/>
+        <result column="create_time" property="createTime"/>
+        <result column="category_id" property="categoryId"/>
+
+    </resultMap>
+
+
+    <!--根据模板ID 获取所属的APPID-->
+    <select id="getMessageTempByMessageTempIdSql" parameterType="java.lang.Long"
+            resultType="com.bit.module.system.bean.MessageTemplate">
+        SELECT DISTINCT
+            t.id,
+            t.context,
+            t.category,
+            t.msg_type msgType,
+            t.url,
+            t.app_id appId,
+            t.user_type userType,
+            t.app_url appUrl,
+            t.jump_flag jumpFlag,
+            t.level_one_menu levelOneMenu,
+            t.category_id categoryId
+        FROM
+            t_sys_message_template t
+        WHERE
+            t.id = #{id}
+    </select>
+
+    <!--根据模板ID获取接入端ID-->
+    <select id="getTidByMessageTemplateSql" parameterType="com.bit.module.system.bean.MessageTemplate"
+            resultType="java.lang.String">
+        SELECT
+            tt.tid
+        FROM
+            t_sys_message_template_rel_tid tt
+        WHERE
+            tt.template_id = #{messageTemplate.id}
+        AND tt.appid = #{messageTemplate.appId}
+    </select>
+
+
+    <select id="getTidByMessageTemplates" parameterType="com.bit.module.system.bean.MessageTemplate"
+            resultType="com.bit.module.system.bean.MessageTemplateRelTid">
+        SELECT
+        tt.tid,
+        tt.template_id AS  templateId,
+        tt.tid AS  tid,
+        tt.appid AS appid,
+        tt.store AS  store
+        FROM
+        t_sys_message_template_rel_tid tt
+        WHERE
+        tt.template_id = #{messageTemplate.id}
+        AND tt.appid = #{messageTemplate.appId}
+    </select>
+    <select id="getTemplateTidConfigByMessageTemplate" parameterType="com.bit.module.system.bean.MessageTemplate"
+            resultType="com.bit.module.system.bean.MessageTemplateRelTid">
+        SELECT
+        tt.id,
+        tt.template_id AS templateId,
+        tt.tid ,
+        tt.appid AS  appid,
+        tt.store AS  store
+        FROM
+        t_sys_message_template_rel_tid tt
+        WHERE
+        tt.template_id = #{messageTemplate.id}
+        AND tt.appid = #{messageTemplate.appId}
+    </select>
+
+
+    <select id="getMessageTemplateCategory" parameterType="java.lang.Long"
+            resultType="com.bit.module.system.vo.MessageTemplateVO">
+        SELECT
+            t.id,
+            t.context,
+            t.category,
+            t.msg_type msgType,
+            t.url,
+            t.app_id appId,
+            t.user_type userType,
+            t.app_url appUrl,
+            t.jump_flag jumpFlag,
+            t.level_one_menu levelOneMenu,
+            t.category_id categoryId,
+            tc.category_name categoryName
+        FROM
+        t_sys_message_template t
+        LEFT  JOIN t_sys_message_category tc
+          on t.category_id=tc.id
+        WHERE
+        t.id = #{id}
+    </select>
+</mapper>

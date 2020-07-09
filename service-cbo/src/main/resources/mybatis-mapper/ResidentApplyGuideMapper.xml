@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.ResidentApplyGuideDao">
+
+    <!-- 增加 办事指南类别 -->
+    <insert id="addGuid" parameterType="com.bit.module.cbo.vo.ResidentApplyGuideVO" keyProperty="guide.id" useGeneratedKeys="true" keyColumn="id">
+        insert INTO t_cbo_resident_apply_guide (
+            <if test="guide.name != null and guide.name != '' ">
+                name,
+            </if>
+            <if test="guide.type != null ">
+                type,
+            </if>
+            <if test="guide.sort != null">
+                sort,
+            </if>
+            <if test="guide.enable != null">
+                enable,
+            </if>
+            <if test="guide.pid != null">
+                pid,
+            </if>
+            <if test="guide.extendType != null">
+                extend_type,
+            </if>
+            <if test="guide.extend != null">
+                extend,
+            </if>
+            <if test="guide.createTime != null ">
+                create_time,
+            </if>
+            <if test="guide.createUserId != null ">
+                create_user_id,
+            </if>
+            <if test="guide.updateTime != null">
+                update_time,
+            </if>
+            <if test="guide.updateUserId != null">
+                update_user_id
+            </if>
+        )VALUE (
+            <if test="guide.name != null and guide.name != '' ">
+                #{guide.name},
+            </if>
+            <if test="guide.type != null ">
+                #{guide.type},
+            </if>
+            <if test="guide.sort != null">
+                #{guide.sort},
+            </if>
+            <if test="guide.enable != null">
+                #{guide.enable},
+            </if>
+            <if test="guide.pid != null">
+                #{guide.pid},
+            </if>
+            <if test="guide.extendType != null">
+                #{guide.extendType},
+            </if>
+            <if test="guide.extend != null">
+                #{guide.extend},
+            </if>
+            <if test="guide.createTime != null ">
+                #{guide.createTime},
+            </if>
+            <if test="guide.createUserId != null ">
+                #{guide.createUserId},
+            </if>
+            <if test="guide.updateTime != null">
+                #{guide.updateTime},
+            </if>
+            <if test="guide.updateUserId != null">
+                #{guide.updateUserId}
+            </if>
+        )
+    </insert>
+
+    <!-- 增加办事指南事项 -->
+    <insert id="addGuidItems">
+        insert INTO t_cbo_resident_apply_guide_items (
+            name,
+            param,
+            type,
+            sort,
+            guide_id
+        )VALUES
+            <foreach collection="items" index="index" item="item" separator=",">
+                (
+                    #{item.name},
+                    #{item.param},
+                    #{item.type},
+                    #{item.sort},
+                    #{item.guideId}
+                )
+            </foreach>
+    </insert>
+
+    <!-- 办事指南类别和事项排序 -->
+    <update id="sortGuidSql" parameterType="com.bit.module.cbo.bean.ResidentApplyGuide">
+        UPDATE t_cbo_resident_apply_guide
+            <trim prefix="set" suffixOverrides=",">
+                <trim prefix="sort = case" suffix="end,">
+                    <foreach collection="list" item="item" index="index" >
+                        <if test="item.sort!=null">
+                            WHEN id = #{item.id,jdbcType=BIGINT} then #{item.sort,jdbcType=INTEGER}
+                        </if>
+                    </foreach>
+                </trim>
+            </trim>
+        <where>
+            <foreach collection="list" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT}
+            </foreach>
+
+        </where>
+
+    </update>
+
+    <!-- 修改办事指南类别和事件表 -->
+    <update id="modifyGuideSql">
+        UPDATE t_cbo_resident_apply_guide t
+        <set>
+            <if test="guide.name != null and guide.name != ''">
+                t.name = #{guide.name},
+            </if>
+            <if test="guide.extendType != null">
+                t.extend_type = #{guide.extendType},
+            </if>
+            <if test="guide.extend != null">
+                t.extend = #{guide.extend},
+            </if>
+            <if test="guide.enable != null">
+                t.enable = #{guide.enable},
+            </if>
+            t.update_time = #{guide.updateTime},
+            t.update_user_id = #{guide.updateUserId}
+        </set>
+        where
+          t.id = #{guide.id}
+    </update>
+
+    <!-- 修改办事指南类别和事项状态 -->
+    <update id="modifyGuideFalgSql">
+        UPDATE t_cbo_resident_apply_guide t
+        SET
+            t.enable = #{guide.enable},
+            t.update_time = #{guide.updateTime},
+            t.update_user_id = #{guide.updateUserId}
+        where
+                t.enable != 2
+            <if test="guide.type != null">
+                and t.type = #{guide.type}
+            </if>
+            <if test="guide.pid != null">
+                and t.pid = #{guide.pid}
+            </if>
+            <if test="guide.id != null">
+                and t.id = #{guide.id}
+            </if>
+
+    </update>
+
+    <!-- 修改事项明细 -->
+    <update id="modifyGuideItems">
+        UPDATE t_cbo_resident_apply_guide_items
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="name = case" suffix="end,">
+                <foreach collection="list" item="item" index="index" >
+                    <if test="item.name!=null">
+                        WHEN id = #{item.id} then #{item.name}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="param = case" suffix="end,">
+                <foreach collection="list" item="item" index="index" >
+                    <if test="item.param!=null">
+                        WHEN id = #{item.id} then #{item.param}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="list" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT}
+            </foreach>
+        </where>
+    </update>
+
+    <!-- 根据事项ID删除事项内容明细 -->
+    <delete id="deleteGuidItemsByGuideIdSql">
+        DELETE FROM t_cbo_resident_apply_guide_items WHERE guide_id = #{guideId}
+    </delete>
+
+    <!-- 获取办事指南类别与事项最大排序号 -->
+    <select id="getMaxSort" resultType="java.lang.Integer">
+        SELECT
+            CASE
+                WHEN MAX(t.sort) IS NULL THEN 1
+            ELSE
+                MAX(t.sort)+1
+            END maxSort
+        FROM
+            t_cbo_resident_apply_guide t
+        WHERE
+            <choose>
+                <when test="pid != null">
+                    pid = #{pid}
+                </when>
+                <otherwise>
+                    pid IS NULL
+                </otherwise>
+            </choose>
+    </select>
+
+    <!-- 根据查询条件查询办事指南类别和事项 -->
+    <select id="findGuideSql" resultType="com.bit.module.cbo.bean.ResidentApplyGuide">
+        SELECT
+            t.id,
+            t.name,
+            t.type,
+            t.sort,
+            t.enable,
+            t.pid,
+            t.extend_type,
+            t.create_time
+        FROM
+            t_cbo_resident_apply_guide t
+        <where>
+            <if test="guide.enable != null">
+                t.enable = #{guide.enable}
+            </if>
+            <if test="guide.type != null">
+                and t.type = #{guide.type}
+            </if>
+            <if test="guide.pid != null">
+                and t.pid = #{guide.pid}
+            </if>
+        </where>
+        ORDER BY t.sort
+    </select>
+
+    <!-- 根据ID查询事项或者类别明细 -->
+    <select id="queryByIdSql" resultType="com.bit.module.cbo.vo.ResidentApplyGuideVO">
+        SELECT
+            t.id,
+            t.name,
+            t.type,
+            t.sort,
+            t.enable,
+            t.pid,
+            t.extend_type,
+            t.create_time,
+            t.extend
+        FROM
+            t_cbo_resident_apply_guide t
+        WHERE
+            t.id = #{id}
+
+    </select>
+
+    <!-- 根据事项ID查询明细 -->
+    <select id="queryByGuideIdSql" resultType="com.bit.module.cbo.bean.ResidentApplyGuideItems">
+        SELECT
+            t.id,
+            t. NAME,
+            t.param,
+            t.type,
+            t.sort
+        FROM
+            t_cbo_resident_apply_guide_items t
+        WHERE
+            t.guide_id = #{guideId}
+        ORDER BY
+            t.sort
+    </select>
+
+    <!-- 查询所有指南类别和事项 -->
+    <select id="findAllGuide" resultType="com.bit.module.cbo.bean.ResidentApplyGuide">
+        select
+            t.id,
+            t.name,
+            t.pid
+        FROM
+            t_cbo_resident_apply_guide t
+    </select>
+
+
+    <!-- 根据事项ID查询指定明细 -->
+    <select id="queryItemsByParmSql" resultType="com.bit.module.cbo.vo.ResidentApplyProgressVO">
+        SELECT
+            t.id guideItemId,
+            t.name itemName,
+            t.param,
+            t.sort,
+            t.guide_id guideId
+        FROM
+            t_cbo_resident_apply_guide_items t
+        <where>
+            <if test="guideItems.type != null">
+                t.type = #{guideItems.type}
+            </if>
+            <if test="guideItems.guideId != null">
+                AND t.guide_id = #{guideItems.guideId}
+            </if>
+        </where>
+        ORDER BY t.sort
+    </select>
+
+    <!-- 根据字段查询低保类型 -->
+    <select id="queryAllowancesByParmSql"
+            resultType="com.bit.module.cbo.bean.ResidentApplyBasicLivingAllowances">
+        SELECT
+            t.card_num cardNum,
+            t.rescue_num rescueNum,
+            t.amount,
+            t.bank_card bankCard,
+            t.release_time releaseTime,
+            t.data_type dataType,
+            t.roster_id rosterId,
+        t.house_holder_name houseHolderName,
+        t.house_holder_card_num houseHolderCardNum,
+        t.family_mobile familyMobile,
+        t.family_address familyAddress,
+        t.poor_reason poorReason
+        FROM
+            t_cbo_resident_apply_basic_living_allowances t
+        <where>
+            <if test="allowances.applyId != null">
+                t.apply_id = #{allowances.applyId}
+            </if>
+            <if test="allowances.id != null">
+                and t.id = #{allowances.id}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据字段查询居家养老补充业务 -->
+    <select id="queryResidentHomeCareByParmSql" resultType="com.bit.module.cbo.bean.ResidentApplyHomeCare">
+        SELECT
+            t.residence_type residenceType,
+            t.treatment_type treatmentType,
+            t.bank_card bankCard,
+            t.level,
+            t.amount,
+            t.report_time reportTime,
+            t.apply_id applyId,
+            t.data_type dataType,
+            t.family_mobile familyMobile,
+            t.family_address familyAddress,
+        t.living_ability livingAbility
+        FROM
+            t_cbo_resident_apply_home_care t
+        <where>
+            <if test="applyHomeCare.applyId != null">
+                t.apply_id = #{applyHomeCare.applyId}
+            </if>
+            <if test="applyHomeCare.id != null">
+                and t.id = #{applyHomeCare.id}
+            </if>
+        </where>
+
+    </select>
+
+    <!--根据字段查询残疾人补充业务-->
+    <select id="queryResidentDisableByParmSql" resultType="com.bit.module.cbo.bean.ResidentApplyDisabledIndividuals">
+        SELECT * FROM t_cbo_resident_apply_disabled_individuals
+        <where>
+            <if test="disable.applyId!=null">
+                apply_id = #{disable.applyId}
+            </if>
+            <if test="disable.id != null">
+                and id = #{disable.id}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryResidentApplySpecialSupportByParmSql" resultType="com.bit.module.cbo.bean.ResidentApplySpecialSupport">
+        SELECT * FROM t_cbo_resident_apply_special_support
+        <where>
+            <if test="support.applyId!=null">
+                apply_id = #{support.applyId}
+            </if>
+            <if test="support.id != null">
+                and id = #{support.id}
+            </if>
+        </where>
+    </select>
+
+    <!-- 获取所有包含补充信息的事项 -->
+    <select id="queryGuideItemParmExtend" resultType="com.bit.module.cbo.bean.ResidentApplyGuide">
+        select
+            t.id,
+            t.name,
+            t.type,
+            t.enable,
+            t.pid,
+            t.extend_type,
+            t.create_time
+        FROM
+            t_cbo_resident_apply_guide t
+        WHERE
+            t.extend = 1
+        AND t.enable in (1,0)
+    </select>
+
+    <!-- 获取所有类别 -->
+    <select id="findAllGuideForCategory" resultType="com.bit.module.cbo.vo.ResidentApplyGuideVO">
+        select
+            t.id,
+            t.name,
+            t.type,
+            t.enable,
+            t.extend_type,
+            t.create_time
+        FROM
+            t_cbo_resident_apply_guide t
+        WHERE
+            t.pid is NULL
+    </select>
+
+    <!--根据名称查询办事指南类别和事项重复-->
+    <select id="findGuideCountByNameSql" resultType="java.lang.Integer">
+        select COUNT(t.id)
+        FROM
+        t_cbo_resident_apply_guide t
+        WHERE
+            t.name = #{guide.name}
+            <if test="guide.pid != null">
+                and t.pid = #{guide.pid}
+            </if>
+            <if test="guide.id != null">
+                and t.id != #{guide.id}
+            </if>
+            <choose>
+                <when test="guide.pid != null">
+                    and t.pid is not null
+                </when>
+                <otherwise>
+                    and t.pid is null
+                </otherwise>
+            </choose>
+    </select>
+
+
+</mapper>

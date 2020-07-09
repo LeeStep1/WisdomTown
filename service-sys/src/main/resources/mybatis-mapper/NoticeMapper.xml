@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.NoticeDao">
+
+    <sql id="Notice_columns">
+        <![CDATA[
+			id as id,
+			app_id as app_id,
+			title as title,
+			content as content,
+			create_time as create_time,
+			notice_status as notice_status,
+			author_id as author_id,
+			notice_type as notice_type,
+			file_id as file_id,
+			publish_org_id as publish_org_id,
+			tid as tid,
+			user_id_list as user_id_list
+	    ]]>
+    </sql>
+
+    <sql id="Notice_page_columns">
+        <![CDATA[
+			t1.id as id,
+			t1.app_id as app_id,
+			t1.title as title,
+			t1.content as content,
+			t1.create_time as create_time,
+			t1.notice_status as notice_status,
+			t1.author_id as author_id,
+			t1.notice_type as notice_type,
+			t4.readed as readed
+
+	    ]]>
+    </sql>
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.system.bean.Notice" id="noticeMap">
+        <id column="id" property="id"/>
+        <result column="app_id" property="appId"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+        <result column="notice_status" property="noticeStatus"/>
+        <result column="author_id" property="authorId"/>
+        <result column="notice_type" property="noticeType"/>
+        <result column="file_id" property="fileId"/>
+        <result column="publish_org_id" property="publishOrgId"/>
+        <result column="tid" property="tid"/>
+        <result column="user_id_list" property="userIdList"/>
+    </resultMap>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.system.bean.Dict" id="dictMap">
+        <id column="id" property="id"/>
+        <result column="module" property="module"/>
+        <result column="dict_code" property="dictCode"/>
+        <result column="dict_name" property="dictName"/>
+        <result column="sort" property="sort"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <insert id="add" parameterType="com.bit.module.system.bean.Notice" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        INSERT INTO t_sys_notice(
+        app_id,
+        title,
+        content,
+        create_time,
+        notice_status,
+        author_id,
+        notice_type,
+        file_id,
+        publish_org_id,
+        tid,
+        user_id_list
+        ) VALUES (
+          #{appId,jdbcType=BIGINT},
+          #{title,jdbcType=VARCHAR},
+          #{content,jdbcType=VARCHAR},
+          NOW(),
+          #{noticeStatus,jdbcType=INTEGER},
+          #{authorId,jdbcType=BIGINT},
+          #{noticeType,jdbcType=INTEGER},
+          #{fileId,jdbcType=VARCHAR},
+          #{publishOrgId,jdbcType=BIGINT},
+          #{tid,jdbcType=VARCHAR},
+          #{userIdList,jdbcType=VARCHAR}
+        )
+    </insert>
+    
+    <delete id="delete" parameterType="long">
+        DELETE FROM t_sys_notice
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <update id="update" parameterType="com.bit.module.system.bean.Notice">
+        UPDATE t_sys_notice
+        <set>
+            <if test="appId!=null">
+                app_id = #{appId,jdbcType=BIGINT},
+            </if>
+            <if test="title!=null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content!=null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime!=null">
+                create_time = NOW(),
+            </if>
+            <if test="noticeStatus!=null">
+                notice_status = #{noticeStatus,jdbcType=INTEGER},
+            </if>
+            <if test="authorId!=null">
+                author_id = #{authorId,jdbcType=BIGINT},
+            </if>
+            <if test="noticeType!=null">
+                notice_type = #{noticeType,jdbcType=INTEGER},
+            </if>
+            <if test="fileId!=null and fileId!=''">
+                file_id = #{fileId,jdbcType=VARCHAR},
+            </if>
+
+            <if test="publishOrgId!=null">
+                publish_org_id = #{publishOrgId,jdbcType=BIGINT},
+            </if>
+            <if test="tid!=null and tid!=''">
+                tid = #{tid,jdbcType=VARCHAR},
+            </if>
+            <if test="userIdList!=null and userIdList!=''">
+                user_id_list = #{userIdList,jdbcType=VARCHAR}
+            </if>
+        </set>
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <select id="queryById" parameterType="long" resultMap="noticeMap">
+        SELECT <include refid="Notice_columns"/>
+        FROM t_sys_notice
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <!--<select id="listPage" parameterType="com.bit.module.system.vo.NoticeVO" resultType="com.bit.module.system.bean.NoticePage">-->
+        <!--SELECT <include refid="Notice_page_columns"/>-->
+        <!--FROM t_sys_notice t1-->
+        <!--INNER JOIN t_sys_notice_rel_user t4-->
+        <!--on t1.id = t4.notice_id-->
+
+        <!--<where>-->
+            <!--<if test="appId !=null"> and t1.app_id = #{appId,jdbcType=BIGINT} </if>-->
+            <!--<if test="title !=null"> and t1.title like concat("%",#{title,jdbcType=VARCHAR},"%") </if>-->
+            <!--<if test="noticeStatus !=null"> and t1.notice_status = #{noticeStatus,jdbcType=INTEGER} </if>-->
+            <!--<if test="noticeType !=null"> and t1.notice_type = #{noticeType,jdbcType=INTEGER} </if>-->
+            <!--<if test="authorId !=null"> and t1.author_id = #{authorId,jdbcType=BIGINT} </if>-->
+            <!--<if test="userId !=null"> and t4.user_id = #{userId,jdbcType=BIGINT} </if>-->
+        <!--</where>-->
+        <!--order by t1.create_time desc-->
+    <!--</select>-->
+
+    <!--<select id="anlistPage" parameterType="com.bit.module.system.vo.NoticeVO" resultType="com.bit.module.system.bean.NoticePage">-->
+        <!--SELECT <include refid="Notice_columns"/>-->
+        <!--FROM t_sys_notice-->
+        <!--<where>-->
+            <!--<if test="appId !=null"> and app_id = #{appId,jdbcType=BIGINT} </if>-->
+            <!--<if test="title !=null"> and title like #{title,jdbcType=VARCHAR}"%" </if>-->
+            <!--<if test="noticeStatus !=null"> and notice_status = #{noticeStatus,jdbcType=INTEGER} </if>-->
+            <!--<if test="noticeType !=null"> and notice_type = #{noticeType,jdbcType=INTEGER} </if>-->
+            <!--<if test="authorId !=null"> and author_id = #{authorId,jdbcType=BIGINT} </if>-->
+        <!--</where>-->
+        <!--order by create_time desc-->
+    <!--</select>-->
+
+    <select id="userlistPage" parameterType="com.bit.module.system.vo.NoticeVO" resultType="com.bit.module.system.bean.NoticePage">
+        SELECT t1.*,t2.dict_name as sourceName,t3.real_name as authorName
+        FROM t_sys_notice t1
+        INNER JOIN t_sys_dict t2
+        on t1.app_id = t2.dict_code and t2.module = 'application'
+        INNER JOIN t_sys_user t3
+        on t1.author_id = t3.id
+        <where>
+            <if test="appId !=null"> and t1.app_id = #{appId,jdbcType=BIGINT} </if>
+            <if test="title !=null"> and t1.title like concat("%",#{title,jdbcType=VARCHAR},"%") </if>
+            <if test="noticeStatus !=null"> and t1.notice_status = #{noticeStatus,jdbcType=INTEGER} </if>
+            <if test="noticeType !=null"> and t1.notice_type = #{noticeType,jdbcType=INTEGER} </if>
+            <if test="authorId !=null"> and t1.author_id = #{authorId,jdbcType=BIGINT} </if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <select id="getApp" parameterType="long" resultMap="dictMap">
+        SELECT DISTINCT t3.* from t_sys_user t1
+        INNER JOIN t_sys_user_rel_app t2
+        on t1.id = t2.user_id
+        INNER JOIN t_sys_dict t3
+        on t2.app_id = t3.dict_code
+        and t3.module='application'
+        WHERE t1.id = #{userId,jdbcType=BIGINT}
+    </select>
+
+
+    <!--<select id="getMaxAnnouncementId" resultType="long">-->
+        <!--SELECT MAX(id) from t_sys_notice-->
+        <!--WHERE notice_type=1-->
+    <!--</select>-->
+
+</mapper>

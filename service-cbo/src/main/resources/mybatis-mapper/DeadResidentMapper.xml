@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.DeadResidentDao">
+
+    <!-- 新增死亡居民信息 -->
+    <insert id="add" parameterType="com.bit.module.cbo.bean.DeadResident" keyProperty="de.id" useGeneratedKeys="true" keyColumn="id">
+        INSERT INTO t_cbo_dead_resident(
+            <if test="de.name != null and de.name != '' ">
+                name,
+            </if>
+            <if test="de.cardType != null">
+                card_type,
+            </if>
+            <if test="de.cardNum != null ">
+                card_num,
+            </if>
+            <if test="de.age != null ">
+                age,
+            </if>
+            <if test="de.sex != null ">
+                sex,
+            </if>
+            <if test="de.type != null ">
+                type,
+            </if>
+            <if test="de.identity != null ">
+                identity,
+            </if>
+            <if test="de.oaOrgId != null ">
+                oa_org_id,
+            </if>
+            <if test="de.oaOrgName != null ">
+                oa_org_name,
+            </if>
+            <if test="de.locationId != null ">
+                location_id,
+            </if>
+            <if test="de.locationName != null  and de.locationName != '' ">
+                location_name,
+            </if>
+            <if test="de.deadTime != null ">
+                dead_time,
+            </if>
+            <if test="de.createTime != null ">
+                create_time,
+            </if>
+            <if test="de.createUserId != null ">
+                create_user_id,
+            </if>
+            <if test="de.updateTime != null ">
+                update_time,
+            </if>
+            <if test="de.updateUserId != null ">
+                update_user_id
+            </if>
+
+        )VALUE (
+            <if test="de.name != null and de.name != '' ">
+                #{de.name},
+            </if>
+            <if test="de.cardType != null">
+                #{de.cardType},
+            </if>
+            <if test="de.cardNum != null ">
+                #{de.cardNum},
+            </if>
+            <if test="de.age != null ">
+                #{de.age},
+            </if>
+            <if test="de.sex != null ">
+                #{de.sex},
+            </if>
+            <if test="de.type != null ">
+                #{de.type},
+            </if>
+            <if test="de.identity != null ">
+                #{de.identity},
+            </if>
+            <if test="de.oaOrgId != null ">
+                #{de.oaOrgId},
+            </if>
+            <if test="de.oaOrgName != null ">
+                #{de.oaOrgName},
+            </if>
+            <if test="de.locationId != null ">
+                #{de.locationId},
+            </if>
+            <if test="de.locationName != null  and de.locationName != '' ">
+                #{de.locationName},
+            </if>
+            <if test="de.deadTime != null ">
+                #{de.deadTime},
+            </if>
+            <if test="de.createTime != null ">
+                #{de.createTime},
+            </if>
+            <if test="de.createUserId != null ">
+                #{de.createUserId},
+            </if>
+            <if test="de.updateTime != null ">
+                #{de.updateTime},
+            </if>
+            <if test="de.updateUserId != null ">
+                #{de.updateUserId}
+            </if>
+
+        )
+    </insert>
+
+    <!-- 修改死亡居民信息 -->
+    <update id="modify" parameterType="com.bit.module.cbo.bean.DeadResident" >
+        update t_cbo_dead_resident
+        <set>
+            <if test="de.name != null and de.name != '' ">
+                name = #{de.name},
+            </if>
+            <if test="de.cardType != null">
+                card_type = #{de.cardType},
+            </if>
+            <if test="de.cardNum != null ">
+                card_num = #{de.cardNum},
+            </if>
+            <if test="de.age != null ">
+                age = #{de.age},
+            </if>
+            <if test="de.sex != null ">
+                sex = #{de.sex},
+            </if>
+            <if test="de.type != null ">
+                type = #{de.type},
+            </if>
+            <if test="de.identity != null ">
+                identity = #{de.identity},
+            </if>
+            <if test="de.oaOrgId != null ">
+                oa_org_id = #{de.oaOrgId},
+            </if>
+            <if test="de.oaOrgName != null ">
+                oa_org_name = #{de.oaOrgName},
+            </if>
+            <if test="de.locationId != null ">
+                location_id = #{de.locationId},
+            </if>
+            <if test="de.locationName != null  and de.locationName != '' ">
+                location_name = #{de.locationName},
+            </if>
+            <if test="de.deadTime != null ">
+                dead_time = #{de.deadTime},
+            </if>
+            <if test="de.updateTime != null ">
+                update_time = #{de.updateTime},
+            </if>
+            <if test="de.updateUserId != null ">
+                update_user_id = #{de.updateUserId}
+            </if>
+        </set>
+        where
+          id = #{de.id}
+    </update>
+
+    <!-- 删除死亡居民信息 -->
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM t_cbo_dead_resident
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 返回死亡居民信息列表接口 -->
+    <select id="findAll" parameterType="com.bit.module.cbo.vo.DeadResidentVO"
+            resultType="com.bit.module.cbo.bean.DeadResident">
+        SELECT
+            t.id,
+            t.name,
+            t.sex,
+            t.age,
+            t.type,
+            t.oa_org_id oaOrgId,
+            t.oa_org_name oaOrgName,
+            t.location_id locationId,
+            t.location_name locationName,
+            t.identity,
+            t.dead_time deadTime,
+            t.update_time updateTime
+        FROM
+            t_cbo_dead_resident t
+        <where>
+            <if test="deadResidentVO.name != null and deadResidentVO.name != ''">
+                AND t.name LIKE CONCAT('%', #{deadResidentVO.name}, '%')
+            </if>
+            <if test="deadResidentVO.oaOrgId != null">
+                AND t.oa_org_id = #{deadResidentVO.oaOrgId}
+            </if>
+            <if test="deadResidentVO.type != null  and deadResidentVO.type != ''">
+                AND  t.type LIKE CONCAT('%', #{deadResidentVO.type}, '%')
+            </if>
+            <if test="(deadResidentVO.startTime != null and deadResidentVO.startTime != '')or (deadResidentVO.endTime != null and deadResidentVO.endTime != '')">
+                AND t.dead_time BETWEEN #{deadResidentVO.startTime} AND #{deadResidentVO.endTime}
+            </if>
+        </where>
+        ORDER BY
+            t.dead_time DESC
+
+    </select>
+
+    <!-- 返回死亡信息详情 -->
+    <select id="detail" parameterType="java.lang.Long"
+            resultType="com.bit.module.cbo.bean.DeadResident">
+        SELECT
+            t.id,
+            t. NAME,
+            t.sex,
+            t.age,
+            t.card_type cardType,
+            t.card_num cardNum,
+            t.type,
+            tl.community_id communityId,
+            tl.address_code addressCode,
+            t.oa_org_id oaOrgId,
+            t.oa_org_name oaOrgName,
+            t.location_id locationId,
+            t.location_name locationName,
+            t.identity,
+            t.dead_time deadTime,
+            t.update_time updateTime
+        FROM
+            t_cbo_dead_resident t LEFT JOIN t_cbo_location tl ON t.location_id = tl.id
+        WHERE
+           t.id = #{id}
+    </select>
+
+    <!-- 根据卡类型和卡号去重校验 -->
+    <select id="countByCardTypeAndCardNum" resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id) count
+        FROM
+            t_cbo_dead_resident t
+        WHERE
+            t.card_type = #{cardType}
+        AND t.card_num = #{cardNum}
+    </select>
+
+    <!-- 根据卡类型和卡号去重校验(修改时用) -->
+    <select id="modifyCountByCardTypeAndCardNum" resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id) count
+        FROM
+            t_cbo_dead_resident t
+        WHERE
+            t.card_type = #{cardType}
+        AND t.card_num = #{cardNum}
+        and t.id != #{id}
+    </select>
+
+    <!-- 返回死亡居民信息列表接口(导出模式) -->
+    <select id="findAllForExcel" resultType="com.bit.module.cbo.vo.DeadResidentExportVO">
+        SELECT
+            (@i:=@i+1) as orderId,
+            t.id,
+            t.name,
+            t.card_num cardNum,
+            CASE t.sex
+                WHEN 1 THEN'男'
+                ELSE '女'
+                END sex,
+            CASE t.card_type
+                WHEN 1 THEN '身份证'
+                WHEN 2 THEN '士官证'
+                WHEN 3 THEN '护照'
+                WHEN 4 THEN '港澳通行证'
+                ELSE '其他'
+                END cardTypeString,
+            t.age,
+            t.type,
+            t.oa_org_name oaOrgName,
+            t.location_id locationId,
+            t.location_name locationName,
+            CASE t.identity
+                WHEN 1 THEN '业主'
+                WHEN 2 THEN '家属'
+                WHEN 3 THEN '租客'
+                ELSE '其他'
+                END identity,
+            DATE_FORMAT(t.dead_time,'%Y-%m-%d') deadTime
+        FROM
+            t_cbo_dead_resident t,
+            (select   @i:=0) as orderTable
+        <where>
+            <if test="deadResident.name != null and deadResident.name != ''">
+                AND t.name LIKE CONCAT('%', #{deadResident.name}, '%')
+            </if>
+            <if test="deadResident.oaOrgId != null">
+                AND t.oa_org_id = #{deadResident.oaOrgId}
+            </if>
+            <if test="deadResident.type != null  and deadResident.type != ''">
+                AND  t.type LIKE CONCAT('%', #{deadResident.type}, '%')
+            </if>
+            <if test="(deadResident.startTime != null and deadResident.startTime != '')or (deadResident.endTime != null and deadResident.endTime != '')">
+                AND t.dead_time BETWEEN #{deadResident.startTime} AND #{deadResident.endTime}
+            </if>
+        </where>
+        ORDER BY
+        t.dead_time DESC
+    </select>
+
+
+</mapper>

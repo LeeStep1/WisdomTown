@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.vol.dao.CampaignDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Campaign_columns">
+        <![CDATA[
+			id as id,
+			campaign_theme as campaign_theme,
+			campaign_type as campaign_type,
+			begin_date as begin_date,
+			finish_date as finish_date,
+			charge_man as charge_man,
+			charge_man_mobile as charge_man_mobile,
+			campaign_place as campaign_place,
+			campaign_coordinate as campaign_coordinate,
+			campaign_number as campaign_number,
+			campaign_content as campaign_content,
+			campaign_image as campaign_image,
+			campaign_scale as campaign_scale,
+			station_id as station_id,
+			station_name as station_name,
+			information_file as information_file,
+			campaign_status as campaign_status,
+			campaign_audit as campaign_audit,
+			campaign_donate_money as campaign_donate_money,
+            campaign_reject_reason as campaign_reject_reason,
+            campaign_cancel_reason as campaign_cancel_reason,
+            version as version,
+            campaign_hour as campaign_hour,
+            campaign_full as campaign_full,
+            create_time as create_time,
+            enroll_number as enroll_number,
+            sign_number as sign_number,
+            campaign_all_hour as campaign_all_hour
+	    ]]>
+    </sql>
+
+    <sql id="Campaign_page_columns">
+        <![CDATA[
+			t1.id as id,
+			t1.campaign_theme as campaign_theme,
+			t1.campaign_type as campaign_type,
+			t1.begin_date as begin_date,
+			t1.finish_date as finish_date,
+			t1.campaign_scale as campaign_scale,
+			t1.campaign_number as campaign_number,
+			t1.campaign_hour as campaign_hour,
+			t1.charge_man as charge_man,
+			t1.charge_man_mobile as charge_man_mobile,
+			t1.campaign_status as campaign_status,
+			t1.station_id as station_id,
+			t1.campaign_audit as campaign_audit,
+			t2.station_name as station_name,
+			t1.enroll_number as enroll_number,
+			t1.sign_number as sign_number,
+			t1.campaign_donate_money as campaign_donate_money,
+			t1.campaign_place as campaign_place,
+			t1.version as version,
+            t1.create_time as create_time
+	    ]]>
+    </sql>
+
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.vol.bean.Campaign" id="CampaignMap">
+        <id column="id" property="id"/>
+        <result column="campaign_theme" property="campaignTheme"/>
+        <result column="campaign_type" property="campaignType"/>
+        <result column="begin_date" property="beginDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="charge_man" property="chargeMan"/>
+        <result column="charge_man_mobile" property="chargeManMobile"/>
+        <result column="campaign_place" property="campaignPlace"/>
+        <result column="campaign_coordinate" property="campaignCoordinate"/>
+        <result column="campaign_number" property="campaignNumber"/>
+        <result column="campaign_hour" property="campaignHour"/>
+        <result column="campaign_donate_money" property="campaignDonateMoney"/>
+        <result column="campaign_content" property="campaignContent"/>
+        <result column="campaign_image" property="campaignImage"/>
+        <result column="campaign_scale" property="campaignScale"/>
+        <result column="station_id" property="stationId"/>
+        <result column="information_file" property="informationFile"/>
+        <result column="campaign_status" property="campaignStatus"/>
+        <result column="campaign_audit" property="campaignAudit"/>
+        <result column="campaign_reject_reason" property="campaignRejectReason"/>
+        <result column="campaign_cancel_reason" property="campaignCancelReason"/>
+        <result column="version" property="version"/>
+        <result column="campaign_full" property="campaignFull"/>
+        <result column="create_time" property="createTime"/>
+        <result column="enroll_number" property="enrollNumber"/>
+        <result column="sign_number" property="signNumber"/>
+        <result column="campaign_all_hour" property="campaignAllHour"/>
+    </resultMap>
+
+    <sql id="columns">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="campaignTheme!=null and campaignTheme!=''">
+            campaign_theme,
+        </if>
+        <if test="campaignType!=null and campaignType!=''">
+            campaign_type,
+        </if>
+        <if test="beginDate!=null">
+            begin_date,
+        </if>
+        <if test="finishDate!=null">
+            finish_date,
+        </if>
+
+        <if test="chargeMan!=null and chargeMan!=''">
+            charge_man,
+        </if>
+        <if test="chargeManMobile!=null and chargeManMobile!=''">
+            charge_man_mobile,
+        </if>
+        <if test="campaignPlace!=null and campaignPlace!=''">
+            campaign_place,
+        </if>
+        <if test="campaignCoordinate!=null and campaignCoordinate!=''">
+            campaign_coordinate,
+        </if>
+        <if test="campaignNumber!=null">
+            campaign_number,
+        </if>
+        <if test="campaignDonateMoney!=null">
+            campaign_donate_money,
+        </if>
+        <if test="campaignContent!=null and campaignContent!=''">
+            campaign_content,
+        </if>
+            <if test="campaignHour!=null">
+                campaign_hour,
+            </if>
+        <if test="campaignImage!=null">
+            campaign_image,
+        </if>
+        <if test="campaignScale!=null">
+            campaign_scale,
+        </if>
+        <if test="stationId!=null">
+            station_id,
+        </if>
+        <if test="stationName!=null and stationName!=''">
+            station_name,
+        </if>
+        <if test="informationFile!=null and informationFile!=''">
+            information_file,
+        </if>
+        <if test="campaignStatus!=null">
+            campaign_status,
+        </if>
+        <if test="campaignAudit!=null">
+            campaign_audit,
+        </if>
+        <if test="campaignCancelReason!=null and campaignCancelReason!=''">
+            campaign_cancel_reason,
+        </if>
+        <if test="campaignRejectReason!=null and campaignRejectReason!=''">
+            campaign_reject_reason,
+        </if>
+        <if test="version!=null">
+            version,
+        </if>
+        <if test="campaignFull!=null">
+            campaign_full,
+        </if>
+        <if test="createTime!=null">
+            create_time,
+        </if>
+        <if test="enrollNumber!=null">
+            enroll_number,
+        </if>
+        <if test="signNumber!=null">
+            sign_number,
+        </if>
+            <if test="campaignAllHour!=null">
+                campaign_all_hour,
+            </if>
+        </trim>
+    </sql>
+
+    <sql id="values">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="campaignTheme!=null and campaignTheme!=''">
+            #{campaignTheme,jdbcType=VARCHAR},
+        </if>
+        <if test="campaignType!=null and campaignType!=''">
+            #{campaignType,jdbcType=VARCHAR},
+        </if>
+        <if test="beginDate!=null">
+            #{beginDate,jdbcType=TIMESTAMP},
+        </if>
+        <if test="finishDate!=null">
+            #{finishDate,jdbcType=TIMESTAMP},
+        </if>
+
+        <if test="chargeMan!=null and chargeMan!=''">
+            #{chargeMan,jdbcType=VARCHAR},
+        </if>
+        <if test="chargeManMobile!=null and chargeManMobile!=''">
+            #{chargeManMobile,jdbcType=VARCHAR},
+        </if>
+        <if test="campaignPlace!=null and campaignPlace!=''">
+            #{campaignPlace,jdbcType=VARCHAR},
+        </if>
+        <if test="campaignCoordinate!=null and campaignCoordinate!=''">
+            #{campaignCoordinate,jdbcType=VARCHAR},
+        </if>
+        <if test="campaignNumber!=null">
+            #{campaignNumber,jdbcType=VARCHAR},
+        </if>
+        <if test="campaignDonateMoney!=null">
+            #{campaignDonateMoney,jdbcType=DECIMAL},
+        </if>
+        <if test="campaignContent!=null and campaignContent!=''">
+            #{campaignContent,jdbcType=VARCHAR},
+        </if>
+            <if test="campaignHour!=null">
+                #{campaignHour,jdbcType=DECIMAL},
+            </if>
+        <if test="campaignImage!=null">
+            #{campaignImage,jdbcType=BIGINT},
+        </if>
+        <if test="campaignScale!=null">
+            #{campaignScale,jdbcType=INTEGER},
+        </if>
+        <if test="stationId!=null">
+            #{stationId,jdbcType=BIGINT},
+        </if>
+        <if test="stationName!=null and stationName!=''">
+            #{stationName,jdbcType=VARCHAR},
+        </if>
+        <if test="informationFile!=null and informationFile!=''">
+            #{informationFile,jdbcType=VARCHAR},
+        </if>
+        <if test="campaignStatus!=null">
+            #{campaignStatus,jdbcType=INTEGER},
+        </if>
+        <if test="campaignAudit!=null">
+            #{campaignAudit,jdbcType=INTEGER},
+        </if>
+        <if test="campaignCancelReason!=null and campaignCancelReason!=''">
+            #{campaignCancelReason,jdbcType=VARCHAR},
+        </if>
+        <if test="campaignRejectReason!=null and campaignRejectReason!=''">
+            #{campaignRejectReason,jdbcType=VARCHAR},
+        </if>
+        <if test="version!=null">
+            #{version,jdbcType=INTEGER},
+        </if>
+        <if test="campaignFull!=null">
+            #{campaignFull,jdbcType=INTEGER},
+        </if>
+        <if test="createTime!=null">
+            #{createTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="enrollNumber!=null">
+            #{enrollNumber,jdbcType=INTEGER},
+        </if>
+        <if test="signNumber!=null">
+            #{signNumber,jdbcType=INTEGER}
+        </if>
+            <if test="campaignAllHour!=null">
+                #{campaignAllHour,jdbcType=DECIMAL},
+            </if>
+        </trim>
+    </sql>
+
+
+    <insert id="add" parameterType="com.bit.module.vol.bean.Campaign" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into t_volunteer_campaign
+            <include refid="columns"/>
+        VALUES
+            <include refid="values"/>
+
+    </insert>
+
+    <select id="findByConditionPage" parameterType="com.bit.module.vol.vo.CampaignVO" resultType="com.bit.module.vol.bean.CampaignPage">
+
+        SELECT DISTINCT <include refid="Campaign_page_columns"/> FROM
+        t_volunteer_campaign t1
+        INNER JOIN t_volunteer_station t2
+        on t1.station_id = t2.id
+        <where>
+            t1.campaign_audit = 0
+            <if test="campaignTheme!=null and campaignTheme!=''">and t1.campaign_theme like CONCAT("%",#{campaignTheme,jdbcType=VARCHAR},"%") </if>
+            <if test="stationName!=null and stationName!=''">and t2.station_name like CONCAT("%",#{stationName,jdbcType=VARCHAR},"%")</if>
+            <if test="campaignStatus!=null ">
+                <if test="campaignStatus == 0">
+                    and <![CDATA[  t1.begin_date >#{nowDate,jdbcType=TIMESTAMP} and t1.finish_date >#{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                </if>
+                <if test="campaignStatus == 1">
+                    and <![CDATA[  t1.begin_date <=#{nowDate,jdbcType=TIMESTAMP} and t1.finish_date >=#{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                </if>
+                <if test="campaignStatus == 2">
+                    and <![CDATA[  t1.begin_date <#{nowDate,jdbcType=TIMESTAMP} and t1.finish_date <#{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                </if>
+                <if test="campaignStatus == 3">
+                    and t1.campaign_status = #{campaignStatus,jdbcType=INTEGER}
+                </if>
+            </if>
+            <if test="campaignStatus==null ">and t1.campaign_status != 4</if>
+            <if test="beginDate!=null and finishDate!=null">and <![CDATA[  t1.begin_date >=#{beginDate,jdbcType=TIMESTAMP} and t1.finish_date <=#{finishDate,jdbcType=TIMESTAMP} ]]> </if>
+            <if test="stationList !=null and stationList.size()>0 ">and t1.station_id in
+                <foreach collection="stationList" item="station" index="index" open="(" close=")" separator=",">
+                    #{station,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+        order by t1.create_time desc
+    </select>
+    
+    <select id="findAudit" parameterType="com.bit.module.vol.vo.CampaignVO" resultType="com.bit.module.vol.bean.CampaignPage">
+        SELECT <include refid="Campaign_page_columns"/> FROM
+        t_volunteer_campaign t1
+        INNER JOIN t_volunteer_station t2
+        on t1.station_id = t2.id
+        <where>
+            <if test="campaignTheme!=null and campaignTheme!=''">and t1.campaign_theme like CONCAT("%",#{campaignTheme,jdbcType=VARCHAR},"%") </if>
+            <if test="stationName!=null and stationName!=''">and t2.station_name like CONCAT("%",#{stationName,jdbcType=VARCHAR},"%")</if>
+            <if test="campaignAudit!=null ">and t1.campaign_audit = #{campaignAudit,jdbcType=INTEGER}</if>
+
+            <if test="stationLevel != 1">
+                and t1.station_id = #{stationId,jdbcType=BIGINT}
+            </if>
+
+            <if test="beginDate!=null and finishDate!=null">and <![CDATA[  t1.begin_date >=#{beginDate,jdbcType=INTEGER} and t1.finish_date <=#{finishDate,jdbcType=INTEGER} ]]> </if>
+        </where>
+        <if test="stationLevel == 1">
+            <if test="stationId!=null">and t1.station_id = #{stationId,jdbcType=BIGINT}</if>
+            union
+            SELECT <include refid="Campaign_page_columns"/> FROM
+            t_volunteer_campaign t1
+            INNER JOIN t_volunteer_station t2
+            on t1.station_id = t2.id
+            <where>
+                <if test="beginDate!=null and finishDate!=null">and <![CDATA[  t1.begin_date >=#{beginDate,jdbcType=INTEGER} and t1.finish_date <=#{finishDate,jdbcType=INTEGER} ]]> </if>
+                <if test="stationId!=null">and t1.station_id != #{stationId,jdbcType=BIGINT}</if>
+                and t1.campaign_scale = 0
+            </where>
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="queryById" parameterType="long" resultMap="CampaignMap">
+        SELECT <include refid="Campaign_columns"/>
+        FROM t_volunteer_campaign
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM t_volunteer_campaign
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <select id="findByParam" parameterType="com.bit.module.vol.bean.Campaign" resultMap="CampaignMap">
+        SELECT <include refid="Campaign_page_columns"/>
+        FROM t_volunteer_campaign
+        <where>
+            <if test="stationId!=null">and station_id=#{stationId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+    
+    <select id="findByStationIdAndTheme" parameterType="com.bit.module.vol.bean.Campaign" resultMap="CampaignMap">
+        SELECT <include refid="Campaign_columns"/>
+        FROM t_volunteer_campaign
+        <where>
+            <if test="stationId!=null">and station_id=#{stationId,jdbcType=BIGINT}</if>
+            <if test="campaignTheme!=null">and campaign_theme like CONCAT("%",#{campaignTheme,jdbcType=VARCHAR},"%") </if>
+            <if test="campaignStatus!=null ">
+                <if test="campaignStatus == 0">
+                    and <![CDATA[  begin_date >#{nowDate,jdbcType=TIMESTAMP} and finish_date >#{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                </if>
+                <if test="campaignStatus == 1">
+                    and <![CDATA[  begin_date <=#{nowDate,jdbcType=TIMESTAMP} and finish_date >=#{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                </if>
+                <if test="campaignStatus == 2">
+                    and <![CDATA[  begin_date <#{nowDate,jdbcType=TIMESTAMP} and finish_date < #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                </if>
+                <if test="campaignStatus == 3">
+                    and campaign_status = #{campaignStatus,jdbcType=INTEGER}
+                </if>
+            </if>
+            <if test="campaignStatus==null ">and campaign_status != 4</if>
+            order by create_time desc
+        </where>
+    </select>
+    
+    <update id="update" parameterType="com.bit.module.vol.bean.Campaign">
+        UPDATE t_volunteer_campaign
+        <set>
+            <if test="campaignTheme!=null">
+                campaign_theme = #{campaignTheme,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignType!=null">
+                campaign_type = #{campaignType,jdbcType=VARCHAR},
+            </if>
+            <if test="beginDate!=null">
+                begin_date = #{beginDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="finishDate!=null">
+                finish_date = #{finishDate,jdbcType=TIMESTAMP},
+            </if>
+
+            <if test="chargeMan!=null">
+                charge_man = #{chargeMan,jdbcType=VARCHAR},
+            </if>
+            <if test="chargeManMobile!=null">
+                charge_man_mobile = #{chargeManMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignPlace!=null">
+                campaign_place = #{campaignPlace,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignCoordinate!=null">
+                campaign_coordinate = #{campaignCoordinate,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignNumber!=null">
+                campaign_number = #{campaignNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignDonateMoney!=null">
+                campaign_donate_money = #{campaignDonateMoney,jdbcType=DECIMAL},
+            </if>
+            <if test="campaignContent!=null">
+                campaign_content = #{campaignContent,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignImage!=null">
+                campaign_image = #{campaignImage,jdbcType=BIGINT},
+            </if>
+            <if test="campaignScale!=null">
+                campaign_scale = #{campaignScale,jdbcType=INTEGER},
+            </if>
+            <if test="stationId!=null">
+                station_id = #{stationId,jdbcType=BIGINT},
+            </if>
+            <if test="stationName!=null">
+                station_name = #{stationName,jdbcType=VARCHAR},
+            </if>
+            <if test="informationFile!=null">
+                information_file = #{informationFile,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignStatus!=null">
+                campaign_status = #{campaignStatus,jdbcType=INTEGER},
+            </if>
+            <if test="campaignAudit!=null">
+                campaign_audit = #{campaignAudit,jdbcType=INTEGER},
+            </if>
+            <if test="campaignCancelReason!=null">
+                campaign_cancel_reason = #{campaignCancelReason,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignRejectReason!=null">
+                campaign_reject_reason = #{campaignRejectReason,jdbcType=VARCHAR},
+            </if>
+            <if test="version!=null">
+                version = #{version,jdbcType=INTEGER} + 1,
+            </if>
+            <if test="campaignFull!=null">
+                campaign_full = #{campaignFull,jdbcType=INTEGER},
+            </if>
+            <if test="enrollNumber!=null">
+                enroll_number = #{enrollNumber,jdbcType=INTEGER},
+            </if>
+            <if test="signNumber!=null">
+                sign_number = #{signNumber,jdbcType=INTEGER},
+            </if>
+            <if test="campaignHour!=null">
+                campaign_hour = #{campaignHour,jdbcType=DECIMAL},
+            </if>
+            <if test="campaignAllHour!=null">
+                campaign_all_hour = #{campaignAllHour,jdbcType=DECIMAL},
+            </if>
+        </set>
+        <where>
+            <if test="id!=null">and id =#{id,jdbcType=BIGINT}</if>
+            <if test="version!=null">and version =#{version,jdbcType=INTEGER}</if>
+        </where>
+    </update>
+
+    <select id="appCampaignlistPage" parameterType="com.bit.module.vol.vo.CampaignVO" resultType="com.bit.module.vol.bean.CampaignApp">
+        SELECT DISTINCT * FROM (
+        SELECT t1.* FROM t_volunteer_campaign t1
+        <where>
+            t1.campaign_audit = 0
+            and t1.campaign_scale = 1
+            <if test="beginDate!=null and finishDate!=null">and <![CDATA[  t1.begin_date >=#{beginDate,jdbcType=TIMESTAMP} and t1.finish_date <=#{finishDate,jdbcType=TIMESTAMP} ]]> </if>
+            <if test="campaignType!=null">and t1.campaign_type like CONCAT("%",#{campaignType,jdbcType=VARCHAR},"%") </if>
+            <if test="campaignStatus!=null">
+                <if test="campaignStatus==0">
+                    and <![CDATA[  t1.begin_date > #{nowDate,jdbcType=TIMESTAMP} and t1.finish_date > #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                </if>
+                <if test="campaignStatus==1">
+                    and <![CDATA[  t1.begin_date <= #{nowDate,jdbcType=TIMESTAMP} and t1.finish_date >= #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                </if>
+                <if test="campaignStatus==2">
+                    and <![CDATA[  t1.begin_date < #{nowDate,jdbcType=TIMESTAMP} and t1.finish_date < #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                </if>
+                <if test="campaignStatus==3">
+                    and t1.campaign_status = #{campaignStatus,jdbcType=INTEGER}
+                </if>
+            </if>
+            <if test="campaignStatus==null">and t1.campaign_status !=4</if>
+            <if test="campaignFull!=null">and t1.campaign_full = #{campaignFull,jdbcType=INTEGER}</if>
+            <if test="campaignTheme!=null and campaignTheme!=''">and t1.campaign_theme like CONCAT("%",#{campaignTheme,jdbcType=VARCHAR},"%")</if>
+            <if test="stationId!=null">and t1.station_id = #{stationId,jdbcType=BIGINT}</if>
+        </where>
+        union
+        SELECT t1.* FROM t_volunteer_campaign t1
+        <where>
+            t1.campaign_audit = 0
+            and t1.campaign_scale = 0
+            <if test="beginDate!=null and finishDate!=null">and <![CDATA[  t1.begin_date >=#{beginDate,jdbcType=TIMESTAMP} and t1.finish_date <=#{finishDate,jdbcType=TIMESTAMP} ]]> </if>
+            <if test="campaignType!=null">and t1.campaign_type like CONCAT("%",#{campaignType,jdbcType=VARCHAR},"%") </if>
+            <if test="campaignStatus!=null">
+                <if test="campaignStatus==0">
+                    and <![CDATA[  t1.begin_date > #{nowDate,jdbcType=TIMESTAMP} and t1.finish_date > #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                    and t1.campaign_status != 3
+                </if>
+                <if test="campaignStatus==1">
+                    and <![CDATA[  t1.begin_date <= #{nowDate,jdbcType=TIMESTAMP} and t1.finish_date >= #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                    and t1.campaign_status != 3
+                </if>
+                <if test="campaignStatus==2">
+                    and <![CDATA[  t1.begin_date < #{nowDate,jdbcType=TIMESTAMP} and t1.finish_date < #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                    and t1.campaign_status != 3
+                </if>
+                <if test="campaignStatus==3">
+                    and t1.campaign_status = #{campaignStatus,jdbcType=INTEGER}
+                </if>
+            </if>
+            <if test="campaignStatus==null">and t1.campaign_status !=4</if>
+            <if test="campaignFull!=null">and t1.campaign_full = #{campaignFull,jdbcType=INTEGER}</if>
+            <if test="campaignTheme!=null and campaignTheme!=''">and t1.campaign_theme like CONCAT("%",#{campaignTheme,jdbcType=VARCHAR},"%")</if>
+        </where>
+        ) t
+        order by t.create_time desc
+    </select>
+
+    <select id="appMyCampaignlistPage" parameterType="com.bit.module.vol.vo.CampaignVO" resultType="com.bit.module.vol.bean.CampaignApp">
+        SELECT t2.*,t1.sign_status,t1.campaign_id,t1.volunteer_id FROM t_volunteer_campaign_volunteer_record t1
+        INNER JOIN t_volunteer_campaign t2
+        on t1.campaign_id = t2.id
+        <where>
+            t1.record_status = 1
+            <if test="campaignStatus!=null">
+                <if test="campaignStatus==0">
+                    and <![CDATA[  t2.begin_date > #{nowDate,jdbcType=TIMESTAMP} and t2.finish_date > #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                    and t2.campaign_status !=3
+                </if>
+                <if test="campaignStatus==1">
+                    and <![CDATA[  t2.begin_date <= #{nowDate,jdbcType=TIMESTAMP} and t2.finish_date >= #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                    and t2.campaign_status !=3
+                </if>
+                <if test="campaignStatus==2">
+                    and <![CDATA[  t2.begin_date < #{nowDate,jdbcType=TIMESTAMP} and t2.finish_date < #{nowDate,jdbcType=TIMESTAMP} and campaign_status <3]]>
+                    and t2.campaign_status !=3
+                </if>
+                <if test="campaignStatus==3">
+                    and t2.campaign_status = #{campaignStatus,jdbcType=INTEGER}
+                </if>
+            </if>
+            <if test="campaignStatus==null">and t2.campaign_status !=4</if>
+            <if test="volunteerId!=null">and t1.volunteer_id =#{volunteerId,jdbcType=BIGINT}</if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <select id="findTopThree" parameterType="com.bit.module.vol.vo.CampaignVO" resultType="com.bit.module.vol.bean.Campaign">
+        SELECT <include refid="Campaign_columns"/>
+        FROM t_volunteer_campaign
+    </select>
+
+    <select id="findAllPassed" resultType="com.bit.module.vol.bean.Campaign">
+        SELECT <include refid="Campaign_columns"/>
+        FROM t_volunteer_campaign
+        WHERE campaign_status in (0,1) and campaign_audit=0
+    </select>
+    
+    <select id="countCampaignByStation" parameterType="long" resultType="int">
+        SELECT COUNT(id) FROM t_volunteer_campaign
+        WHERE station_id = #{stationId,jdbcType=BIGINT}
+    </select>
+
+    <select id="findByConditionPageForExcel" parameterType="com.bit.module.vol.bean.Campaign" resultType="com.bit.module.vol.bean.CampaignPage">
+        SELECT <include refid="Campaign_page_columns"/> FROM
+        t_volunteer_campaign t1
+        INNER JOIN t_volunteer_station t2
+        on t1.station_id = t2.id
+        <where>
+            <if test="campaignTheme!=null and campaignTheme!=''">and t1.campaign_theme like concat("%",#{campaignTheme,jdbcType=VARCHAR},"%") </if>
+            <if test="stationName!=null and stationName!=''">and t1.station_name like concat("%",#{stationName,jdbcType=VARCHAR},"%") </if>
+            <if test="campaignStatus!=null ">
+                <if test="campaignStatus==0">
+                    and <![CDATA[  t1.begin_date > #{nowDate,jdbcType=TIMESTAMP} and t1.finish_date > #{nowDate,jdbcType=TIMESTAMP} and t1.campaign_status <3]]>
+                    and t1.campaign_status !=3
+                </if>
+                <if test="campaignStatus==1">
+                    and <![CDATA[  t1.begin_date <= #{nowDate,jdbcType=TIMESTAMP} and t1.finish_date >= #{nowDate,jdbcType=TIMESTAMP} and t1.campaign_status <3]]>
+                    and t1.campaign_status !=3
+                </if>
+                <if test="campaignStatus==2">
+                    and <![CDATA[  t1.begin_date < #{nowDate,jdbcType=TIMESTAMP} and t1.finish_date < #{nowDate,jdbcType=TIMESTAMP} and t1.campaign_status <3]]>
+                    and t1.campaign_status !=3
+                </if>
+                <if test="campaignStatus==3">
+                    and t1.campaign_status = #{campaignStatus,jdbcType=INTEGER}
+                </if>
+            </if>
+            <if test="campaignStatus==null ">and t1.campaign_status != 4</if>
+            <if test="beginDate!=null and finishDate!=null">and <![CDATA[  t1.begin_date >=#{beginDate,jdbcType=INTEGER} and t1.finish_date <=#{finishDate,jdbcType=INTEGER} ]]> </if>
+            <if test="stationList !=null and stationList.size()>0 ">and t1.station_id in
+                <foreach collection="stationList" item="station" index="index" open="(" close=")" separator=",">
+                    #{station,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <update id="batchUpdate" parameterType="com.bit.module.vol.bean.Campaign">
+        UPDATE t_volunteer_campaign
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="campaign_hour = case" suffix="end,">
+                <foreach collection="campaignList" item="campaign" index="index" >
+                    <if test="campaign.campaignHour!=null">
+                        WHEN id = #{campaign.id,jdbcType=BIGINT} then #{campaign.campaignHour,jdbcType=DECIMAL}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="campaign_donate_money = case" suffix="end,">
+                <foreach collection="campaignList" item="campaign" index="index" >
+                    <if test="campaign.campaignDonateMoney!=null">
+                        WHEN id = #{campaign.id,jdbcType=BIGINT} then #{campaign.campaignDonateMoney,jdbcType=DECIMAL}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="enroll_number = case" suffix="end,">
+                <foreach collection="campaignList" item="campaign" index="index" >
+                    <if test="campaign.enrollNumber!=null">
+                        WHEN id = #{campaign.id,jdbcType=BIGINT} then #{campaign.enrollNumber,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="sign_number = case" suffix="end,">
+                <foreach collection="campaignList" item="campaign" index="index" >
+                    <if test="campaign.signNumber!=null">
+                        WHEN id = #{campaign.id,jdbcType=BIGINT} then #{campaign.signNumber,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="campaignList" item="campaign" index="index" >
+                    <if test="campaign.version!=null">
+                        WHEN id = #{campaign.id,jdbcType=BIGINT} then #{campaign.version,jdbcType=INTEGER} + 1
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="campaignList" item="campaign" index="index" separator=") or (" close=")" open="(">
+                id = #{campaign.id,jdbcType=BIGINT} and version = #{campaign.version,jdbcType=INTEGER}
+            </foreach>
+
+        </where>
+    </update>
+
+    <update id="batchUpdateCampaignStatus" parameterType="list">
+        UPDATE t_volunteer_campaign
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="campaign_status = case" suffix="end,">
+                <foreach collection="campaignList" item="campaign" index="index" >
+                    <if test="campaign.campaignStatus!=null">
+                        WHEN id = #{campaign.id,jdbcType=BIGINT} then #{campaign.campaignStatus,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="campaignList" item="campaign" index="index" >
+                    <if test="campaign.version!=null">
+                        WHEN id = #{campaign.id,jdbcType=BIGINT} then #{campaign.version,jdbcType=INTEGER} + 1
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="campaignList" item="campaign" index="index" separator=") or (" close=")" open="(">
+                id = #{campaign.id,jdbcType=BIGINT} and version = #{campaign.version,jdbcType=INTEGER}
+            </foreach>
+
+        </where>
+    </update>
+</mapper>

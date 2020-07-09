@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.manager.dao.ProtalPbOrgDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="ProtalPbOrg_columns">
+	    <![CDATA[
+			id as id,
+			content as content,
+			category_id as category_id,
+			operation_user_id as operation_user_id,
+			operation_user_name as operation_user_name
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.manager.bean.ProtalPbOrg" id="protalPbOrgMap">
+		<id column="id" property="id"/>
+	    <result column="content" property="content"/>
+	    <result column="category_id" property="categoryId"/>
+	    <result column="operation_user_id" property="operationUserId"/>
+	    <result column="operation_user_name" property="operationUserName"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="protalPbOrgMap" parameterType="com.bit.module.manager.vo.ProtalPbOrgVO">
+		select <include refid="ProtalPbOrg_columns" /> from t_protal_pb_org
+		where
+			navigation_id = #{navigationId}
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="content != null and content != '' " >and content =#{content,jdbcType=LONGVARCHAR}</if>
+			<if test="categoryId != null and categoryId != '' " >and category_id =#{categoryId,jdbcType=BIGINT}</if>
+			<if test="operationUserId != null and operationUserId != '' " >and operation_user_id =#{operationUserId,jdbcType=BIGINT}</if>
+			<if test="operationUserName != null and operationUserName != '' " >and operation_user_name =#{operationUserName,jdbcType=VARCHAR}</if>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="protalPbOrgMap" parameterType="String">
+		select <include refid="ProtalPbOrg_columns" /> from t_protal_pb_org
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="protalPbOrgMap" parameterType="com.bit.module.manager.bean.ProtalPbOrg">
+		select <include refid="ProtalPbOrg_columns" /> 
+		from t_protal_pb_org
+		where 
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+
+	<!-- 党建组织导航下栏目展示 -->
+	<select id="getPbOrgNavigationContendSql" parameterType="java.lang.Long"
+			resultType="com.bit.module.manager.bean.ProtalPbOrg">
+		SELECT
+			t.id,
+			t.content,
+			t.category_id
+		FROM
+			t_protal_pb_org t
+		WHERE
+			t.category_id = #{categoryId}
+		and	t.navigation_id = #{navigationId}
+	</select>
+
+
+	<!-- 党建组织领导班子头像展示 -->
+	<select id="getLeaderImageSql" resultType="com.bit.module.manager.bean.PortalPbLeader">
+		select
+			t.id,
+			t.name,
+			t.head_img_url headImgUrl,
+			t.status
+		FROM
+			t_portal_pb_leader t
+		WHERE
+			t.del_status = #{portalPbLeader.delStatus}
+		ORDER BY t.rank
+
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.manager.bean.ProtalPbOrg">
+	insert INTO t_protal_pb_org (
+		<if test="content != null and content != '' ">
+			content ,
+		</if>
+		category_id ,
+		navigation_id,
+		operation_user_id ,
+		operation_user_name 
+	) VALUES (
+		<if test="content != null and content != '' ">
+			#{content,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="categoryId != null ">
+			#{categoryId,jdbcType=BIGINT},
+		</if>
+		<if test="navigationId != null ">
+			#{navigationId,jdbcType=BIGINT},
+		</if>
+		#{operationUserId,jdbcType=BIGINT},
+		#{operationUserName,jdbcType=VARCHAR}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.manager.bean.ProtalPbOrg">
+		update t_protal_pb_org
+		<set>
+		<if test="content != null">
+		 content =#{content,jdbcType=LONGVARCHAR},
+		</if>
+		<if test="categoryId != null">
+		 category_id =#{categoryId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserId != null">
+		 operation_user_id =#{operationUserId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserName != null">
+		 operation_user_name =#{operationUserName,jdbcType=VARCHAR}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.manager.bean.ProtalPbOrg">
+		delete from t_protal_pb_org 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+</mapper>

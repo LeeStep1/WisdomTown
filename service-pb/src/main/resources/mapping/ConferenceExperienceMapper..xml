@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.pb.dao.ConferenceExperienceDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="ConferenceExperience_columns">
+        <![CDATA[
+			id as id,
+			user_id as user_id,
+			conference_id as conference_id,
+			file_id as file_id,
+			status as status,
+			upload_time as upload_time,
+            file_detail as file_detail
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.pb.bean.ConferenceExperience" id="ConferenceExperienceMap">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="conference_id" property="conferenceId"/>
+        <result column="file_id" property="fileId"/>
+        <result column="status" property="status"/>
+        <result column="upload_time" property="uploadTime"/>
+        <result column="file_detail" property="fileDetail"/>
+    </resultMap>
+
+    <!-- 用于查询组织代码所在的层级 -->
+    <sql id="Organization">
+        <![CDATA[
+			select id as id
+		from
+			t_pb_organization a,
+			( select
+				mysql.help_topic.help_topic_id + 1 as `level`
+			from
+				mysql.help_topic
+			where
+				mysql.help_topic.help_topic_id < 8
+				and ( #{pbId, jdbcType=BIGINT} << 8 * mysql.help_topic.help_topic_id + 1 ) != 0
+			order by
+				mysql.help_topic.help_topic_id desc
+			limit 1 ) b
+		where
+			a.id < ( ( #{pbId, jdbcType=BIGINT} >> ( 64 - b.`level` * 8 )) + 1) << ( 64 - b.`level` * 8 )
+			and a.id > #{pbId, jdbcType=BIGINT}
+
+		]]>
+    </sql>
+    <insert id="add" parameterType="com.bit.module.pb.bean.ConferenceExperience" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into t_pb_conference_experience(
+           user_id,
+           conference_id,
+           file_id,
+           status,
+           upload_time,
+           file_detail
+        )VALUES (
+           #{userId,jdbcType=BIGINT},
+           #{conferenceId,jdbcType=BIGINT},
+           #{fileId,jdbcType=BIGINT},
+           #{status,jdbcType=INTEGER},
+           #{uploadTime,jdbcType=TIMESTAMP},
+           #{fileDetail,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.bit.module.pb.bean.ConferenceExperience">
+        update t_pb_conference_experience
+        <set>
+            <if test="userId !=null ">
+                user_id =#{userId,jdbcType=BIGINT},
+            </if>
+            <if test="conferenceId !=null ">
+                conference_id =#{conferenceId,jdbcType=BIGINT},
+            </if>
+            <if test="fileId !=null">
+                file_id =#{fileId,jdbcType=BIGINT},
+            </if>
+            <if test="status !=null">
+                status =#{status,jdbcType=INTEGER},
+            </if>
+            <if test="uploadTime !=null">
+                upload_time =#{uploadTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="fileDetail !=null and fileDetail!=''">
+                file_detail =#{fileDetail,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where id =#{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="listPage" resultType="com.bit.module.pb.bean.Conference" parameterType="com.bit.module.pb.vo.ConferenceVO">
+        SELECT DISTINCT t1.*,t2.name,t2.id as orgId FROM t_pb_conference t1
+        INNER JOIN t_pb_organization t2
+        on t1.pb_id = t2.id
+        <where>
+            and t1.is_upload_experience = 1
+            and t1.status != 4
+            and t1.status != 0
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime !=''">
+                and t1.start_time between #{beginTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pb_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            and <![CDATA[ t1.end_time < #{nowDate,jdbcType=TIMESTAMP}]]>
+
+        </where>
+        order by t1.release_time desc
+    </select>
+
+    <select id="queryExperience" parameterType="com.bit.module.pb.vo.ConferenceExperienceVO" resultType="com.bit.module.pb.bean.ConferenceExperienceFile">
+
+        SELECT DISTINCT t1.*,t2.`name`,t2.id_card from t_pb_conference_experience t1
+        LEFT JOIN  t_pb_party_member t2
+        on t1.user_id = t2.id
+        <where>
+            <if test="conferenceId!=null">and t1.conference_id = #{conferenceId,jdbcType=BIGINT}</if>
+        </where>
+
+    </select>
+
+    <select id="calculateUploadRate" parameterType="long" resultType="integer">
+        SELECT count(1) as num FROM t_pb_conference_experience
+        <where>
+            <if test="id!=null">and conference_id =  #{id,jdbcType=BIGINT}</if>
+            and status = 1
+        </where>
+    </select>
+
+
+    <select id="queryByConferenceId" parameterType="long" resultType="long">
+        SELECT user_id from t_pb_conference_experience
+        where conference_id = #{conferenceId,jdbcType=BIGINT}
+    </select>
+
+
+    <insert id="batchAdd" parameterType="com.bit.module.pb.bean.ConferenceExperience">
+        insert into t_pb_conference_experience(
+        user_id,
+        conference_id,
+        file_id,
+        status,
+        upload_time,
+        file_detail
+        ) VALUES
+        <foreach collection="conferenceExperiences" item="item"  separator="," index="index">
+            (
+            #{item.userId,jdbcType=BIGINT},
+            #{item.conferenceId,jdbcType=BIGINT},
+            #{item.fileId,jdbcType=BIGINT},
+            #{item.status,jdbcType=INTEGER},
+            #{item.uploadTime,jdbcType=TIMESTAMP},
+            #{item.fileDetail,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="findByConferenceIdAndUserId" parameterType="com.bit.module.pb.bean.ConferenceExperience" resultMap="ConferenceExperienceMap">
+        SELECT <include refid="ConferenceExperience_columns"/>
+        FROM t_pb_conference_experience
+        <where>
+            <if test="conferenceId!=null">and conference_id = #{conferenceId,jdbcType=BIGINT}</if>
+            <if test="userId!=null">and user_id = #{userId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <update id="batchUpdateExperience" parameterType="list">
+        UPDATE t_pb_conference_experience
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="file_id = case" suffix="end,">
+                <foreach collection="passList" item="item" index="index" >
+                    <if test="item.fileId!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.fileId,jdbcType=BIGINT}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="status = case" suffix="end,">
+                <foreach collection="passList" item="item" index="index" >
+                    <if test="item.status!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.status,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="upload_time = case" suffix="end,">
+                <foreach collection="passList" item="item" index="index" >
+                    <if test="item.uploadTime!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.uploadTime,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="file_detail = case" suffix="end,">
+                <foreach collection="passList" item="item" index="index" >
+                    <if test="item.fileDetail!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.fileDetail,jdbcType=varchar}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="passList" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT}
+            </foreach>
+        </where>
+    </update>
+</mapper>

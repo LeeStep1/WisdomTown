@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.manager.dao.PortalCategoryDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PortalCategory_columns">
+	    <![CDATA[
+			id as id,
+			rank as rank,
+			category_name as category_name,
+			navigation_id as navigation_id,
+			category_title_flag as category_title_flag,
+		
+			category_content_name_flag as category_content_name_flag,
+			category_create_flag as category_create_flag,
+			category_cover_flag as category_cover_flag,
+			category_subhead_flag as category_subhead_flag,
+			category_video_flag as category_video_flag,
+		
+			category_content_flag as category_content_flag,
+			category_type as category_type,
+			status as status,
+			operation_user_id as operation_user_id,
+			operation_user_name as operation_user_name
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.manager.bean.PortalCategory" id="portalCategoryMap">
+		<id column="id" property="id"/>
+	    <result column="rank" property="rank"/>
+	    <result column="category_name" property="categoryName"/>
+	    <result column="navigation_id" property="navigationId"/>
+	    <result column="category_title_flag" property="categoryTitleFlag"/>
+	    <result column="category_content_name_flag" property="categoryContentNameFlag"/>
+	    <result column="category_create_flag" property="categoryCreateFlag"/>
+	    <result column="category_cover_flag" property="categoryCoverFlag"/>
+	    <result column="category_subhead_flag" property="categorySubheadFlag"/>
+	    <result column="category_video_flag" property="categoryVideoFlag"/>
+	    <result column="category_content_flag" property="categoryContentFlag"/>
+	    <result column="category_type" property="categoryType"/>
+	    <result column="status" property="status"/>
+	    <result column="operation_user_id" property="operationUserId"/>
+	    <result column="operation_user_name" property="operationUserName"/>
+	</resultMap>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.manager.vo.PortalCategoryResultVO" id="portalCategoryMapNew">
+		<id column="id" property="id"/>
+		<result column="rank" property="rank"/>
+		<result column="category_name" property="categoryName"/>
+		<result column="navigation_id" property="navigationId"/>
+		<result column="category_title_flag" property="categoryTitleFlag"/>
+		<result column="category_content_name_flag" property="categoryContentNameFlag"/>
+		<result column="category_create_flag" property="categoryCreateFlag"/>
+		<result column="category_cover_flag" property="categoryCoverFlag"/>
+		<result column="category_subhead_flag" property="categorySubheadFlag"/>
+		<result column="category_video_flag" property="categoryVideoFlag"/>
+		<result column="category_content_flag" property="categoryContentFlag"/>
+		<result column="category_type" property="categoryType"/>
+		<result column="status" property="status"/>
+		<result column="operation_user_id" property="operationUserId"/>
+		<result column="operation_user_name" property="operationUserName"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="portalCategoryMapNew" parameterType="com.bit.module.manager.vo.PortalCategoryVO">
+		select <include refid="PortalCategory_columns" /> from t_portal_category
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="rank != null and rank != '' " >and rank =#{rank,jdbcType=INTEGER}</if>
+			<if test="categoryName != null and categoryName != '' " >and category_name =#{categoryName,jdbcType=VARCHAR}</if>
+			<if test="navigationId != null and navigationId != '' " >and navigation_id =#{navigationId,jdbcType=BIGINT}</if>
+			<if test="categoryTitleFlag != null and categoryTitleFlag != '' " >and category_title_flag =#{categoryTitleFlag,jdbcType=TINYINT}</if>
+			<if test="categoryContentNameFlag != null and categoryContentNameFlag != '' " >and category_content_name_flag =#{categoryContentNameFlag,jdbcType=TINYINT}</if>
+			<if test="categoryCreateFlag != null and categoryCreateFlag != '' " >and category_create_flag =#{categoryCreateFlag,jdbcType=TINYINT}</if>
+			<if test="categoryCoverFlag != null and categoryCoverFlag != '' " >and category_cover_flag =#{categoryCoverFlag,jdbcType=TINYINT}</if>
+			<if test="categorySubheadFlag != null and categorySubheadFlag != '' " >and category_subhead_flag =#{categorySubheadFlag,jdbcType=TINYINT}</if>
+			<if test="categoryVideoFlag != null and categoryVideoFlag != '' " >and category_video_flag =#{categoryVideoFlag,jdbcType=TINYINT}</if>
+			<if test="categoryContentFlag != null and categoryContentFlag != '' " >and category_content_flag =#{categoryContentFlag,jdbcType=TINYINT}</if>
+			<if test="categoryType != null and categoryType != '' " >and category_type =#{categoryType,jdbcType=TINYINT}</if>
+			<if test="status != null and status != '' " >and status =#{status,jdbcType=TINYINT}</if>
+			<if test="operationUserId != null and operationUserId != '' " >and operation_user_id =#{operationUserId,jdbcType=BIGINT}</if>
+			<if test="operationUserName != null and operationUserName != '' " >and operation_user_name =#{operationUserName,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+
+	<!-- 根据参数查询 -->
+	<select id="findByParam" resultMap="portalCategoryMap" parameterType="com.bit.module.manager.vo.PortalCategoryVO">
+		select <include refid="PortalCategory_columns" /> from t_portal_category
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="rank != null and rank != '' " >and rank =#{rank,jdbcType=INTEGER}</if>
+			<if test="categoryName != null and categoryName != '' " >and category_name =#{categoryName,jdbcType=VARCHAR}</if>
+			<if test="navigationId != null and navigationId != '' " >and navigation_id =#{navigationId,jdbcType=BIGINT}</if>
+			<if test="categoryTitleFlag != null and categoryTitleFlag != '' " >and category_title_flag =#{categoryTitleFlag,jdbcType=TINYINT}</if>
+			<if test="categoryContentNameFlag != null and categoryContentNameFlag != '' " >and category_content_name_flag =#{categoryContentNameFlag,jdbcType=TINYINT}</if>
+			<if test="categoryCreateFlag != null and categoryCreateFlag != '' " >and category_create_flag =#{categoryCreateFlag,jdbcType=TINYINT}</if>
+			<if test="categoryCoverFlag != null and categoryCoverFlag != '' " >and category_cover_flag =#{categoryCoverFlag,jdbcType=TINYINT}</if>
+			<if test="categorySubheadFlag != null and categorySubheadFlag != '' " >and category_subhead_flag =#{categorySubheadFlag,jdbcType=TINYINT}</if>
+			<if test="categoryVideoFlag != null and categoryVideoFlag != '' " >and category_video_flag =#{categoryVideoFlag,jdbcType=TINYINT}</if>
+			<if test="categoryContentFlag != null and categoryContentFlag != '' " >and category_content_flag =#{categoryContentFlag,jdbcType=TINYINT}</if>
+			<if test="categoryType != null and categoryType != '' " >and category_type =#{categoryType,jdbcType=TINYINT}</if>
+			<if test="status != null and status != '' " >and status =#{status,jdbcType=TINYINT}</if>
+			<if test="operationUserId != null and operationUserId != '' " >and operation_user_id =#{operationUserId,jdbcType=BIGINT}</if>
+			<if test="operationUserName != null and operationUserName != '' " >and operation_user_name =#{operationUserName,jdbcType=VARCHAR}</if>
+		</where>
+	</select>
+
+	<select id="serviceTypeListPage" resultMap="portalCategoryMap" parameterType="com.bit.module.manager.bean.PortalCategory">
+		SELECT <include refid="PortalCategory_columns"/> FROM t_portal_category
+		<where>
+			<if test="id != null " >and id like CONCAT(CONCAT(#{id,jdbcType=BIGINT},"%"))</if>
+            <if test="id != null " >and id != #{id,jdbcType=BIGINT}</if>
+		</where>
+		order by rank asc
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="portalCategoryMap" parameterType="String">
+		select <include refid="PortalCategory_columns" /> from t_portal_category
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="portalCategoryMap" parameterType="com.bit.module.manager.bean.PortalCategory">
+		select <include refid="PortalCategory_columns" /> 
+		from t_portal_category
+		where 
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+
+	<!-- 根据条件查询PortalCategory -->
+	<select id="findByCategoryListByStationId" resultType="com.bit.module.manager.vo.PortalCategoryResultVO">
+		SELECT
+			t.id as id,
+			t.category_name as categoryName,
+			tn.navigation_name as navigationName,
+			t.navigation_id as navigationId,
+			t.category_title_flag as categoryTitleFlag,
+			t.category_content_name_flag as categoryContentNameFlag,
+			t.category_create_flag as categoryCreateFlag,
+			t.category_cover_flag as categoryCoverFlag,
+			t.category_subhead_flag as categorySubheadFlag,
+			t.category_video_flag as categoryVideoFlag,
+			t.category_content_flag as categoryContentFlag,
+			t.category_type as categoryType,
+			t.status as status,
+			t.operation_user_id as operationUserId,
+			t.operation_user_name as operationUserName
+		FROM
+			`t_portal_category` t,
+			 t_portal_navigation tn
+		WHERE
+			tn.id = t.navigation_id
+		AND t.station_id = #{stationId,jdbcType=BIGINT}
+		and
+			LENGTH(t.id) = #{idLength,jdbcType=INTEGER}
+		and t.category_name != '个人服务'
+		and t.category_name != '法人服务'
+	</select>
+
+	<!-- 根据名称查找 -->
+	<select id="findByName" parameterType="com.bit.module.manager.bean.PortalCategory"
+			resultType="com.bit.module.manager.bean.PortalCategory">
+		select <include refid="PortalCategory_columns" /> from t_portal_category t
+		WHERE
+			t.category_name = #{categoryName,jdbcType=VARCHAR}
+		AND
+			t.status = #{status,jdbcType=INTEGER}
+		AND
+			t.navigation_id = #{navigationId,jdbcType=BIGINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.manager.bean.PortalCategory">
+	insert INTO t_portal_category (
+		<if test="id != null" >
+			id,
+		</if>
+		<if test="rank != null" >
+			rank ,
+		</if>
+		<if test="categoryName != null and categoryName != '' " >
+			category_name ,
+		</if>
+		<if test="navigationId != null" >
+			navigation_id,
+		</if>
+		<if test="stationId != null" >
+			station_id,
+		</if>
+		<if test="categoryTitleFlag != null" >
+			category_title_flag,
+		</if>
+		<if test="categoryContentNameFlag != null " >
+			category_content_name_flag,
+		</if>
+		<if test="categoryCreateFlag != null " >
+			category_create_flag,
+		</if>
+		<if test="categoryCoverFlag != null " >
+			category_cover_flag,
+		</if>
+		<if test="categorySubheadFlag != null " >
+			category_subhead_flag,
+		</if>
+		<if test="categoryVideoFlag != null " >
+			category_video_flag,
+		</if>
+		<if test="categoryContentFlag != null " >
+			category_content_flag,
+		</if>
+		<if test="categoryType != null " >
+			category_type,
+		</if>
+		<if test="status != null " >
+			status,
+		</if>
+		operation_user_id ,
+		operation_user_name 
+	) VALUES (
+		<if test="id != null " >
+			#{id,jdbcType=BIGINT},
+		</if>
+		<if test="rank != null " >
+			#{rank,jdbcType=INTEGER},
+		</if>
+		<if test="categoryName != null and categoryName != '' " >
+			#{categoryName,jdbcType=VARCHAR},
+		</if>
+		<if test="navigationId != null " >
+			#{navigationId,jdbcType=BIGINT},
+		</if>
+		<if test="stationId != null " >
+			#{stationId,jdbcType=BIGINT},
+		</if>
+		<if test="categoryTitleFlag != null " >
+			#{categoryTitleFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryContentNameFlag != null " >
+			#{categoryContentNameFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryCreateFlag != null " >
+			#{categoryCreateFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryCoverFlag != null " >
+			#{categoryCoverFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categorySubheadFlag != null " >
+			#{categorySubheadFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryVideoFlag != null " >
+			#{categoryVideoFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryContentFlag != null " >
+			#{categoryContentFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryType != null " >
+			#{categoryType,jdbcType=TINYINT},
+		</if>
+		<if test="status != null " >
+			#{status,jdbcType=TINYINT},
+		</if>
+			#{operationUserId,jdbcType=BIGINT},
+			#{operationUserName,jdbcType=VARCHAR}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.manager.bean.PortalCategory">
+		update t_portal_category
+		<set>
+		<if test="rank != null">
+		 rank =#{rank,jdbcType=INTEGER},
+		</if>
+		<if test="categoryName != null">
+		 category_name =#{categoryName,jdbcType=VARCHAR},
+		</if>
+		<if test="navigationId != null">
+		 navigation_id =#{navigationId,jdbcType=BIGINT},
+		</if>
+		<if test="categoryTitleFlag != null">
+		 category_title_flag =#{categoryTitleFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryContentNameFlag != null">
+		 category_content_name_flag =#{categoryContentNameFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryCreateFlag != null">
+		 category_create_flag =#{categoryCreateFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryCoverFlag != null">
+		 category_cover_flag =#{categoryCoverFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categorySubheadFlag != null">
+		 category_subhead_flag =#{categorySubheadFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryVideoFlag != null">
+		 category_video_flag =#{categoryVideoFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryContentFlag != null">
+		 category_content_flag =#{categoryContentFlag,jdbcType=TINYINT},
+		</if>
+		<if test="categoryType != null">
+		 category_type =#{categoryType,jdbcType=TINYINT},
+		</if>
+		<if test="status != null">
+		 status =#{status,jdbcType=TINYINT},
+		</if>
+		<if test="operationUserId != null">
+		 operation_user_id =#{operationUserId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserName != null">
+		 operation_user_name =#{operationUserName,jdbcType=VARCHAR}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.manager.bean.PortalCategory">
+		delete from t_portal_category 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+
+    <update id="batchUpdateRank" parameterType="com.bit.module.manager.bean.PortalCategory">
+        UPDATE t_portal_category
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="rank = case" suffix="end,">
+                <foreach collection="list" item="item" index="index" >
+                    <if test="item.rank!=null">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.rank,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="list" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT}
+            </foreach>
+
+        </where>
+    </update>
+</mapper>

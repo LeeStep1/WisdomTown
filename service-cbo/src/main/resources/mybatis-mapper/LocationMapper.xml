@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.LocationDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Location_columns">
+	    <![CDATA[
+			id as id,
+			address_name as address_name,
+			address_code as address_code,
+			fid as fid,
+			community_id as community_id,
+            address_type as address_type,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			update_time as update_time,
+			update_user_id as update_user_id,
+			extend_param as extend_param,
+			square as square,
+			rent as rent,
+			full_name as full_name
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.cbo.bean.Location" id="locationMap">
+		<id column="id" property="id"/>
+        <result column="address_name" property="addressName"/>
+        <result column="address_code" property="addressCode"/>
+        <result column="fid" property="fid"/>
+        <result column="community_id" property="communityId"/>
+        <result column="address_type" property="addressType"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_user_id" property="updateUserId"/>
+        <result column="extend_param" property="extendParam"/>
+        <result column="square" property="square"/>
+        <result column="rent" property="rent"/>
+        <result column="full_name" property="fullName"/>
+    </resultMap>
+
+
+
+    <select id="getLocationById" parameterType="long" resultMap="locationMap">
+        SELECT <include refid="Location_columns"/>
+        FROM t_cbo_location
+        <where>
+            <if test="id!=null">and id = #{id,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.Location" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_cbo_location
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addressName!=null and addressName!=''">
+                address_name,
+            </if>
+            <if test="addressCode!=null and addressCode!=''">
+                address_code,
+            </if>
+            <if test="fid!=null">
+                fid,
+            </if>
+            <if test="communityId!=null">
+                community_id,
+            </if>
+            <if test="addressType!=null">
+                address_type,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="createUserId!=null">
+                create_user_id,
+            </if>
+            <if test="updateTime!=null">
+                update_time,
+            </if>
+            <if test="updateUserId!=null">
+                update_user_id,
+            </if>
+            <if test="extendParam!=null and extendParam!=''">
+                extend_param,
+            </if>
+            <if test="square!=null and square!=''">
+                square,
+            </if>
+            <if test="rent!=null">
+                rent,
+            </if>
+            <if test="fullName!=null and fullName!=''">
+                full_name,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="addressName!=null and addressName!=''">
+                #{addressName,jdbcType=VARCHAR},
+            </if>
+            <if test="addressCode!=null and addressCode!=''">
+                #{addressCode,jdbcType=VARCHAR},
+            </if>
+            <if test="fid!=null">
+                #{fid,jdbcType=BIGINT},
+            </if>
+            <if test="communityId!=null">
+                #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="addressType!=null">
+                #{addressType,jdbcType=INTEGER},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserId!=null">
+                #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId!=null">
+                #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="extendParam!=null and extendParam!=''">
+                #{extendParam,jdbcType=VARCHAR},
+            </if>
+            <if test="square!=null and square!=''">
+                #{square,jdbcType=VARCHAR},
+            </if>
+            <if test="rent!=null">
+                #{rent,jdbcType=INTEGER},
+            </if>
+            <if test="fullName!=null and fullName!=''">
+                #{fullName,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <select id="batchSelectByIds" parameterType="long" resultMap="locationMap">
+        SELECT <include refid="Location_columns"/>
+        FROM t_cbo_location
+        WHERE id IN
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="getLocationByFId" parameterType="com.bit.module.cbo.vo.LocationVO" resultMap="locationMap">
+        SELECT <include refid="Location_columns"/>
+        FROM t_cbo_location
+        <where>
+            <if test="id!=null">and id = #{id,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="fid!=null">and fid = #{fid,jdbcType=BIGINT}</if>
+            <if test="addressType!=null">and address_type = #{addressType,jdbcType=INTEGER}</if>
+        </where>
+        order by id
+    </select>
+
+    <update id="update" parameterType="com.bit.module.cbo.bean.Location">
+        UPDATE t_cbo_location
+            <trim prefix="set" suffixOverrides=",">
+                <if test="addressName!=null and addressName!=''">
+                    address_name = #{addressName,jdbcType=VARCHAR},
+                </if>
+                <if test="addressCode!=null and addressCode!=''">
+                    address_code = #{addressCode,jdbcType=VARCHAR},
+                </if>
+                <if test="fid!=null">
+                    fid = #{fid,jdbcType=BIGINT},
+                </if>
+                <if test="communityId!=null">
+                    community_id = #{communityId,jdbcType=BIGINT},
+                </if>
+                <if test="addressType!=null">
+                    address_type = #{addressType,jdbcType=INTEGER},
+                </if>
+                <if test="createTime!=null">
+                    create_time = #{createTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="createUserId!=null">
+                    create_user_id = #{createUserId,jdbcType=BIGINT},
+                </if>
+                <if test="updateTime!=null">
+                    update_time = #{updateTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updateUserId!=null">
+                    update_user_id = #{updateUserId,jdbcType=BIGINT},
+                </if>
+                <if test="extendParam!=null and extendParam!=''">
+                    extend_param = #{extendParam,jdbcType=VARCHAR},
+                </if>
+                <if test="square!=null and square!=''">
+                    square = #{square,jdbcType=VARCHAR},
+                </if>
+                <if test="rent!=null">
+                    rent = #{rent,jdbcType=INTEGER},
+                </if>
+                <if test="fullName!=null and fullName!=''">
+                    full_name = #{fullName,jdbcType=VARCHAR},
+                </if>
+            </trim>
+            WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <select id="findByParam" parameterType="com.bit.module.cbo.bean.Location" resultMap="locationMap">
+        SELECT <include refid="Location_columns"/>
+        FROM t_cbo_location
+        <where>
+            <if test="addressName!=null and addressName!=''">and address_name = #{addressName,jdbcType=VARCHAR}</if>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="fid!=null">and fid = #{fid,jdbcType=BIGINT}</if>
+            <if test="addressType!=null">and address_type = #{addressType,jdbcType=INTEGER}</if>
+            <if test="addressCode!=null and addressCode!=''">and address_code like concat("%",#{addressCode,jdbcType=VARCHAR},"%")</if>
+        </where>
+    </select>
+
+    <insert id="batchAddLocation" parameterType="com.bit.module.cbo.bean.Location" useGeneratedKeys="true" keyProperty="id">
+
+        INSERT INTO t_cbo_location (
+        address_name,
+        address_code,
+        fid,
+        community_id,
+        address_type,
+        create_time,
+        create_user_id,
+        update_time,
+        update_user_id,
+        extend_param,
+        square,
+        rent,
+        full_name
+        ) VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (
+                #{item.addressName,jdbcType=VARCHAR},
+                #{item.addressCode,jdbcType=VARCHAR},
+                #{item.fid,jdbcType=BIGINT},
+                #{item.communityId,jdbcType=BIGINT},
+                #{item.addressType,jdbcType=INTEGER},
+                #{item.createTime,jdbcType=TIMESTAMP},
+                #{item.createUserId,jdbcType=BIGINT},
+                #{item.updateTime,jdbcType=TIMESTAMP},
+                #{item.updateUserId,jdbcType=BIGINT},
+                #{item.extendParam,jdbcType=VARCHAR},
+                #{item.square,jdbcType=VARCHAR},
+                #{item.rent,jdbcType=INTEGER},
+                #{item.fullName,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <update id="batchUpdateAddressCode" parameterType="list" >
+        UPDATE t_cbo_location
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="address_code = case" suffix="end,">
+                <foreach collection="locationList" item="item" index="index" >
+                    <if test="item.addressCode!=null and item.addressCode!=''">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.addressCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="locationList" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT}
+            </foreach>
+        </where>
+    </update>
+    
+    <delete id="delById" parameterType="long">
+        DELETE FROM t_cbo_location
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <select id="getRecordsByLikeAddressCode" parameterType="string" resultMap="locationMap">
+        SELECT <include refid="Location_columns"/>
+        FROM t_cbo_location
+        WHERE address_code LIKE concat(#{addressCode,jdbcType=VARCHAR},"%")
+    </select>
+
+    <delete id="delByAddressCode" parameterType="string">
+        DELETE FROM t_cbo_location
+        WHERE address_code LIKE concat(#{addressCode,jdbcType=VARCHAR},"%")
+    </delete>
+
+
+    <select id="batchSelectByUnitCodesAndType" resultMap="locationMap">
+        SELECT <include refid="Location_columns"/>
+        FROM t_cbo_location
+        WHERE address_code like
+        <foreach collection="unitCodes" index="index" item="code" open="(" close=")" separator=",">
+            concat(#{code,jdbcType=VARCHAR},"%")
+        </foreach>
+        and address_type = #{type,jdbcType=INTEGER}
+        order by fieId
+        <foreach collection="unitCodes" index="index" item="code" open="(" close=")" separator=",">
+            code, #{code,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="locationCount" resultType="integer">
+        SELECT COUNT(1) FROM t_cbo_location
+        <where>
+            <if test="fid!=null">and fid = #{fid,jdbcType=BIGINT}</if>
+            <if test="addressType!=null">and address_type = #{addressType,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+    <select id="getAll" parameterType="long" resultMap="locationMap">
+        SELECT <include refid="Location_columns"/> FROM t_cbo_location
+        <where>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <update id="batchUpdateFullName" parameterType="list">
+        UPDATE t_cbo_location
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="full_name = case" suffix="end,">
+                <foreach collection="updateList" item="item" index="index" >
+                    <if test="item.fullName!=null and item.fullName!=''">
+                        WHEN id = #{item.id,jdbcType=BIGINT} then #{item.fullName,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="updateList" item="item" index="index" separator=") or (" close=")" open="(">
+                id = #{item.id,jdbcType=BIGINT}
+            </foreach>
+        </where>
+    </update>
+
+
+    <select id="countRoomLikeAddressCodeAndId" resultType="int">
+        SELECT count(1)
+        FROM t_cbo_location
+        WHERE address_code LIKE concat(#{addressCode,jdbcType=VARCHAR},"%")
+        and id!=#{id,jdbcType=BIGINT}
+    </select>
+
+
+    <update id="updateFullName" parameterType="list">
+        UPDATE t_cbo_location
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="full_name = case" suffix="end,">
+                <foreach collection="updateList" item="obj" index="index" >
+                    <if test="obj.fullName!=null and obj.fullName!=''">
+                        WHEN id = #{obj.id,jdbcType=BIGINT} then #{obj.fullName,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="updateList" item="obj" index="index" separator=") or (" close=")" open="(">
+                id = #{obj.id,jdbcType=BIGINT}
+            </foreach>
+        </where>
+    </update>
+</mapper>

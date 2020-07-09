@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.vol.dao.LevelRegulationDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="LevelRegulation_columns">
+        <![CDATA[
+			id as id,
+			regulation_level as regulation_level,
+			service_time as service_time,
+			donation_amount as donation_amount,
+			service_level as service_level
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.vol.bean.LevelRegulation" id="LevelRegulationMap">
+        <id column="id" property="id"/>
+        <result column="regulation_level" property="regulationLevel"/>
+        <result column="service_time" property="serviceTime"/>
+        <result column="donation_amount" property="donationAmount"/>
+        <result column="service_level" property="serviceLevel"/>
+    </resultMap>
+
+    <select id="queryByLevel" parameterType="int" resultMap="LevelRegulationMap">
+        SELECT <include refid="LevelRegulation_columns"/>
+        FROM t_volunteer_level_regulation
+        WHERE service_level = #{serviceLevel,jdbcType=INTEGER}
+    </select>
+
+
+
+
+
+
+</mapper>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.pb.dao.ExServicemanDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="ExServiceman_columns">
+	    <![CDATA[
+			id as id,
+			origin as origin,
+			original_troops as original_troops,
+			retire_time as retire_time,
+			is_self_employment as is_self_employment,
+		
+			rel_transfer_time as rel_transfer_time,
+			org_name as org_name,
+			id_card as id_card
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.bean.ExServiceman" id="exServicemanMap">
+		<id column="id" property="id"/>
+	    <result column="origin" property="origin"/>
+	    <result column="original_troops" property="originalTroops"/>
+	    <result column="retire_time" property="retireTime"/>
+	    <result column="is_self_employment" property="isSelfEmployment"/>
+	    <result column="rel_transfer_time" property="relTransferTime"/>
+	    <result column="org_name" property="orgName"/>
+	    <result column="id_card" property="idCard"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="exServicemanMap" parameterType="com.bit.module.pb.vo.ExServicemanVO">
+		select <include refid="ExServiceman_columns" /> from t_pb_ex_serviceman
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="origin != null and origin != '' " >and origin =#{origin,jdbcType=VARCHAR}</if>
+			<if test="originalTroops != null and originalTroops != '' " >and original_troops =#{originalTroops,jdbcType=VARCHAR}</if>
+			<if test="isSelfEmployment != null and isSelfEmployment != '' " >and is_self_employment =#{isSelfEmployment,jdbcType=TINYINT}</if>
+			<if test="orgName != null and orgName != '' " >and org_name =#{orgName,jdbcType=VARCHAR}</if>
+			<if test="idCard != null and memberId != '' " >and id_card =#{idCard,jdbcType=BIGINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="exServicemanMap" parameterType="String">
+		select <include refid="ExServiceman_columns" /> from t_pb_ex_serviceman
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="exServicemanMap" parameterType="com.bit.module.pb.bean.ExServiceman">
+		select <include refid="ExServiceman_columns" /> 
+		from t_pb_ex_serviceman
+		where 
+        	id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.pb.bean.ExServiceman">
+	insert INTO t_pb_ex_serviceman (
+		origin ,
+		original_troops ,
+		retire_time ,
+		is_self_employment ,
+		rel_transfer_time ,
+		org_name ,
+		id_card
+	) VALUES (
+		#{origin,jdbcType=VARCHAR},
+		#{originalTroops,jdbcType=VARCHAR},
+		#{retireTime,jdbcType=DATE},
+		#{isSelfEmployment,jdbcType=TINYINT},
+		#{relTransferTime,jdbcType=TIMESTAMP},
+		#{orgName,jdbcType=VARCHAR},
+		#{idCard,jdbcType=VARCHAR}
+	) ON DUPLICATE KEY UPDATE
+		origin = #{origin,jdbcType=VARCHAR},
+		original_troops = #{originalTroops,jdbcType=VARCHAR},
+		retire_time = #{retireTime,jdbcType=DATE},
+		is_self_employment = #{isSelfEmployment,jdbcType=TINYINT},
+		rel_transfer_time = #{relTransferTime,jdbcType=TIMESTAMP},
+		org_name = #{orgName,jdbcType=VARCHAR}
+	</insert>
+
+	<!-- 批量添加 -->
+	<insert id="batchAdd" parameterType="java.util.List">
+		insert IGNORE INTO t_pb_ex_serviceman (
+		origin ,
+		original_troops ,
+		retire_time ,
+		is_self_employment ,
+		rel_transfer_time ,
+		org_name ,
+		id_card
+		) VALUES
+		<foreach collection="list" item="exService" index="index" separator=","> (
+			#{exService.origin,jdbcType=VARCHAR},
+			#{exService.originalTroops,jdbcType=VARCHAR},
+			#{exService.retireTime,jdbcType=DATE},
+			#{exService.isSelfEmployment,jdbcType=TINYINT},
+			#{exService.relTransferTime,jdbcType=TIMESTAMP},
+			#{exService.orgName,jdbcType=VARCHAR},
+			#{exService.idCard,jdbcType=VARCHAR}
+			)
+		</foreach>
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.pb.bean.ExServiceman">
+		update t_pb_ex_serviceman
+		<set>
+		<if test="origin != null">
+		 origin =#{origin,jdbcType=VARCHAR},
+		</if>
+		<if test="originalTroops != null">
+		 original_troops =#{originalTroops,jdbcType=VARCHAR},
+		</if>
+		<if test="retireTime != null">
+		 retire_time =#{retireTime,jdbcType=DATE},
+		</if>
+		<if test="isSelfEmployment != null">
+		 is_self_employment =#{isSelfEmployment,jdbcType=TINYINT},
+		</if>
+		<if test="relTransferTime != null">
+		 rel_transfer_time =#{relTransferTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="orgName != null">
+		 org_name =#{orgName,jdbcType=VARCHAR},
+		</if>
+		<if test="idCard != null">
+		 id_card =#{idCard,jdbcType=VARCHAR}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 修改一条记录 -->
+	<update id="updateByIdCard" parameterType="com.bit.module.pb.bean.ExServiceman">
+		update t_pb_ex_serviceman
+		<set>
+			<if test="origin != null">
+				origin =#{origin,jdbcType=VARCHAR},
+			</if>
+			<if test="originalTroops != null">
+				original_troops =#{originalTroops,jdbcType=VARCHAR},
+			</if>
+			<if test="retireTime != null">
+				retire_time =#{retireTime,jdbcType=DATE},
+			</if>
+			<if test="isSelfEmployment != null">
+				is_self_employment =#{isSelfEmployment,jdbcType=TINYINT},
+			</if>
+			<if test="relTransferTime != null">
+				rel_transfer_time =#{relTransferTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="orgName != null">
+				org_name =#{orgName,jdbcType=VARCHAR}
+			</if>
+		</set>
+		where
+		id_card = #{idCard,jdbcType=VARCHAR}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.pb.bean.ExServiceman">
+		delete from t_pb_ex_serviceman 
+		where
+			id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<delete id="deleteByIdCard" parameterType="com.bit.module.pb.bean.ExServiceman">
+		delete from t_pb_ex_serviceman
+		where id_card =#{idCard,jdbcType=VARCHAR}
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_pb_ex_serviceman
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+
+	<select id="findByIdCard" resultMap="exServicemanMap" parameterType="com.bit.module.pb.bean.ExServiceman">
+		select <include refid="ExServiceman_columns" />
+		from t_pb_ex_serviceman
+		where
+		id_card =#{idCard,jdbcType=VARCHAR}
+	</select>
+</mapper>

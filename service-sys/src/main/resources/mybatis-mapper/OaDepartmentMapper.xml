@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.OaDepartmentDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="OaDepartment_columns">
+	    <![CDATA[
+			id as id,
+			name as name,
+			sort as sort,
+			dept_code as dept_code,
+			dept_describe as dept_describe,
+			create_time as create_time
+	    ]]>
+	</sql>
+
+	<sql id="OaDepartmentResult_columns">
+	    <![CDATA[
+			id as id,
+			name as name,
+			sort as sort,
+			dept_code as pcode,
+			dept_describe as orgDesc,
+			create_time as create_time
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.OaDepartment" id="oaDepartmentMap">
+		<id column="id" property="id"/>
+	    <result column="name" property="name"/>
+	    <result column="sort" property="sort"/>
+	    <result column="dept_code" property="deptCode"/>
+	    <result column="dept_describe" property="deptDescribe"/>
+	    <result column="create_time" property="createTime"/>
+	</resultMap>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.vo.OaDepartmentResultVO" id="oaDepartmentResultMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="sort" property="sort"/>
+		<result column="pcode" property="pcode"/>
+		<result column="orgDesc" property="orgDesc"/>
+		<result column="create_time" property="createTime"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="oaDepartmentMap" parameterType="com.bit.module.system.vo.OaDepartmentVO">
+		select <include refid="OaDepartment_columns" /> from t_oa_department
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="name != null and name != '' " >and name like "%"#{name,jdbcType=VARCHAR}"%"</if>
+			<if test="sort != null and sort != '' " >and sort =#{sort,jdbcType=TINYINT}</if>
+			<if test="deptCode != null and deptCode != '' " >and dept_code like "%"#{deptCode,jdbcType=VARCHAR}"%"</if>
+			<if test="deptDescribe != null and deptDescribe != '' " >and dept_describe =#{deptDescribe,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="oaDepartmentMap" parameterType="String">
+		select <include refid="OaDepartment_columns" /> from t_oa_department
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="oaDepartmentMap" parameterType="com.bit.module.system.bean.OaDepartment">
+		select <include refid="OaDepartment_columns" /> 
+		from t_oa_department
+		where 
+        	id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findResultById" resultMap="oaDepartmentResultMap" parameterType="com.bit.module.system.vo.OaDepartmentResultVO">
+		select <include refid="OaDepartmentResult_columns" />
+		from t_oa_department
+		where
+		id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!--根据用户id查询-->
+    <select id="findByUserId" resultType="com.bit.module.system.bean.OaDepartment">
+		select <include refid="OaDepartment_columns"/> from t_oa_department where id in (select dep_id from  t_sys_user_rel_oa_dep where user_id=#{userId})
+	</select>
+
+	<!--根据用户id查询-->
+	<select id="findByUserIds" resultType="java.lang.Long">
+		select id from t_oa_department where id in (select dep_id from  t_sys_user_rel_oa_dep where user_id=#{userId})
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.OaDepartment">
+		insert INTO t_oa_department (
+			name ,
+			sort ,
+			dept_code,
+			dept_describe,
+			create_time
+		) VALUES (
+			#{name,jdbcType=VARCHAR},
+			#{sort,jdbcType=TINYINT},
+			#{deptCode,jdbcType=VARCHAR},
+			#{deptDescribe,jdbcType=VARCHAR},
+			#{createTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+	<!-- 添加一条记录 -->
+	<insert id="addVO" parameterType="com.bit.module.system.vo.OaDepartmentVO">
+		insert INTO t_oa_department (
+			id,
+			name ,
+			sort,
+			dept_code,
+			dept_describe,
+			create_time
+		) VALUES (
+			#{id,jdbcType=BIGINT},
+			#{name,jdbcType=VARCHAR},
+			#{sort,jdbcType=TINYINT},
+			#{deptCode,jdbcType=VARCHAR},
+			#{deptDescribe,jdbcType=VARCHAR},
+			#{createTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+	<!-- 添加一条记录 -->
+	<insert id="addResultVO" parameterType="com.bit.module.system.vo.OaDepartmentResultVO">
+		insert INTO t_oa_department (
+			id,
+			name ,
+			sort,
+			dept_code,
+			dept_describe,
+			create_time
+		) VALUES (
+			#{id,jdbcType=BIGINT},
+			#{name,jdbcType=VARCHAR},
+			#{sort,jdbcType=TINYINT},
+			#{pcode,jdbcType=VARCHAR},
+			#{orgDesc,jdbcType=VARCHAR},
+			#{createTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+
+	<!-- 修改一条记录 -->
+	<update id="updateResult" parameterType="com.bit.module.system.vo.OaDepartmentResultVO">
+		update t_oa_department
+		<set>
+			<if test="name != null and name != ''">
+				name =#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort =#{sort,jdbcType=TINYINT},
+			</if>
+			<if test="pcode != null and pcode != ''">
+				dept_code =#{pcode,jdbcType=VARCHAR},
+			</if>
+			<if test="orgDesc != null ">
+				dept_describe =#{orgDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				create_time =#{createTime,jdbcType=TIMESTAMP}
+			</if>
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.OaDepartment">
+		delete from t_oa_department 
+		where
+			id = #{id,jdbcType=BIGINT}
+	</delete>
+	
+	<select id="findByIdLike" parameterType="string" resultMap="oaDepartmentMap">
+		SELECT
+		<include refid="OaDepartment_columns"/>
+		FROM
+			t_oa_department
+        <where>
+            <if test="upLevel!=null and upLevel!=''">
+                and id LIKE concat(#{upLevel,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="temp!=null and temp!=''">
+                and LENGTH(id) = LENGTH(#{upLevel,jdbcType=VARCHAR}) + 3
+            </if>
+        </where>
+	</select>
+
+	<!-- 查询组织编码是否唯一 -->
+	<select id="findByCode" parameterType="string" resultType="java.lang.Integer">
+		select count(1) from t_oa_department where dept_code = #{deptCode,jdbcType=VARCHAR}
+	</select>
+
+	<!--根据ID查询组织结构明细-->
+	<select id="findOaDepartmentByIdSql" parameterType="java.lang.Long"
+			resultType="com.bit.module.system.bean.OaDepartment">
+		SELECT
+			td.id,
+			td.name,
+			td.sort,
+			td.dept_code deptCode,
+			td.dept_describe deptDescribe,
+			td.create_time
+		FROM
+			t_oa_department td
+		WHERE
+			td.id = #{id}
+	</select>
+
+	<!--根据ID查询组织结构下级明细-->
+	<select id="findOaDepartmentIncloudIdSql" parameterType="java.lang.Long"
+			resultType="com.bit.module.system.bean.OaDepartment">
+		SELECT
+			td.id,
+			td.name,
+			td.sort,
+			td.dept_code deptCode,
+			td.dept_describe deptDescribe,
+			td.create_time
+		FROM
+			t_oa_department td
+		<where>
+			<if test="id != 0 ">
+				td.id LIKE CONCAT(#{id},'%')
+				and td.id != #{id}
+			</if>
+
+		</where>
+	</select>
+
+	<select id="findAllActive" resultMap="oaDepartmentMap" parameterType="long">
+		select t1.* from t_oa_department t1
+        INNER JOIN t_sys_user_rel_oa_dep t2
+        on		t1.id = t2.dep_id
+		where  t2.user_id = #{userId,jdbcType=BIGINT}
+	</select>
+
+	<!--根据组织ID批量查询userId-->
+	<select id="getAllUserIdsByOaOrgIdsSql" resultType="java.lang.Long">
+		SELECT
+			t.user_id userId
+		FROM
+			t_sys_user_rel_oa_dep t
+		where
+			t.pborg_id in
+		<foreach collection="targetIdList" item="ids" separator="," open="(" close=")">
+			#{ids}
+		</foreach>
+	</select>
+
+	<!--获取党建组织下所有用户-->
+    <select id="getAllUserIdsForOaOrgSql" parameterType="com.bit.module.system.bean.User"
+			resultType="java.lang.Long">
+		SELECT DISTINCT
+			t.user_id userId
+		FROM
+			t_sys_user_rel_oa_dep t,
+			t_sys_user tu
+		WHERE
+			tu.id = t.user_id
+		AND tu.status = #{user.status}
+	</select>
+
+	<select id="findTopLevel"  resultMap="oaDepartmentMap">
+		SELECT <include refid="OaDepartment_columns"/> FROM
+		t_oa_department
+        where LENGTH(id) = 3
+	</select>
+
+	<select id="batchSelectByIds" parameterType="long" resultMap="oaDepartmentMap">
+		SELECT <include refid="OaDepartment_columns"/>
+		FROM  t_oa_department
+		WHERE id IN 
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+	</select>
+	
+	<select id="findOaDetailByUserRelId" parameterType="long" resultMap="oaDepartmentMap">
+		SELECT <include refid="OaDepartment_columns"/> FROM t_sys_user_rel_oa_dep t1
+		INNER JOIN (
+		SELECT * FROM `t_oa_department`
+		where id like '101%' and LENGTH(id) = 6) t2
+		on t1.dep_id = t2.id
+		<where>
+			<if test="userId!=null">and t1.user_id = #{userId,jdbcType=BIGINT}</if>
+		</where>
+	</select>
+</mapper>

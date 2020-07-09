@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.InspectDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Inspect_columns">
+	    <![CDATA[
+			id as id,
+			name as name,
+			no as no,
+			type as type,
+			start_time as start_time,
+			end_time as end_time,
+
+			deps as deps,
+			executors as executors,
+			spots as spots,
+			content as content,
+			attact_ids as attact_ids,
+		
+			publisher_id as publisher_id,
+			last_report_at as last_report_at,
+			create_at as create_at,
+			`status` AS `status`,
+       		version as version
+	    ]]>
+	</sql>
+	<sql id="Inspect_join_executor_columns">
+	    <![CDATA[
+			i.id as id,
+			i.name as name,
+			i.no as no,
+			i.type as type,
+			i.start_time as start_time,
+			i.end_time as end_time,
+
+			i.deps as deps,
+			i.executors as executors,
+			i.spots as spots,
+			i.content as content,
+			i.attact_ids as attact_ids,
+
+			i.publisher_id as publisher_id,
+			i.last_report_at as last_report_at,
+			i.create_at as create_at,
+			e.`status` AS `status`
+	    ]]>
+	</sql>
+	<sql id="Inspect_simple_columns">
+		id as id,
+		name as name
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.vo.inspect.InspectExecutorVO" id="inspectMap">
+		<id column="id" property="id"/>
+	    <result column="no" property="no"/>
+	    <result column="name" property="name"/>
+	    <result column="type" property="type"/>
+	    <result column="start_time" property="startTime"/>
+	    <result column="end_time" property="endTime"/>
+	    <result column="deps" property="deps" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+	    <result column="executors" property="executors" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+	    <result column="spots" property="spots" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+	    <result column="content" property="content"/>
+	    <result column="attact_ids" property="attactIds"/>
+	    <result column="publisher_id" property="publisherId"/>
+	    <result column="last_report_at" property="lastReportAt"/>
+	    <result column="create_at" property="createAt"/>
+	    <result column="status" property="status"/>
+		<result column="version" property="version"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.vo.inspect.InspectTaskExport" id="inspectTaskMap">
+		<id column="id" property="id"/>
+	    <result column="no" property="no"/>
+	    <result column="name" property="name"/>
+	    <result column="type" property="type"/>
+	    <result column="start_time" property="startTime"/>
+	    <result column="end_time" property="endTime"/>
+	    <result column="deps" property="deps" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+	    <result column="status" property="status"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.vo.inspect.InspectSituationExport" id="inspectSituationMap">
+		<id column="id" property="id"/>
+		<result column="no" property="no"/>
+		<result column="name" property="name"/>
+		<result column="type" property="type"/>
+		<result column="start_time" property="startTime"/>
+		<result column="end_time" property="endTime"/>
+		<result column="last_report_at" property="lastReportAt"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="inspectMap" parameterType="com.bit.module.oa.vo.inspect.InspectVO">
+		select <include refid="Inspect_columns" /> from t_oa_inspect
+		<where>
+			<if test="name != null and name != '' " >and `name` like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+			<if test="no != null and no != '' " >and `no` like concat('%', #{no,jdbcType=VARCHAR}, '%')</if>
+			<if test="type != null" >and `type` =#{type,jdbcType=TINYINT}</if>
+			<if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+			<if test="startTime != null and endTime == null">
+				and start_time >= DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and end_time >= DATE_FORMAT(#{startTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="startTime == null and endTime != null">
+				<![CDATA[and start_time <= DATE_FORMAT(#{endTime}, '%Y-%m-%d %T') and end_time <= DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')]]>
+			</if>
+			<if test="startTime != null and endTime != null">
+				and start_time between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')
+				and end_time between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="queryType != null and queryType == 3">and status != 0</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<select id="findByConditionPageForApp" resultMap="inspectMap">
+		select <include refid="Inspect_join_executor_columns" /> from t_oa_inspect i
+	      join t_oa_inspect_executor e on i.id = e.inspect_id
+		<where>
+			<!-- app的状态判断由个人的巡检任务executor决定 -->
+			<if test="inspectVO.statusList != null and !inspectVO.statusList.isEmpty()" >
+				e.status in <foreach collection="inspectVO.statusList" item="status" separator="," open="(" close=")">
+					#{status}
+				</foreach>
+			</if>
+			<if test="inspectVO.name != null and inspectVO.name != '' " >and `name` like concat('%', #{inspectVO.name,jdbcType=VARCHAR}, '%')</if>
+			<if test="inspectVO.no != null and inspectVO.no != '' " >and `no` like concat('%', #{inspectVO.no,jdbcType=VARCHAR}, '%')</if>
+			<if test="inspectVO.type != null" >and `type` =#{inspectVO.type,jdbcType=TINYINT}</if>
+			<if test="inspectVO.startTime != null and inspectVO.endTime == null">
+				and start_time >= DATE_FORMAT(#{inspectVO.startTime}, '%Y-%m-%d %T') and end_time >= DATE_FORMAT(#{inspectVO.startTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="inspectVO.startTime == null and inspectVO.endTime != null">
+				<![CDATA[and start_time <= DATE_FORMAT(#{inspectVO.endTime}, '%Y-%m-%d %T') and end_time <= DATE_FORMAT(#{inspectVO.endTime}, '%Y-%m-%d %T')]]>
+			</if>
+			<if test="inspectVO.startTime != null and inspectVO.endTime != null">
+				and start_time between DATE_FORMAT(#{inspectVO.startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{inspectVO.endTime}, '%Y-%m-%d %T')
+				and end_time between DATE_FORMAT(#{inspectVO.startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{inspectVO.endTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="inspectVO.queryType != null and inspectVO.queryId != null and inspectVO.queryType == 1">and publisher_id =#{inspectVO.queryId,jdbcType=BIGINT}</if>
+			<if test="inspectVO.queryType != null and inspectVO.queryId != null and inspectVO.queryType == 2">
+				and i.id in (<include refid="com.bit.module.oa.dao.ExecutorDao.selectInspectIdByExecutorId" />)
+			</if>
+		</where>
+		<if test="inspectVO.orderBy!=null and inspectVO.orderBy!=''">
+			ORDER BY ${inspectVO.orderBy}
+		</if>
+		<if test="inspectVO.order!=null and inspectVO.order!=''">
+			${inspectVO.order}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="inspectMap" parameterType="com.bit.module.oa.bean.Inspect">
+		select <include refid="Inspect_columns" />
+		from t_oa_inspect
+		where
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+	<select id="findNoByPrefix" resultType="java.lang.String">
+		select no FROM t_oa_inspect
+
+		WHERE no LIKE CONCAT('%', #{prefix}, '%') and DATEDIFF(NOW(), create_at) = 0
+		ORDER BY id desc, create_at desc LIMIT 1
+	</select>
+    <select id="findTaskInspect" resultMap="inspectTaskMap">
+		select <include refid="Inspect_columns" /> from t_oa_inspect
+		<where>
+			<if test="name != null and name != '' " >and `name` like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+			<if test="no != null and no != '' " >and `no` like concat('%', #{no,jdbcType=VARCHAR}, '%')</if>
+			<if test="type != null" >and `type` =#{type,jdbcType=TINYINT}</if>
+			<if test="status != null and status != 5" >and status =#{status,jdbcType=TINYINT}</if>
+			<if test="status == 5" ><![CDATA[and (status =1 or status =2) and end_time <= now()]]></if>
+			<if test="startTime != null and endTime == null">
+				and start_time >= DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and end_time >= DATE_FORMAT(#{startTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="startTime == null and endTime != null">
+				<![CDATA[and start_time <= DATE_FORMAT(#{endTime}, '%Y-%m-%d %T') and end_time <= DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')]]>
+			</if>
+			<if test="startTime != null and endTime != null">
+				and start_time between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')
+				and end_time between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')
+			</if>
+		</where>
+	</select>
+	<select id="findSituationInspect" resultMap="inspectSituationMap">
+		select <include refid="Inspect_columns" /> from t_oa_inspect
+		<where>
+			<if test="name != null and name != '' " >and `name` like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+			<if test="no != null and no != '' " >and `no` like concat('%', #{no,jdbcType=VARCHAR}, '%')</if>
+			<if test="type != null" >and `type` =#{type,jdbcType=TINYINT}</if>
+			<if test="startTime != null and endTime == null">
+				and start_time >= DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and end_time >= DATE_FORMAT(#{startTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="startTime == null and endTime != null">
+				<![CDATA[and start_time <= DATE_FORMAT(#{endTime}, '%Y-%m-%d %T') and end_time <= DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')]]>
+			</if>
+			<if test="startTime != null and endTime != null">
+				and start_time between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')
+				and end_time between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T')
+			</if>
+			<if test="queryType != null and queryType == 3">and status != 0</if>
+		</where>
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Inspect">
+		<selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert INTO t_oa_inspect (
+				`name`,
+				`no`,
+				`type`,
+				start_time,
+				end_time,
+
+				deps,
+				executors,
+				spots,
+				content,
+				attact_ids,
+
+				last_report_at,
+				create_at,
+				`status`
+		) VALUES (
+			#{name,jdbcType=VARCHAR},
+			#{no,jdbcType=VARCHAR},
+			#{type,jdbcType=VARCHAR},
+			#{startTime,jdbcType=TIMESTAMP},
+			#{endTime,jdbcType=TIMESTAMP},
+
+			#{deps,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			#{executors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			#{spots,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			#{content,jdbcType=VARCHAR},
+			#{attactIds,jdbcType=VARCHAR},
+
+			#{lastReportAt,jdbcType=TIMESTAMP},
+			#{createAt,jdbcType=TIMESTAMP},
+			#{status,jdbcType=TINYINT}
+		)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.Inspect">
+		update t_oa_inspect
+		<set>
+		<if test="name != null">
+		 `name` =#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="type != null">
+			`type` =#{type,jdbcType=TINYINT},
+		</if>
+		<if test="startTime != null">
+			start_time =#{startTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="endTime != null">
+			end_time =#{endTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="deps != null">
+			deps =#{deps,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+		</if>
+		<if test="executors != null">
+			executors =#{executors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+		</if>
+		<if test="spots != null">
+			spots =#{spots,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+		</if>
+		<if test="content != null">
+			content =#{content,jdbcType=VARCHAR},
+		</if>
+		<if test="attactIds != null">
+			attact_ids =#{attactIds,jdbcType=VARCHAR},
+		</if>
+		<if test="createAt != null">
+			create_at =#{createAt,jdbcType=TIMESTAMP},
+		</if>
+		version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where
+			 id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+	<update id="updateStatus">
+		update t_oa_inspect
+		<set>
+			<if test="status != null">
+				status =#{status,jdbcType=TINYINT},
+			</if>
+			version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+	<update id="publish">
+		update t_oa_inspect
+		<set>
+			<if test="status != null">
+				status =#{status,jdbcType=TINYINT},
+			</if>
+			<if test="publisherId != null">
+				publisher_id = #{publisherId,jdbcType=TINYINT},
+			</if>
+			version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+	<update id="updateLastReportAt">
+		update t_oa_inspect
+		<set>
+			<if test="lastReportAt != null">
+				last_report_at =#{lastReportAt,jdbcType=TIMESTAMP},
+			</if>
+			version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Inspect">
+		delete from t_oa_inspect
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+</mapper>

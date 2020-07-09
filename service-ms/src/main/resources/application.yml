@@ -1,0 +1,88 @@
+eureka:
+  client:
+    serviceUrl:
+      #defaultZone: http://200.200.3.38:8081/eureka/
+      defaultZone: http://127.0.0.1:8081/eureka/
+      #healthCheck:
+      #enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+server:
+  port: 8086
+spring:
+  application:
+    name: service-ms-liyang
+  rabbitmq:
+      host: 101.201.235.239
+      port: 5672
+      username: guest
+      password: guest
+      # 开启发送确认
+      publisher-confirms: true
+      # 开启发送失败退回
+      publisher-returns: true
+      # 开启ACK
+      listener.direct.acknowledge-mode: manual
+      listener.simple.acknowledge-mode: manual
+  cache:
+    type: redis
+    cache-names: jpush_setting
+    redis:
+      time-to-live: 86400000
+      cache-null-values: true
+  datasource:
+    #name: test
+    url: jdbc:mysql://101.201.235.239:3306/wt_sys?characterEncoding=utf-8
+    username: develop
+    #使用远程的配置中心的参数
+    password: bit2019!Q2w3e
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+  data:
+    mongodb:
+      uri: mongodb://tester:1qaz2wsx@101.201.235.239:27017/test
+  #用于cache缓存
+  redis:
+    host: 101.201.235.239
+    database: 1
+
+jpush:
+  #单独发通知的字节长度
+  onlyContentLength: 115
+  #最长存在时间(10天)10*24*60*60
+  longestTimeToLive: 864000
+  #通知内容加参数最长字节长度
+  contentExtraLength: 200
+  #是否是产品模式
+  isProduct: false
+  #tag名称
+  tag: tid
+  #mongoLog 是否启用插入时的mongo日志  true 启用  false 不启用
+  mongoLog: true
+#短信接口
+sms:
+  appid: 1400192261
+  appkey: 2f82b1b20f5c5767f2fc1ef895fe499e
+  #每条短信间隔
+  interval: 1
+  #每日最大发送次数
+  limit: 5
+  #模板编码
+  tempCodes: passback_291677_2,register_291676_2,applyrefuse_296623_2,applypass_297037_1
+  #签名
+  sign: 198810

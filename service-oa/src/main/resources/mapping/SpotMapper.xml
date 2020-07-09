@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.SpotDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Spot_columns">
+	    <![CDATA[
+			s.id as id,
+			s.`name` as name,
+			s.`zone_id` as `zone_id`,
+			z.`name` as `zone_name`,
+
+			s.`lng` as lng,
+			s.`lat` as lat,
+			s.`status` AS `status`
+	    ]]>
+	</sql>
+	<sql id="Spot_simple_columns">
+		id as id,
+		name as name,
+
+		`lng` as lng,
+		`lat` as lat,
+		zone_id as zone_id,
+		`status` AS `status`
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.vo.spot.SpotPageVO" id="spotMap">
+		<id column="id" property="id"/>
+	    <result column="name" property="name"/>
+		<result column="zone_id" property="zoneId"/>
+		<result column="zone_name" property="zoneName"/>
+		<result column="lng" property="lng"/>
+		<result column="lat" property="lat"/>
+	    <result column="status" property="status"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.bean.Spot" id="spotSimpleMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="zone_id" property="zoneId"/>
+		<result column="lng" property="lng"/>
+		<result column="lat" property="lat"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="spotMap" parameterType="com.bit.module.oa.vo.spot.SpotVO">
+		select <include refid="Spot_columns" /> from t_oa_inspect_spot s join t_oa_inspect_zone z on s.zone_id = z.id
+		<where>
+			<if test="name != null and name != '' " >and s.name like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="spotSimpleMap" parameterType="String">
+		select <include refid="Spot_simple_columns" /> from t_oa_inspect_spot
+		where status = 1
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="spotMap" parameterType="com.bit.module.oa.bean.Spot">
+		select <include refid="Spot_columns" /> from t_oa_inspect_spot s join t_oa_inspect_zone z on s.zone_id = z.id
+		where
+        	s.id =#{id,jdbcType=BIGINT}
+
+	</select>
+	<select id="findByNameAndZoneIdAndStatus" resultMap="spotSimpleMap" parameterType="com.bit.module.oa.bean.Spot">
+		select <include refid="Spot_simple_columns" /> from t_oa_inspect_spot
+		<where>
+			<if test="status != null">
+				status = #{status}
+			</if>
+			<if test="name != null and name != ''">
+				and `name` = #{name}
+			</if>
+			<if test="zoneId != null">
+				and zone_id = #{zoneId}
+			</if>
+		</where>
+	</select>
+    <select id="findByIds" resultMap="spotSimpleMap">
+		select <include refid="Spot_simple_columns" /> from t_oa_inspect_spot
+		where
+		id in
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Spot">
+	insert INTO t_oa_inspect_spot (
+		`name`,
+		`zone_id`,
+		`lng`,
+		`lat`,
+		`status`
+	) VALUES (
+		#{name,jdbcType=VARCHAR},
+		#{zoneId,jdbcType=BIGINT},
+		#{lng,jdbcType=DOUBLE},
+		#{lat,jdbcType=DOUBLE},
+		#{status,jdbcType=TINYINT}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.Spot">
+		update t_oa_inspect_spot
+		<set>
+		<if test="name != null and name != ''">
+			name =#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="zoneId != null">
+			zone_id =#{zoneId,jdbcType=BIGINT},
+		</if>
+		<if test="lng != null">
+			lng =#{lng,jdbcType=DOUBLE},
+		</if>
+		<if test="lat != null">
+			lat =#{lat,jdbcType=DOUBLE},
+		</if>
+		<if test="status != null">
+			status =#{status,jdbcType=TINYINT}
+		</if>
+		</set>
+		where
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Spot">
+		delete from t_oa_inspect_spot
+		where
+			id = #{id,jdbcType=BIGINT}
+	</delete>
+	<delete id="batchDelete">
+		delete from t_oa_inspect_spot
+		id in (
+		<foreach collection="ids" item="id" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+		)
+	</delete>
+	<update id="updateStatus">
+		update t_oa_inspect_spot set `status` = #{status,jdbcType=TINYINT} where id = #{id,jdbcType=BIGINT}
+	</update>
+    <update id="disableStatus">
+		update t_oa_inspect_spot set `status` = 0 where id in
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</update>
+</mapper>

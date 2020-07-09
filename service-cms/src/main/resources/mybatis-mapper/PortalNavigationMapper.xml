@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.manager.dao.PortalNavigationDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PortalNavigation_columns">
+	    <![CDATA[
+			id as id,
+			navigation_name as navigation_name,
+			status as status,
+			station_id as station_id,
+			operation_user_id as operation_user_id,
+		
+			operation_user_name as operation_user_name
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.manager.bean.PortalNavigation" id="portalNavigationMap">
+		<id column="id" property="id"/>
+	    <result column="navigation_name" property="navigationName"/>
+	    <result column="status" property="status"/>
+	    <result column="station_id" property="stationId"/>
+	    <result column="operation_user_id" property="operationUserId"/>
+	    <result column="operation_user_name" property="operationUserName"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="portalNavigationMap" parameterType="com.bit.module.manager.vo.PortalNavigationVO">
+		select <include refid="PortalNavigation_columns" /> from t_portal_navigation
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="navigationName != null and navigationName != '' " >and navigation_name =#{navigationName,jdbcType=VARCHAR}</if>
+			<if test="status != null and status != '' " >and status =#{status,jdbcType=TINYINT}</if>
+			<if test="stationId != null and stationId != '' " >and station_id =#{stationId,jdbcType=BIGINT}</if>
+			<if test="operationUserId != null and operationUserId != '' " >and operation_user_id =#{operationUserId,jdbcType=BIGINT}</if>
+			<if test="operationUserName != null and operationUserName != '' " >and operation_user_name =#{operationUserName,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+
+	<!-- 根据参数查询 -->
+	<select id="findByParam" resultMap="portalNavigationMap" parameterType="com.bit.module.manager.vo.PortalNavigationParamsVO">
+		select <include refid="PortalNavigation_columns" /> from t_portal_navigation
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="navigationName != null and navigationName != '' " >and navigation_name =#{navigationName,jdbcType=VARCHAR}</if>
+			<if test="status != null and status != '' " >and status =#{status,jdbcType=TINYINT}</if>
+			<if test="stationId != null and stationId != '' " >and station_id =#{stationId,jdbcType=BIGINT}</if>
+			<if test="operationUserId != null and operationUserId != '' " >and operation_user_id =#{operationUserId,jdbcType=BIGINT}</if>
+			<if test="operationUserName != null and operationUserName != '' " >and operation_user_name =#{operationUserName,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="portalNavigationMap" parameterType="String">
+		select <include refid="PortalNavigation_columns" /> from t_portal_navigation
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="portalNavigationMap" parameterType="com.bit.module.manager.bean.PortalNavigation">
+		select <include refid="PortalNavigation_columns" /> 
+		from t_portal_navigation
+		where 
+        	id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.manager.bean.PortalNavigation">
+	insert INTO t_portal_navigation (
+		<if test="id != null ">
+			id,
+		</if>
+		<if test="navigationName != null and navigationName != '' ">
+			navigation_name,
+		</if>
+		<if test="status != null">
+			status,
+		</if>
+		<if test="stationId != null">
+			station_id,
+		</if>
+		operation_user_id ,
+		operation_user_name 
+	) VALUES (
+		<if test="id != null ">
+			#{id,jdbcType=BIGINT},
+		</if>
+		<if test="navigationName != null and navigationName != '' ">
+			#{navigationName,jdbcType=VARCHAR},
+		</if>
+		<if test="status != null">
+			#{status,jdbcType=TINYINT},
+		</if>
+		<if test="stationId != null">
+			#{stationId,jdbcType=BIGINT},
+		</if>
+		#{operationUserId,jdbcType=BIGINT},
+		#{operationUserName,jdbcType=VARCHAR}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.manager.bean.PortalNavigation">
+		update t_portal_navigation
+		<set>
+		<if test="navigationName != null">
+		 navigation_name =#{navigationName,jdbcType=VARCHAR},
+		</if>
+		<if test="status != null">
+		 status =#{status,jdbcType=TINYINT},
+		</if>
+		<if test="stationId != null">
+		 station_id =#{stationId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserId != null">
+		 operation_user_id =#{operationUserId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserName != null">
+		 operation_user_name =#{operationUserName,jdbcType=VARCHAR}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.manager.bean.PortalNavigation">
+		delete from t_portal_navigation 
+		where
+			id = #{id,jdbcType=BIGINT}
+	</delete>
+	
+	<select id="batchById" resultMap="portalNavigationMap">
+		select <include refid="PortalNavigation_columns" />
+		from t_portal_navigation
+		where
+		id in
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+
+	<!-- 获取表中最大ID -->
+	<select id="getMaxId" resultType="java.lang.Long">
+		SELECT
+			MAX(id) id
+		FROM
+			${tableName}
+	  	where
+	  		station_id = #{stationId}
+	</select>
+
+	<!-- 获取导航树(内容发布时使用，不包含特殊) -->
+    <select id="getNavigationTreeExSpecialSql" resultType="com.bit.module.manager.bean.PortalCategory">
+		SELECT
+			t.id,
+			t.category_name categoryName,
+			t.navigation_id navigationId
+		FROM
+			t_portal_category t
+		WHERE
+			t.category_type = #{categoryType,jdbcType=INTEGER}
+		AND t.navigation_id in
+		<foreach collection="navigationIdList" open="(" close=")" item="id" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+	<!-- 批量查询导航明细 -->
+	<select id="findNavigationDetailsSql" parameterType="java.lang.Long"
+			resultType="com.bit.module.manager.bean.PortalNavigation">
+		SELECT
+			tn.id,
+			tn.navigation_name navigationName,
+			tn.station_id stationId
+		FROM
+			t_portal_navigation tn
+		WHERE
+			tn.id in
+		<foreach collection="navigationIdList" open="(" close=")" item="id" separator=",">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+	<!-- 根据名称去重 -->
+    <select id="findByName" parameterType="com.bit.module.manager.bean.PortalNavigation"
+			resultType="com.bit.module.manager.bean.PortalNavigation">
+		select <include refid="PortalNavigation_columns" /> from t_portal_navigation
+		WHERE
+			station_id = #{stationId,jdbcType=VARCHAR}
+			<if test="navigationName != null and navigationName != '' " >and navigation_name =#{navigationName,jdbcType=VARCHAR}</if>
+			<if test="status != null and status != '' " >and status =#{status,jdbcType=TINYINT}</if>
+	</select>
+</mapper>

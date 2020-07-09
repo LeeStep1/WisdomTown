@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.vol.dao.ProductExchangeAuditDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="ProductExchangeAudit_columns">
+	    <![CDATA[
+			id as id,
+			shop_id as shop_id,
+			shop_name as shop_name,
+			product_id as product_id,
+			product_name as product_name,
+		
+			proposer_id as proposer_id,
+			proposer_name as proposer_name,
+			proposer_mobile as proposer_mobile,
+			integral_value as integral_value,
+			exchange_number as exchange_number,
+		
+			exchange_integral_amount as exchange_integral_amount,
+			create_time as create_time,
+			update_time as update_time,
+			update_user_id as update_user_id,
+			audit_status as audit_status,
+		
+			get_status as get_status,
+			version as version
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.vol.bean.ProductExchangeAudit" id="productExchangeAuditMap">
+		<id column="id" property="id"/>
+	    <result column="shop_id" property="shopId"/>
+	    <result column="shop_name" property="shopName"/>
+	    <result column="product_id" property="productId"/>
+	    <result column="product_name" property="productName"/>
+	    <result column="proposer_id" property="proposerId"/>
+	    <result column="proposer_name" property="proposerName"/>
+	    <result column="proposer_mobile" property="proposerMobile"/>
+	    <result column="integral_value" property="integralValue"/>
+	    <result column="exchange_number" property="exchangeNumber"/>
+	    <result column="exchange_integral_amount" property="exchangeIntegralAmount"/>
+	    <result column="create_time" property="createTime"/>
+	    <result column="update_time" property="updateTime"/>
+	    <result column="update_user_id" property="updateUserId"/>
+	    <result column="audit_status" property="auditStatus"/>
+	    <result column="get_status" property="getStatus"/>
+	    <result column="version" property="version"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="productExchangeAuditMap" parameterType="com.bit.module.vol.vo.ProductExchangeAuditVO">
+		select <include refid="ProductExchangeAudit_columns" /> from t_product_exchange_audit
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="shopId != null and shopId != '' " >and shop_id =#{shopId,jdbcType=BIGINT}</if>
+			<if test="shopName != null and shopName != '' " >and shop_name like "%"#{shopName,jdbcType=VARCHAR}"%"</if>
+			<if test="productId != null and productId != '' " >and product_id =#{productId,jdbcType=BIGINT}</if>
+			<if test="productName != null and productName != '' " >and product_name like "%"#{productName,jdbcType=VARCHAR}"%"</if>
+			<if test="proposerId != null and proposerId != '' " >and proposer_id =#{proposerId,jdbcType=BIGINT}</if>
+			<if test="proposerName != null and proposerName != '' " >and proposer_name like "%"#{proposerName,jdbcType=VARCHAR}"%"</if>
+			<if test="proposerMobile != null and proposerMobile != '' " >and proposer_mobile =#{proposerMobile,jdbcType=VARCHAR}</if>
+			<if test="integralValue != null and integralValue != '' " >and integral_value =#{integralValue,jdbcType=INTEGER}</if>
+			<if test="exchangeNumber != null and exchangeNumber != '' " >and exchange_number =#{exchangeNumber,jdbcType=INTEGER}</if>
+			<if test="exchangeIntegralAmount != null and exchangeIntegralAmount != '' " >and exchange_integral_amount =#{exchangeIntegralAmount,jdbcType=INTEGER}</if>
+			<if test="updateUserId != null and updateUserId != '' " >and update_user_id =#{updateUserId,jdbcType=BIGINT}</if>
+			<if test="auditStatus != null " >and audit_status =#{auditStatus,jdbcType=TINYINT}</if>
+			<if test="getStatus != null " >and get_status =#{getStatus,jdbcType=TINYINT}</if>
+			<if test="version != null " >and version =#{version,jdbcType=TINYINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="productExchangeAuditMap" parameterType="String">
+		select <include refid="ProductExchangeAudit_columns" /> from t_product_exchange_audit
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="productExchangeAuditMap" parameterType="com.bit.module.vol.bean.ProductExchangeAudit">
+		select <include refid="ProductExchangeAudit_columns" /> 
+		from t_product_exchange_audit
+		where 
+        	id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.vol.bean.ProductExchangeAudit" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+	insert INTO t_product_exchange_audit (
+		shop_id ,
+		shop_name ,
+		product_id ,
+		product_name ,
+		proposer_id ,
+		proposer_name ,
+		proposer_mobile ,
+		integral_value ,
+		exchange_number ,
+		exchange_integral_amount ,
+		create_time ,
+		update_time ,
+		update_user_id ,
+		audit_status ,
+		get_status ,
+		version
+	) VALUES (
+		#{shopId,jdbcType=BIGINT},
+		#{shopName,jdbcType=VARCHAR},
+		#{productId,jdbcType=BIGINT},
+		#{productName,jdbcType=VARCHAR},
+		#{proposerId,jdbcType=BIGINT},
+		#{proposerName,jdbcType=VARCHAR},
+		#{proposerMobile,jdbcType=VARCHAR},
+		#{integralValue,jdbcType=INTEGER},
+		#{exchangeNumber,jdbcType=INTEGER},
+		#{exchangeIntegralAmount,jdbcType=INTEGER},
+		#{createTime,jdbcType=TIMESTAMP},
+		#{updateTime,jdbcType=TIMESTAMP},
+		#{updateUserId,jdbcType=BIGINT},
+		#{auditStatus,jdbcType=TINYINT},
+		#{getStatus,jdbcType=TINYINT},
+		#{version,jdbcType=TINYINT}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.vol.bean.ProductExchangeAudit">
+		update t_product_exchange_audit
+		<set>
+		<if test="shopId != null">
+		 shop_id =#{shopId,jdbcType=BIGINT},
+		</if>
+		<if test="shopName != null">
+		 shop_name =#{shopName,jdbcType=VARCHAR},
+		</if>
+		<if test="productId != null">
+		 product_id =#{productId,jdbcType=BIGINT},
+		</if>
+		<if test="productName != null">
+		 product_name =#{productName,jdbcType=VARCHAR},
+		</if>
+		<if test="proposerId != null">
+		 proposer_id =#{proposerId,jdbcType=BIGINT},
+		</if>
+		<if test="proposerName != null">
+		 proposer_name =#{proposerName,jdbcType=VARCHAR},
+		</if>
+		<if test="proposerMobile != null">
+		 proposer_mobile =#{proposerMobile,jdbcType=VARCHAR},
+		</if>
+		<if test="integralValue != null">
+		 integral_value =#{integralValue,jdbcType=INTEGER},
+		</if>
+		<if test="exchangeNumber != null">
+		 exchange_number =#{exchangeNumber,jdbcType=INTEGER},
+		</if>
+		<if test="exchangeIntegralAmount != null">
+		 exchange_integral_amount =#{exchangeIntegralAmount,jdbcType=INTEGER},
+		</if>
+		<if test="createTime != null">
+		 create_time =#{createTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="updateTime != null">
+		 update_time =#{updateTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="updateUserId != null">
+		 update_user_id =#{updateUserId,jdbcType=BIGINT},
+		</if>
+		<if test="auditStatus != null">
+		 audit_status =#{auditStatus,jdbcType=TINYINT},
+		</if>
+		<if test="getStatus != null">
+		 get_status =#{getStatus,jdbcType=TINYINT},
+		</if>
+		<if test="version != null">
+			version =#{version,jdbcType=TINYINT} + 1
+		</if>
+		</set>
+		<where>
+			<if test="id!=null">and id = #{id,jdbcType=BIGINT}</if>
+			<if test="version!=null">and version = #{version,jdbcType=TINYINT}</if>
+		</where>
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.vol.bean.ProductExchangeAudit">
+		delete from t_product_exchange_audit 
+		where
+			id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<!-- 根据shopId查询 -->
+	<select id="findByShopId" resultMap="productExchangeAuditMap" parameterType="com.bit.module.vol.vo.ProductExchangeAuditVO">
+		select <include refid="ProductExchangeAudit_columns" /> from t_product_exchange_audit
+		where
+			product_id = #{productId,jdbcType=BIGINT}
+		and audit_status = 1
+	</select>
+
+	<!-- 根据参数查询 -->
+	<select id="findByParam" resultMap="productExchangeAuditMap" parameterType="com.bit.module.vol.vo.ProductExchangeAuditExcelVO">
+		select <include refid="ProductExchangeAudit_columns" /> from t_product_exchange_audit
+		<where>
+			<if test="shopName != null and shopName != '' " >and shop_name like "%"#{shopName,jdbcType=VARCHAR}"%"</if>
+			<if test="productName != null and productName != '' " >and product_name like "%"#{productName,jdbcType=VARCHAR}"%"</if>
+			<if test="proposerName != null and proposerName != '' " >and proposer_name like "%"#{proposerName,jdbcType=VARCHAR}"%"</if>
+			<if test="auditStatus != null " >and audit_status =#{auditStatus,jdbcType=TINYINT}</if>
+			<if test="getStatus != null " >and get_status =#{getStatus,jdbcType=TINYINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+
+	<!-- 根据id批量查询 -->
+	<select id="batchSelect" resultMap="productExchangeAuditMap" parameterType="com.bit.module.vol.vo.ProductExchangeAuditExcelVO">
+		select <include refid="ProductExchangeAudit_columns" /> from t_product_exchange_audit
+		where id in
+		<foreach collection="idList" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+
+	<!-- 根据id批量查询 -->
+	<select id="batchSelectByShopId" resultMap="productExchangeAuditMap" parameterType="com.bit.module.vol.vo.ProductExchangeAuditExcelVO">
+		select <include refid="ProductExchangeAudit_columns" /> from t_product_exchange_audit
+		where shop_id in
+		<foreach collection="idList" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+		<if test="auditStatus != null">
+			and audit_status = #{auditStatus}
+		</if>
+	</select>
+
+	<update id="batchUpdate" parameterType="com.bit.module.vol.vo.ProductExchangeAuditVO">
+		update t_product_exchange_audit
+		<set>
+			<if test="getStatus != null">
+				get_status =#{getStatus,jdbcType=TINYINT}
+			</if>
+		</set>
+		where
+			id in
+		<foreach collection="ids" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+	</update>
+
+	<select id="findByVolunteerId" resultMap="productExchangeAuditMap" parameterType="long">
+		select <include refid="ProductExchangeAudit_columns" /> from t_product_exchange_audit
+		<where>
+			<if test="id != null">
+				and proposer_id = #{id,jdbcType=BIGINT}
+			</if>
+		</where>
+	</select>
+	
+	<select id="countExchangeIntegralAmountByProductId" resultType="int" parameterType="long">
+        SELECT sum(exchange_integral_amount) FROM t_product_exchange_audit
+        <where>
+            and audit_status = 1
+            <if test="shopId!=null">and shop_id = #{shopId,jdbcType=BIGINT}</if>
+        </where>
+	</select>
+</mapper>

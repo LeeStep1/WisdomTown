@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.CompanyDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Company_columns">
+	    <![CDATA[
+			id as id,
+			name as name,
+			photo as photo,
+			industry as industry,
+			nature as nature,
+		
+			service_start_time as service_start_time,
+			service_end_time as service_end_time,
+			type as type,
+			address as address,
+			uniform_social_credit_code as uniform_social_credit_code,
+		
+			contract as contract,
+			contract_phone as contract_phone,
+			legal_representative as legal_representative,
+			register_office as register_office,
+			operator_id as operator_id,
+		
+			operator_mobile as operator_mobile,
+			`condition` AS `condition`,
+			`status` AS `status`
+	    ]]>
+	</sql>
+	<sql id="Company_simple_columns">
+		id as id,
+		name as name
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.vo.company.CompanyPageVO" id="companyMap">
+		<id column="id" property="id"/>
+	    <result column="name" property="name"/>
+	    <result column="photo" property="photo"/>
+	    <result column="industry" property="industry"/>
+	    <result column="nature" property="nature"/>
+	    <result column="service_start_time" property="serviceStartTime"/>
+	    <result column="service_end_time" property="serviceEndTime"/>
+	    <result column="type" property="type"/>
+	    <result column="address" property="address"/>
+	    <result column="uniform_social_credit_code" property="uniformSocialCreditCode"/>
+	    <result column="contract" property="contract"/>
+	    <result column="contract_phone" property="contractPhone"/>
+	    <result column="legal_representative" property="legalRepresentative"/>
+	    <result column="register_office" property="registerOffice"/>
+	    <result column="operator_id" property="operatorId"/>
+	    <result column="operator_name" property="operatorName"/>
+	    <result column="operator_mobile" property="operatorMobile"/>
+	    <result column="condition" property="condition"/>
+	    <result column="status" property="status"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.vo.company.SimpleCompanyVO" id="companySimpleMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="companyMap" parameterType="com.bit.module.oa.vo.company.CompanyVO">
+		select <include refid="Company_columns" /> from t_oa_company
+		<where>
+			<if test="name != null and name != '' " >and name like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+			<if test="nature != null and nature != '' " >and nature =#{nature,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="companySimpleMap" parameterType="String">
+		select <include refid="Company_simple_columns" /> from t_oa_company
+		where `status` = 1
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="companyMap" parameterType="com.bit.module.oa.bean.Company">
+		select <include refid="Company_columns" />
+		from t_oa_company
+		where
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+    <select id="findByCondition" resultMap="companyMap">
+		select <include refid="Company_columns" /> from t_oa_company
+		<where>
+			<if test="nature != null and nature != '' " >and nature =#{nature,jdbcType=VARCHAR}</if>
+			<if test="name != null and name != '' " >and name like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+		</where>
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Company">
+	insert INTO t_oa_company (
+		name ,
+		photo ,
+		industry ,
+		nature ,
+		service_start_time ,
+		service_end_time ,
+		type ,
+		address ,
+		uniform_social_credit_code ,
+		contract ,
+		contract_phone ,
+		legal_representative ,
+		register_office ,
+		operator_id ,
+		operator_mobile ,
+		`condition` ,
+		`status`
+	) VALUES (
+		#{name,jdbcType=VARCHAR},
+		#{photo,jdbcType=VARCHAR},
+		#{industry,jdbcType=VARCHAR},
+		#{nature,jdbcType=VARCHAR},
+		#{serviceStartTime,jdbcType=DATE},
+		#{serviceEndTime,jdbcType=DATE},
+		#{type,jdbcType=VARCHAR},
+		#{address,jdbcType=VARCHAR},
+		#{uniformSocialCreditCode,jdbcType=VARCHAR},
+		#{contract,jdbcType=VARCHAR},
+		#{contractPhone,jdbcType=VARCHAR},
+		#{legalRepresentative,jdbcType=VARCHAR},
+		#{registerOffice,jdbcType=VARCHAR},
+		#{operatorId,jdbcType=BIGINT},
+		#{operatorMobile,jdbcType=VARCHAR},
+		#{condition,jdbcType=TINYINT},
+		#{status,jdbcType=TINYINT}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.Company">
+		update t_oa_company
+		<set>
+		<if test="name != null">
+		 name =#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="photo != null">
+		 photo =#{photo,jdbcType=VARCHAR},
+		</if>
+		<if test="industry != null">
+		 industry =#{industry,jdbcType=VARCHAR},
+		</if>
+		<if test="nature != null">
+		 nature =#{nature,jdbcType=VARCHAR},
+		</if>
+		<if test="serviceStartTime != null">
+		 service_start_time =#{serviceStartTime,jdbcType=DATE},
+		</if>
+		<if test="serviceEndTime != null">
+		 service_end_time =#{serviceEndTime,jdbcType=DATE},
+		</if>
+		<if test="type != null">
+		 type =#{type,jdbcType=VARCHAR},
+		</if>
+		<if test="address != null">
+		 address =#{address,jdbcType=VARCHAR},
+		</if>
+		<if test="uniformSocialCreditCode != null">
+		 uniform_social_credit_code =#{uniformSocialCreditCode,jdbcType=VARCHAR},
+		</if>
+		<if test="contract != null">
+		 contract =#{contract,jdbcType=VARCHAR},
+		</if>
+		<if test="contractPhone != null">
+		 contract_phone =#{contractPhone,jdbcType=VARCHAR},
+		</if>
+		<if test="legalRepresentative != null">
+		 legal_representative =#{legalRepresentative,jdbcType=VARCHAR},
+		</if>
+		<if test="registerOffice != null">
+		 register_office =#{registerOffice,jdbcType=VARCHAR},
+		</if>
+		<if test="operatorId != null">
+		 operator_id =#{operatorId,jdbcType=BIGINT},
+		</if>
+		<if test="operatorMobile != null">
+		 operator_mobile =#{operatorMobile,jdbcType=VARCHAR},
+		</if>
+		<if test="condition != null">
+		 `condition` =#{condition,jdbcType=TINYINT},
+		</if>
+		</set>
+		where
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Company">
+		delete from t_oa_company
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_oa_company
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+	<update id="updateStatus">
+		update t_oa_company set `status` = #{status,jdbcType=TINYINT} where id = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

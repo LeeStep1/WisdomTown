@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.cbo.dao.CommunityNewsDao" >
+  <resultMap id="BaseResultMap" type="com.bit.module.cbo.bean.CommunityNews" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_id" property="createUserId" jdbcType="BIGINT" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="publish_time" property="publishTime" jdbcType="TIMESTAMP" />
+    <result column="publish_user_id" property="publishUserId" jdbcType="BIGINT" />
+    <result column="publish_user_name" property="publishUserName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="org_id" property="orgId" jdbcType="BIGINT" />
+    <result column="org_name" property="orgName" jdbcType="VARCHAR" />
+    <result column="pic" property="pic" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <resultMap id="ResultMapWithBLOBs" type="com.bit.module.cbo.bean.CommunityNews" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List" >
+    id, title, create_time, create_user_id, create_user_name, publish_time, publish_user_id, 
+    publish_user_name, status, org_id, org_name, pic
+  </sql>
+
+  <!-- 查询明细 -->
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />,
+    content
+    from t_cbo_community_news
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <!-- 查询社区风采列表 -->
+  <select id="findAll" resultType="com.bit.module.cbo.bean.CommunityNews">
+    SELECT
+      id,
+      title,
+      create_time createTime,
+      create_user_id createUserId,
+      create_user_name createUserName,
+      publish_time publishTime,
+      publish_user_id publishUserId,
+      publish_user_name publishUserName,
+      status,
+      org_id orgId,
+      org_name orgName,
+      pic
+    from t_cbo_community_news
+    <where>
+      <if test="news.orgId != null">
+        org_id = #{news.orgId}
+      </if>
+      <if test="news.title != null and news.title != ''">
+        and title LIKE CONCAT('%',#{news.title},'%')
+      </if>
+      <if test="news.beginTime != null and news.endTime != null">
+        and publish_time between #{news.beginTime} and #{news.endTime}
+      </if>
+      <if test="news.status != null">
+        and status = #{news.status}
+      </if>
+    </where>
+    ORDER BY
+      status ASC,
+      publish_time DESC
+
+  </select>
+
+  <!-- 根据ID删除内容 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_cbo_community_news
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+
+  <!-- 新增社区风采 -->
+  <insert id="add" parameterType="com.bit.module.cbo.bean.CommunityNews" >
+    insert into t_cbo_community_news
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="publishTime != null" >
+        publish_time,
+      </if>
+      <if test="publishUserId != null" >
+        publish_user_id,
+      </if>
+      <if test="publishUserName != null" >
+        publish_user_name,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="orgId != null" >
+        org_id,
+      </if>
+      <if test="orgName != null" >
+        org_name,
+      </if>
+      <if test="pic != null" >
+        pic,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="publishTime != null" >
+        #{publishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="publishUserId != null" >
+        #{publishUserId,jdbcType=BIGINT},
+      </if>
+      <if test="publishUserName != null" >
+        #{publishUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=BIGINT},
+      </if>
+      <if test="orgName != null" >
+        #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="pic != null" >
+        #{pic,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <!-- 修改社区风采 -->
+  <update id="modify" parameterType="com.bit.module.cbo.bean.CommunityNews" >
+    update t_cbo_community_news
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="publishTime != null" >
+        publish_time = #{publishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="publishUserId != null" >
+        publish_user_id = #{publishUserId,jdbcType=BIGINT},
+      </if>
+      <if test="publishUserName != null" >
+        publish_user_name = #{publishUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="pic != null" >
+        pic = #{pic,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+</mapper>

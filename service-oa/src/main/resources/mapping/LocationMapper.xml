@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.LocationDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="location_columns">
+		user_id as user_id,
+		lng as lng,
+		lat as lat,
+		execute_id as execute_id,
+		create_at as create_at
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.Location" id="locationMap">
+		<result column="user_id" property="userId"/>
+	    <result column="lng" property="lng"/>
+		<result column="lat" property="lat"/>
+		<result column="execute_id" property="executeId"/>
+		<result column="create_at" property="createAt"/>
+	</resultMap>
+	<!-- 查询单条记录 -->
+	<select id="findByExecuteIds" resultMap="locationMap">
+		select <include refid="location_columns" /> from t_oa_inspect_location
+		<where>
+			<if test="executeIds != null and executeIds.size > 0">
+				execute_id in
+				<foreach collection="executeIds" open="(" close=")" separator="," item="executeId">
+					#{executeId}
+				</foreach>
+			</if>
+		</where>
+		order by create_at asc
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Location">
+	insert INTO t_oa_inspect_location (
+		user_id,
+		lng,
+		lat,
+		execute_id,
+		create_at
+	) VALUES (
+		#{userId,jdbcType=BIGINT},
+		#{lng,jdbcType=DOUBLE},
+		#{lat,jdbcType=DOUBLE},
+		#{executeId,jdbcType=BIGINT},
+		#{createAt,jdbcType=TIMESTAMP}
+	)
+	</insert>
+</mapper>

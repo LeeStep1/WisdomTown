@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.pb.dao.RelationshipTransferDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="RelationshipTransferPage_columns">
+	    <![CDATA[
+			id as id,
+			JSON_UNQUOTE(member_name) as member_name,
+			member_type as member_type,
+			from_org_name as from_org_name,
+			to_org_name as to_org_name,
+			status as status,
+			is_ex_serviceman as is_ex_serviceman,
+			approve_org_id as approve_org_id,
+			insert_time as insert_time
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.vo.partyMember.RelationshipTransferPageVO" id="relationshipTransferPageMap">
+		<id column="id" property="id"/>
+		<result column="member_name" property="name"/>
+		<result column="member_type" property="memberType"/>
+	    <result column="from_org_name" property="fromOrgName"/>
+	    <result column="to_org_name" property="orgName"/>
+	    <result column="status" property="status"/>
+		<result column="is_ex_serviceman" property="isExServiceman"/>
+		<result column="approve_org_id" property="approveOrgId"/>
+        <result column="insert_time" property="insertTime"/>
+	</resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="RelationshipTransfer_columns">
+		<![CDATA[
+			id as id,
+			user_org_id as user_org_id,
+			from_org_id as from_org_id,
+			from_org_name as from_org_name,
+			to_org_id as to_org_id,
+			to_org_name as to_org_name,
+			status as status,
+			is_ex_serviceman as is_ex_serviceman,
+			modification as modification,
+			attach as attach,
+			deadline as deadline,
+			user_id as user_id,
+			approve_org_id as approve_org_id,
+			version as version,
+			member_id as member_id
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.pb.vo.partyMember.RelationshipTransferVO" id="relationshipTransferMap">
+		<id column="id" property="id"/>
+		<result column="user_org_id" property="userOrgId"/>
+		<result column="from_org_id" property="fromOrgId"/>
+		<result column="from_org_name" property="fromOrgName"/>
+		<result column="to_org_id" property="toOrgId"/>
+		<result column="to_org_name" property="toOrgName"/>
+		<result column="status" property="status"/>
+		<result column="is_ex_serviceman" property="isExServiceman"/>
+		<result column="modification" property="modification" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+		<result column="attach" property="attach" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+		<result column="deadline" property="deadline"/>
+		<result column="user_id" property="userId"/>
+		<result column="approve_org_id" property="approveOrgId"/>
+		<result column="version" property="version"/>
+        <result column="member_id" property="memberId"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="relationshipTransferPageMap" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		select <include refid="RelationshipTransferPage_columns" /> from t_pb_relationship_transfer
+		<where>
+			<if test="status != null">and status =#{status,jdbcType=TINYINT}</if>
+			<if test="orgId != null and orgMaxId == null">and user_org_id =#{orgId,jdbcType=BIGINT}</if>
+			<if test="transferType != null and transferType == 3">and from_org_id IS NOT NULL</if>
+			<if test="orgId != null and orgMaxId != null">and user_org_id >=#{orgId,jdbcType=BIGINT} and user_org_id &lt; #{orgMaxId,jdbcType=BIGINT}</if>
+			<if test="fromOrgName != null and fromOrgName != '' ">and from_org_name LIKE CONCAT("%"#{fromOrgName,jdbcType=VARCHAR}"%")</if>
+			<if test="orgName != null and orgName != '' ">and to_org_name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+			<if test="name != null and name != '' ">and JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+		</where>
+		ORDER BY insert_time DESC
+	</select>
+
+    <!-- 翻页查询 -->
+    <select id="receiveTransferPage" resultMap="relationshipTransferPageMap" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+        select <include refid="RelationshipTransferPage_columns" /> from t_pb_relationship_transfer
+        <where>
+            <if test="status != null">and status =#{status,jdbcType=TINYINT}</if>
+            <if test="transferType != null and transferType == 4 and orgId != null">
+                and (user_org_id =#{orgId,jdbcType=BIGINT} and from_org_id IS NULL AND to_org_id IS NOT NULL)
+                or (to_org_id =#{orgId,jdbcType=BIGINT} and from_org_id IS NULL)</if>
+            <if test="fromOrgName != null and fromOrgName != '' ">and from_org_name LIKE CONCAT("%"#{fromOrgName,jdbcType=VARCHAR}"%")</if>
+            <if test="orgName != null and orgName != '' ">and to_org_name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+            <if test="name != null and name != '' ">and JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+        </where>
+        ORDER BY insert_time DESC
+    </select>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage2" resultMap="relationshipTransferPageMap" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+        SELECT a.* FROM (
+            select <include refid="RelationshipTransferPage_columns" /> from t_pb_relationship_transfer
+            <where>
+                <if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+                <if test="orgId != null and orgMaxId == null">and to_org_id =#{orgId,jdbcType=BIGINT}</if>
+                <if test="orgId != null and orgMaxId != null">
+                    and user_org_id =#{orgId,jdbcType=BIGINT}
+                </if>
+                <if test="fromOrgName != null and fromOrgName != '' " >and from_org_name LIKE CONCAT("%"#{fromOrgName,jdbcType=VARCHAR}"%")</if>
+                <if test="orgName != null and orgName != '' " >and to_org_name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+                <if test="name != null and name != '' ">and JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+            </where>
+        ) a
+        UNION
+        SELECT b.* FROM (
+            select <include refid="RelationshipTransferPage_columns" /> from t_pb_relationship_transfer
+            <where>
+                <if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+                <if test="orgId != null and orgMaxId == null">and to_org_id =#{orgId,jdbcType=BIGINT}</if>
+                <if test="orgId != null and orgMaxId != null">
+                    and user_org_id >= #{orgId,jdbcType=BIGINT} and user_org_id &lt; #{orgMaxId,jdbcType=BIGINT} and status = 1
+                </if>
+                <if test="fromOrgName != null and fromOrgName != '' " >and from_org_name LIKE CONCAT("%"#{fromOrgName,jdbcType=VARCHAR}"%")</if>
+                <if test="orgName != null and orgName != '' " >and to_org_name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+                <if test="name != null and name != '' ">and JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+            </where>
+        ) b
+        UNION
+        SELECT c.* FROM (
+            select <include refid="RelationshipTransferPage_columns" /> from t_pb_relationship_transfer
+            <where>
+                <if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+                <if test="orgId != null and orgMaxId == null">and to_org_id =#{orgId,jdbcType=BIGINT}</if>
+                <if test="orgId != null and orgMaxId != null">
+                    and to_org_id >=#{orgId,jdbcType=BIGINT} and to_org_id &lt; #{orgMaxId,jdbcType=BIGINT} and status = 4
+                </if>
+                <if test="fromOrgName != null and fromOrgName != '' " >and from_org_name LIKE CONCAT("%"#{fromOrgName,jdbcType=VARCHAR}"%")</if>
+                <if test="orgName != null and orgName != '' " >and to_org_name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+                <if test="name != null and name != '' ">and JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+            </where>
+        ) c
+		ORDER BY id DESC
+	</select>
+
+	<!-- 镇内组织关系转移 -->
+	<select id="findByTransferPage" resultMap="relationshipTransferPageMap" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+        SELECT A.* FROM (
+            select <include refid="RelationshipTransferPage_columns" /> from t_pb_relationship_transfer
+            <where>
+                <if test="transferType != null and transferType == 1">AND from_org_id IS NOT NULL AND to_org_id IS NOT NULL</if>
+                <if test="transferType != null and transferType == 2">AND from_org_id IS NOT NULL AND to_org_id IS NULL</if>
+                <if test="transferType != null and transferType == 3">AND from_org_id IS NULL AND to_org_id IS NOT NULL</if>
+                <if test="transferType != null and transferType == 4">AND from_org_id IS NOT NULL</if>
+                <if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+                <if test="orgId != null">AND approve_org_id = #{orgId,jdbcType=BIGINT}</if>
+                <if test="fromOrgName != null and fromOrgName != '' " >and from_org_name LIKE CONCAT("%"#{fromOrgName,jdbcType=VARCHAR}"%")</if>
+                <if test="orgName != null and orgName != '' " >and to_org_name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+                <if test="name != null and name != '' ">and JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+            </where>
+        ) A
+        UNION
+        SELECT B.* FROM (
+            select <include refid="RelationshipTransferPage_columns" /> from t_pb_relationship_transfer
+            <where>
+                <if test="transferType != null and transferType == 1">AND from_org_id IS NOT NULL AND to_org_id IS NOT NULL</if>
+                <if test="transferType != null and transferType == 2">AND from_org_id IS NOT NULL AND to_org_id IS NULL</if>
+                <if test="transferType != null and transferType == 3">AND from_org_id IS NULL AND to_org_id IS NOT NULL</if>
+                <if test="transferType != null and transferType == 4">AND from_org_id IS NOT NULL</if>
+                <if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+				<if test="orgId != null and orgMaxId != null">AND user_org_id >= #{orgId,jdbcType=BIGINT} and user_org_id &lt; #{orgMaxId,jdbcType=BIGINT} and status != 0</if>
+                <if test="fromOrgName != null and fromOrgName != '' " >and from_org_name LIKE CONCAT("%"#{fromOrgName,jdbcType=VARCHAR}"%")</if>
+                <if test="orgName != null and orgName != '' " >and to_org_name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+                <if test="name != null and name != '' ">and JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+            </where>
+        ) B
+		ORDER BY id DESC
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="relationshipTransferMap" parameterType="com.bit.module.pb.bean.RelationshipTransfer">
+		select <include refid="RelationshipTransfer_columns" /> 
+		from t_pb_relationship_transfer
+		where 
+        	id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findRecord" resultMap="relationshipTransferMap" parameterType="com.bit.module.pb.bean.RelationshipTransfer">
+		select <include refid="RelationshipTransfer_columns" />
+		from t_pb_relationship_transfer
+		where
+		member_id =#{memberId,jdbcType=BIGINT} AND status != #{status,jdbcType=TINYINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" keyProperty="id" useGeneratedKeys="true" parameterType="com.bit.module.pb.bean.RelationshipTransfer">
+	insert INTO t_pb_relationship_transfer (
+		user_id ,
+		user_org_id ,
+		from_org_id ,
+		from_org_name ,
+		out_time ,
+		to_org_id ,
+		to_org_name ,
+		in_time ,
+		attach ,
+		insert_time ,
+		complete_time ,
+		status ,
+		deadline ,
+		is_ex_serviceman ,
+		modification,
+		approve_org_id
+	) VALUES (
+		#{userId,jdbcType=BIGINT},
+		#{userOrgId,jdbcType=VARCHAR},
+		#{fromOrgId,jdbcType=BIGINT},
+		#{fromOrgName,jdbcType=VARCHAR},
+		#{outTime,jdbcType=TIMESTAMP},
+		#{toOrgId,jdbcType=BIGINT},
+		#{toOrgName,jdbcType=VARCHAR},
+		#{inTime,jdbcType=TIMESTAMP},
+		#{attach,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+		#{insertTime,jdbcType=TIMESTAMP},
+		#{completeTime,jdbcType=TIMESTAMP},
+		#{status,jdbcType=TINYINT},
+		#{deadline,jdbcType=VARCHAR},
+		#{isExServiceman,jdbcType=TINYINT},
+		#{modification,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+		#{approveOrgId,jdbcType=BIGINT}
+	)
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.pb.bean.RelationshipTransfer">
+		update t_pb_relationship_transfer
+		<set>
+			to_org_id =#{toOrgId,jdbcType=BIGINT},
+			from_org_id =#{fromOrgId,jdbcType=BIGINT},
+			<if test="fromOrgName != null">
+			 from_org_name =#{fromOrgName,jdbcType=VARCHAR},
+			</if>
+			<if test="outTime != null">
+			 out_time =#{outTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="toOrgName != null">
+			 to_org_name =#{toOrgName,jdbcType=VARCHAR},
+			</if>
+			<if test="attach != null">
+			 attach =#{attach,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			</if>
+			<if test="completeTime != null">
+			 complete_time =#{completeTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="deadline != null">
+			 deadline =#{deadline,jdbcType=VARCHAR},
+			</if>
+			<if test="isExServiceman != null">
+			  is_ex_serviceman =#{isExServiceman,jdbcType=TINYINT},
+			</if>
+			<if test="modification != null">
+			  modification =#{modification,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+			</if>
+			version = version + 1
+		</set>
+		where 
+		  id = #{id,jdbcType=BIGINT} AND status IN(0,3)
+	</update>
+
+	<!-- 修改状态 -->
+	<update id="updateByStatus" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+		UPDATE t_pb_relationship_transfer
+		SET status =#{status,jdbcType=TINYINT}, approve_org_id = #{approveOrgId,jdbcType=BIGINT}, version = version + 1
+		<if test="changeTime != null">
+			, complete_time = #{changeTime,jdbcType=TIMESTAMP}
+		</if>
+		where
+		id = #{id,jdbcType=BIGINT} AND status IN
+		<foreach collection="statuses" item="statuses" index="index" open="(" separator="," close=")">
+			#{statuses}
+		</foreach>
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.pb.bean.RelationshipTransfer">
+		delete from t_pb_relationship_transfer 
+		where
+			id = #{id,jdbcType=BIGINT} AND status IN(0,3)
+	</delete>
+
+	<!-- 根据身份证获取转移信息 -->
+	<select id="findByIdCard" parameterType="java.lang.String" resultType="com.bit.module.pb.vo.partyMember.RelationshipTransferInfo">
+		SELECT from_org_name AS fromOrgName, to_org_name AS orgName, complete_time AS completeTime
+		FROM t_pb_relationship_transfer
+		WHERE status = 2 AND JSON_UNQUOTE(id_card) = #{idCard}
+	</select>
+
+
+	<select id="findByIdCards" parameterType="java.lang.String" resultType="com.bit.module.pb.vo.partyMember.RelationshipTransferInfo">
+		SELECT from_org_name AS fromOrgName, to_org_name AS orgName, complete_time AS completeTime
+		FROM t_pb_relationship_transfer
+		WHERE JSON_UNQUOTE(id_card) = #{idCard} AND status IN (0, 1)
+	</select>
+
+
+	<!-- 获取审核的申请 -->
+    <select id="queryAuditRelationship" resultMap="relationshipTransferPageMap" parameterType="com.bit.module.pb.vo.partyMember.PartyMemberQuery">
+        SELECT A.* FROM (
+        SELECT <include refid="RelationshipTransferPage_columns" /> FROM t_pb_relationship_transfer
+        <where>
+            <if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+            <if test="orgId != null and orgMaxId != null">
+                AND approve_org_id = #{orgId,jdbcType=BIGINT} AND `status` != 0
+            </if>
+            <if test="orgName != null and orgName != '' " >AND to_org_name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+            <if test="name != null and name != '' ">AND JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+        </where>
+        ) A
+        UNION
+        SELECT B.* FROM (
+        SELECT <include refid="RelationshipTransferPage_columns" /> FROM t_pb_relationship_transfer
+        <where>
+            <if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+            <if test="orgId != null and orgMaxId != null">
+                AND user_org_id &gt; #{orgId,jdbcType=BIGINT} AND user_org_id &lt; #{orgMaxId,jdbcType=BIGINT} AND `status` != 0</if>
+            <if test="orgName != null and orgName != '' " >AND to_org_name LIKE CONCAT("%"#{orgName,jdbcType=VARCHAR}"%")</if>
+            <if test="name != null and name != '' ">AND JSON_UNQUOTE(member_name) LIKE CONCAT("%"#{name,jdbcType=VARCHAR}"%")</if>
+        </where>
+        ) B
+        ORDER BY insert_time DESC
+    </select>
+
+</mapper>

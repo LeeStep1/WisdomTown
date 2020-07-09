@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.manager.dao.PortalPbLeaderDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PortalPbLeader_columns">
+	    <![CDATA[
+			id as id,
+			name as name,
+			head_img_url as head_img_url,
+			head_img_id as head_img_id,
+			status as status,
+		
+			category_id as category_id,
+			operation_user_id as operation_user_id,
+			operation_user_name as operation_user_name
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.manager.bean.PortalPbLeader" id="portalPbLeaderMap">
+		<id column="id" property="id"/>
+	    <result column="name" property="name"/>
+	    <result column="head_img_url" property="headImgUrl"/>
+	    <result column="head_img_id" property="headImgId"/>
+	    <result column="status" property="status"/>
+	    <result column="category_id" property="categoryId"/>
+	    <result column="operation_user_id" property="operationUserId"/>
+	    <result column="operation_user_name" property="operationUserName"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="portalPbLeaderMap" parameterType="com.bit.module.manager.vo.PortalPbLeaderVO">
+		select <include refid="PortalPbLeader_columns" /> from t_portal_pb_leader
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="name != null and name != '' " >and name =#{name,jdbcType=VARCHAR}</if>
+			<if test="headImgUrl != null and headImgUrl != '' " >and head_img_url =#{headImgUrl,jdbcType=VARCHAR}</if>
+			<if test="headImgId != null and headImgId != '' " >and head_img_id =#{headImgId,jdbcType=BIGINT}</if>
+			<if test="status != null and status != '' " >and status =#{status,jdbcType=TINYINT}</if>
+			<if test="categoryId != null and categoryId != '' " >and category_id =#{categoryId,jdbcType=BIGINT}</if>
+			<if test="operationUserId != null and operationUserId != '' " >and operation_user_id =#{operationUserId,jdbcType=BIGINT}</if>
+			<if test="operationUserName != null and operationUserName != '' " >and operation_user_name =#{operationUserName,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="portalPbLeaderMap">
+		select
+			<include refid="PortalPbLeader_columns" />
+		from t_portal_pb_leader
+		WHERE
+			del_status = #{delStatus,jdbcType=TINYINT}
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="portalPbLeaderMap" parameterType="com.bit.module.manager.bean.PortalPbLeader">
+		select <include refid="PortalPbLeader_columns" /> 
+		from t_portal_pb_leader
+		where 
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+
+	<!-- 新增领导班子头像 -->
+	<insert id="add" parameterType="com.bit.module.manager.bean.PortalPbLeader"  keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+	insert INTO t_portal_pb_leader (
+		<if test="rank != null ">
+			rank,
+		</if>
+		<if test="name != null and name != '' ">
+			name,
+		</if>
+		<if test="headImgUrl != null and headImgUrl != '' ">
+			head_img_url,
+		</if>
+		<if test="headImgId != null ">
+			head_img_id,
+		</if>
+		<if test="status != null ">
+			status,
+		</if>
+		<if test="categoryId != null ">
+			category_id,
+		</if>
+		operation_user_id ,
+		operation_user_name 
+	) VALUES (
+		<if test="rank != null ">
+			#{rank,jdbcType=INTEGER},
+		</if>
+		<if test="name != null and name != '' ">
+			#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="headImgUrl != null and headImgUrl != '' ">
+			#{headImgUrl,jdbcType=VARCHAR},
+		</if>
+		<if test="headImgId != null ">
+			#{headImgId,jdbcType=BIGINT},
+		</if>
+		<if test="status != null ">
+			#{status,jdbcType=TINYINT},
+		</if>
+		<if test="categoryId != null ">
+			#{categoryId,jdbcType=BIGINT},
+		</if>
+		#{operationUserId,jdbcType=BIGINT},
+		#{operationUserName,jdbcType=VARCHAR}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.manager.bean.PortalPbLeader">
+		update t_portal_pb_leader
+		<set>
+		<if test="name != null">
+		 name =#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="headImgUrl != null">
+		 head_img_url =#{headImgUrl,jdbcType=VARCHAR},
+		</if>
+		<if test="headImgId != null">
+		 head_img_id =#{headImgId,jdbcType=BIGINT},
+		</if>
+		<if test="status != null">
+			status =#{status,jdbcType=TINYINT},
+		</if>
+		<if test="categoryId != null">
+		 category_id =#{categoryId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserId != null">
+		 operation_user_id =#{operationUserId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserName != null">
+		 operation_user_name =#{operationUserName,jdbcType=VARCHAR}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+
+	</update>
+	<!-- 删除一条记录 -->
+	<update id="delete" parameterType="com.bit.module.manager.bean.PortalPbLeader">
+		update t_portal_pb_leader set
+			del_status = #{portalPbLeader.delStatus,jdbcType=BIGINT}
+		where
+			id = #{portalPbLeader.id,jdbcType=BIGINT}
+	</update>
+
+	<update id="batchUpdateRank" parameterType="com.bit.module.manager.bean.PortalPbLeader">
+		UPDATE t_portal_pb_leader
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="rank = case" suffix="end,">
+				<foreach collection="list" item="item" index="index" >
+					<if test="item.rank!=null">
+						WHEN id = #{item.id,jdbcType=BIGINT} then #{item.rank,jdbcType=INTEGER}
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		<where>
+			<foreach collection="list" item="item" index="index" separator=") or (" close=")" open="(">
+				id = #{item.id,jdbcType=BIGINT}
+			</foreach>
+
+		</where>
+	</update>
+</mapper>

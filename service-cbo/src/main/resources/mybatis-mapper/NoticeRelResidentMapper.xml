@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.NoticeRelResidentDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Notice_Rel_Resident_columns">
+	    <![CDATA[
+			id as id,
+			notice_id as notice_id,
+			resident_id as resident_id,
+			read_status as read_status,
+			read_time as read_time,
+			connection_status as connection_status,
+			connection_time as connection_time,
+			connection_user_id as connection_user_id
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.cbo.bean.NoticeRelResident" id="noticeRelResidentMap">
+		<id column="id" property="id"/>
+        <result column="notice_id" property="noticeId"/>
+		<result column="resident_id" property="residentId"/>
+        <result column="read_status" property="readStatus"/>
+		<result column="read_time" property="readTime"/>
+        <result column="connection_status" property="connectionStatus"/>
+        <result column="connection_time" property="connectionTime"/>
+		<result column="connection_user_id" property="connectionUserId"/>
+	</resultMap>
+
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.NoticeRelResident" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO t_cbo_notice_rel_resident
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="noticeId!=null">
+                notice_id,
+            </if>
+            <if test="residentId!=null">
+                resident_id,
+            </if>
+            <if test="readStatus!=null">
+                read_status,
+            </if>
+            <if test="readTime!=null">
+                read_time,
+            </if>
+            <if test="connectionStatus!=null">
+                connection_status,
+            </if>
+            <if test="connectionTime!=null">
+                connection_time,
+            </if>
+            <if test="connectionUserId!=null">
+                connection_user_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="noticeId!=null">
+                #{noticeId,jdbcType=BIGINT},
+            </if>
+            <if test="residentId!=null">
+                #{residentId,jdbcType=BIGINT},
+            </if>
+            <if test="readStatus!=null">
+                #{readStatus,jdbcType=INTEGER},
+            </if>
+            <if test="readTime!=null">
+                #{readTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="connectionStatus!=null">
+                #{connectionStatus,jdbcType=INTEGER},
+            </if>
+            <if test="connectionTime!=null">
+                #{connectionTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="connectionUserId!=null">
+                #{connectionUserId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+
+
+
+    <insert id="batchAddNoticeRelResident" parameterType="com.bit.module.cbo.bean.NoticeRelResident">
+        INSERT INTO t_cbo_notice_rel_resident (
+          notice_id,
+          resident_id,
+          read_status,
+          read_time,
+          connection_status,
+          connection_time,
+          connection_user_id
+        )VALUES
+        <foreach collection="noticeRelResidents" index="index" item="item" separator=",">
+            (
+            #{item.noticeId,jdbcType=BIGINT},
+            #{item.residentId,jdbcType=BIGINT},
+            #{item.readStatus,jdbcType=INTEGER},
+            #{item.readTime,jdbcType=TIMESTAMP},
+            #{item.connectionStatus,jdbcType=INTEGER},
+            #{item.connectionTime,jdbcType=TIMESTAMP},
+            #{item.connectionUserId,jdbcType=BIGINT}
+            )
+        </foreach>
+    </insert>
+    
+    <select id="getRecordByNoticeIdAndResidentId" resultMap="noticeRelResidentMap">
+        SELECT <include refid="Notice_Rel_Resident_columns"/>
+        FROM t_cbo_notice_rel_resident
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="noticeId!=null">and notice_id = #{noticeId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <update id="update" parameterType="com.bit.module.cbo.bean.NoticeRelResident" >
+        UPDATE t_cbo_notice_rel_resident
+        <trim prefix="set" suffixOverrides=",">
+            <if test="noticeId!=null">
+                notice_id = #{noticeId,jdbcType=BIGINT},
+            </if>
+            <if test="residentId!=null">
+                resident_id = #{residentId,jdbcType=BIGINT},
+            </if>
+            <if test="readStatus!=null">
+                read_status = #{readStatus,jdbcType=INTEGER},
+            </if>
+            <if test="readTime!=null">
+                read_time = #{readTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="connectionStatus!=null">
+                connection_status = #{connectionStatus,jdbcType=INTEGER},
+            </if>
+            <if test="connectionTime!=null">
+                connection_time = #{connectionTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="connectionUserId!=null">
+                connection_user_id = #{connectionUserId,jdbcType=BIGINT},
+            </if>
+        </trim>
+        where
+        id = #{id,jdbcType=BIGINT}
+    </update>
+
+
+    <select id="checkReadDetail" parameterType="com.bit.module.cbo.vo.NoticePageVO" resultType="com.bit.module.cbo.vo.NoticeResidentReadDetailVO">
+        SELECT t1.id,t1.notice_id,t1.read_status,t1.read_time,t1.connection_status,t2.real_name as residentName,t2.mobile ,t2.id as residentId
+        FROM t_cbo_notice_rel_resident t1
+        INNER JOIN t_cbo_resident t2
+        on t1.resident_id = t2.id
+        <where>
+            <if test="readStatus!=null">and t1.read_status = #{readStatus,jdbcType=INTEGER}</if>
+            <if test="noticeId!=null">and t1.notice_id = #{noticeId,jdbcType=BIGINT}</if>
+            <if test="realName!=null">and t2.real_name like concat("%",#{realName,jdbcType=VARCHAR},"%")</if>
+        </where>
+    </select>
+
+    <select id="findByParam" parameterType="com.bit.module.cbo.bean.NoticeRelResident" resultMap="noticeRelResidentMap">
+        SELECT <include refid="Notice_Rel_Resident_columns"/>
+        FROM t_cbo_notice_rel_resident
+        <where>
+            <if test="noticeId!=null">
+                and notice_id = #{noticeId,jdbcType=BIGINT}
+            </if>
+            <if test="residentId!=null">
+                and resident_id = #{residentId,jdbcType=BIGINT}
+            </if>
+            <if test="readStatus!=null">
+                and read_status = #{readStatus,jdbcType=INTEGER}
+            </if>
+            <if test="connectionStatus!=null">
+                and connection_status = #{connectionStatus,jdbcType=INTEGER}
+            </if>
+        </where>
+    </select>
+
+    <delete id="delByNoticeId" parameterType="long" >
+        DELETE FROM t_cbo_notice_rel_resident
+        WHERE notice_id = #{noticeId,jdbcType=BIGINT}
+    </delete>
+
+</mapper>

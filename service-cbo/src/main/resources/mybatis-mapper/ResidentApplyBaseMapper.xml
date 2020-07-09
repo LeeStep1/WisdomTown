@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.ResidentApplyBaseDao">
+
+    <!-- 增加办事指南台账 -->
+    <insert id="add" parameterType="com.bit.module.cbo.bean.ResidentApplyBase" keyProperty="applyBase.id" useGeneratedKeys="true" keyColumn="id">
+        insert INTO t_cbo_resident_apply_base (
+        <trim  suffixOverrides=",">
+            <if test="applyBase.title != null and applyBase.title != '' ">
+                title,
+            </if>
+            <if test="applyBase.residentId != null ">
+                resident_id,
+            </if>
+            <if test="applyBase.residentName != null and applyBase.residentName != '' ">
+                resident_name,
+            </if>
+            <if test="applyBase.cardType != null">
+                card_type,
+            </if>
+            <if test="applyBase.cardNum != null">
+                card_num,
+            </if>
+            <if test="applyBase.mobileNum != null">
+                mobile_num,
+            </if>
+            <if test="applyBase.categoryId != null">
+                category_id,
+            </if>
+            <if test="applyBase.serviceId != null">
+                service_id,
+            </if>
+            <if test="applyBase.applyStatus != null ">
+                apply_status,
+            </if>
+            <if test="applyBase.applyTime != null ">
+                apply_time,
+            </if>
+
+            <if test="applyBase.orgId != null">
+                org_id,
+            </if>
+            <if test="applyBase.extend != null">
+                extend,
+            </if>
+            <if test="applyBase.extendType != null">
+                extend_type,
+            </if>
+            <if test="applyBase.generateRoster != null">
+                generate_roster,
+            </if>
+            <if test="applyBase.operatorName != null and applyBase.operatorName != ''">
+                operator_name,
+            </if>
+
+            <if test="applyBase.createTime != null">
+                create_time,
+            </if>
+            <if test="applyBase.createUserId != null">
+                create_user_id,
+            </if>
+            <if test="applyBase.attachedIds != null and applyBase.attachedIds != ''">
+                attached_ids
+            </if>
+        </trim>
+        )VALUE (
+        <trim  suffixOverrides=",">
+            <if test="applyBase.title != null and applyBase.title != '' ">
+                #{applyBase.title},
+            </if>
+            <if test="applyBase.residentId != null ">
+                #{applyBase.residentId},
+            </if>
+            <if test="applyBase.residentName != null and applyBase.residentName != '' ">
+                #{applyBase.residentName},
+            </if>
+            <if test="applyBase.cardType != null">
+                #{applyBase.cardType},
+            </if>
+            <if test="applyBase.cardNum != null">
+                #{applyBase.cardNum},
+            </if>
+            <if test="applyBase.mobileNum != null">
+                #{applyBase.mobileNum},
+            </if>
+            <if test="applyBase.categoryId != null">
+                #{applyBase.categoryId},
+            </if>
+            <if test="applyBase.serviceId != null">
+                #{applyBase.serviceId},
+            </if>
+            <if test="applyBase.applyStatus != null ">
+                #{applyBase.applyStatus},
+            </if>
+            <if test="applyBase.applyTime != null ">
+                #{applyBase.applyTime},
+            </if>
+
+            <if test="applyBase.orgId != null">
+                #{applyBase.orgId},
+            </if>
+            <if test="applyBase.extend != null">
+                #{applyBase.extend},
+            </if>
+            <if test="applyBase.extendType != null">
+                #{applyBase.extendType},
+            </if>
+            <if test="applyBase.generateRoster != null">
+                #{applyBase.generateRoster},
+            </if>
+            <if test="applyBase.operatorName != null and applyBase.operatorName != ''">
+                #{applyBase.operatorName},
+            </if>
+
+            <if test="applyBase.createTime != null">
+                #{applyBase.createTime},
+            </if>
+            <if test="applyBase.createUserId != null">
+                #{applyBase.createUserId},
+            </if>
+            <if test="applyBase.attachedIds != null and applyBase.attachedIds != ''">
+                #{applyBase.attachedIds}
+            </if>
+        </trim>
+        )
+    </insert>
+
+    <!-- 根据增加台账办事指南审核明细 -->
+    <insert id="addHandleProcess">
+        insert INTO t_cbo_resident_apply_progress (
+            apply_id,
+            feedback_time,
+            feedback_user_id,
+            step_status,
+            <if test="handleProcess.rejectReason != null and handleProcess.rejectReason != '' ">
+                reject_reason,
+            </if>
+            guide_item_id,
+            guide_id
+        )VALUE (
+            #{handleProcess.applyId},
+            #{handleProcess.feedbackTime},
+            #{handleProcess.feedbackUserId},
+            #{handleProcess.stepStatus},
+            <if test="handleProcess.rejectReason != null and handleProcess.rejectReason != '' ">
+                #{handleProcess.rejectReason},
+            </if>
+            #{handleProcess.guideItemId},
+            #{handleProcess.guideId}
+        )
+    </insert>
+
+    <!-- 插入低保信息表 -->
+    <insert id="addBasicLivingAllowances">
+        insert INTO t_cbo_resident_apply_basic_living_allowances (
+            apply_id,
+            card_num,
+            rescue_num,
+            amount,
+            bank_card,
+            release_time,
+            data_type,
+            create_time,
+            create_user_id,
+            update_time,
+            <if test="basicLiving.rosterId != null ">
+                roster_id,
+            </if>
+            update_user_id,
+            house_holder_name,
+            house_holder_card_num,
+            family_mobile,
+            family_address,
+        poor_reason
+        )VALUE (
+            #{basicLiving.applyId},
+            #{basicLiving.cardNum},
+            #{basicLiving.rescueNum},
+            #{basicLiving.amount},
+            #{basicLiving.bankCard},
+            #{basicLiving.releaseTime},
+            #{basicLiving.dataType},
+            #{basicLiving.createTime},
+            #{basicLiving.createUserId},
+            #{basicLiving.updateTime},
+            <if test="basicLiving.rosterId != null">
+                #{basicLiving.rosterId},
+            </if>
+            #{basicLiving.updateUserId},
+            #{basicLiving.houseHolderName},
+            #{basicLiving.houseHolderCardNum},
+            #{basicLiving.familyMobile},
+            #{basicLiving.familyAddress},
+        #{basicLiving.poorReason}
+        )
+
+    </insert>
+
+    <!-- 插入居家养老补充信息 -->
+    <insert id="addHomeCare">
+        insert INTO t_cbo_resident_apply_home_care (
+            residence_type,
+            treatment_type,
+            bank_card,
+            level,
+            amount,
+            report_time,
+            create_time,
+            create_user_id,
+            update_time,
+            update_user_id,
+            <if test="homeCare.rosterId != null">
+                roster_id,
+            </if>
+            data_type,
+            apply_id,
+            living_ability,
+        family_mobile,
+        family_address
+        )VALUE (
+            #{homeCare.residenceType},
+            #{homeCare.treatmentType},
+            #{homeCare.bankCard},
+            #{homeCare.level},
+            #{homeCare.amount},
+            #{homeCare.reportTime},
+            #{homeCare.createTime},
+            #{homeCare.createUserId},
+            #{homeCare.updateTime},
+            #{homeCare.updateUserId},
+            <if test="homeCare.rosterId != null">
+                #{homeCare.rosterId},
+            </if>
+            #{homeCare.dataType},
+            #{homeCare.applyId},
+            #{homeCare.livingAbility},
+        #{homeCare.familyMobile},
+        #{homeCare.familyAddress}
+        )
+    </insert>
+
+    <!-- 修改台账 -->
+    <update id="modify">
+        update t_cbo_resident_apply_base t
+        <set>
+            <if test="base.applyStatus != null">
+                t.apply_status = #{base.applyStatus},
+            </if>
+            <if test="base.generateRoster != null">
+                t.generate_roster = #{base.generateRoster},
+            </if>
+            <if test="base.attachedIds != null">
+                t.attached_ids = #{base.attachedIds},
+            </if>
+        </set>
+        where
+          t.id = #{base.id}
+    </update>
+
+    <!-- 获取所有启用的办事指南类别 -->
+    <select id="getGuideSql" resultType="com.bit.module.cbo.bean.ResidentApplyGuide">
+        SELECT
+            t.id,
+            t.name
+        FROM
+            t_cbo_resident_apply_guide t
+        WHERE
+            t.type = 1
+        AND t.enable = #{status}
+    </select>
+
+    <!-- 根据办事指南类别获取类别下的所有事项 -->
+    <select id="getGuideItemsSql" resultType="com.bit.module.cbo.bean.ResidentApplyGuide">
+        SELECT
+            t.id,
+            t.name,
+            t.extend_type,
+            t.extend
+        FROM
+            t_cbo_resident_apply_guide t
+        WHERE
+            t.type = #{type}
+        AND t.enable = #{status}
+        and t.pid = #{pid}
+    </select>
+
+    <!-- 获取社区台账列表 -->
+    <select id="findAllSql" resultType="com.bit.module.cbo.bean.ResidentApplyBase">
+        SELECT
+            t.id,
+            t.title,
+            t.org_id orgId,
+            t.resident_id residentId,
+            t.category_id categoryId,
+            t.service_id serviceId,
+            t.resident_name residentName,
+            t.card_type cardType,
+            t.card_num cardNum,
+            t.mobile_num mobileNum,
+            t.apply_time applyTime,
+            t.operator_name operatorName,
+            t.apply_status applyStatus,
+            t.extend_type,
+            t.extend,
+            t.generate_roster generateRoster
+        FROM
+            t_cbo_resident_apply_base t
+        <where>
+            <if test="base.orgId != null">
+                t.org_id = #{base.orgId}
+            </if>
+            <if test="base.residentId != null">
+                and t.resident_id = #{base.residentId}
+            </if>
+            <if test="base.categoryId != null">
+                AND t.category_id = #{base.categoryId}
+            </if>
+            <if test="base.serviceId != null">
+                AND t.service_id = #{base.serviceId}
+            </if>
+            <if test="base.applyStatus != null">
+                AND t.apply_status = #{base.applyStatus}
+            </if>
+            <if test="base.title != null and base.title != ''">
+                AND t.title like CONCAT('%',#{base.title},'%')
+            </if>
+            <if test="base.operatorName != null and base.operatorName != ''">
+                AND t.operator_name like CONCAT('%',#{base.operatorName},'%')
+            </if>
+            <if test="base.residentName != null and base.residentName != ''">
+                AND t.resident_name like CONCAT('%',#{base.residentName},'%')
+            </if>
+            <if test="base.applyBeginTime != null and base.applyEndTime != null ">
+                AND t.apply_time BETWEEN #{base.applyBeginTime} and #{base.applyEndTime}
+            </if>
+            <if test="base.residentId != null">
+                AND t.resident_id = #{base.residentId}
+            </if>
+        </where>
+        ORDER BY t.apply_time DESC,
+        t.id DESC
+    </select>
+
+    <!-- 根据ID查询台账明细 -->
+    <select id="findDetailById" resultType="com.bit.module.cbo.vo.ResidentApplyBaseVO">
+        SELECT
+            t.id,
+            t.title,
+            t.resident_id residentId,
+            t.category_id categoryId,
+            t.service_id serviceId,
+            t.resident_name residentName,
+            t.card_type cardType,
+            t.card_num cardNum,
+            t.mobile_num mobileNum,
+            t.apply_time applyTime,
+            t.operator_name operatorName,
+            t.apply_status applyStatus,
+            t.extend_type,
+            t.extend,
+            t.generate_roster generateRoster,
+            t.attached_ids attachedIds
+        FROM
+            t_cbo_resident_apply_base t
+        WHERE
+          t.id = #{id}
+    </select>
+
+    <!-- 根据申请ID获取已经完成的流程 -->
+    <select id="queryHandleItemsByApplyIdSql" resultType="com.bit.module.cbo.bean.ResidentApplyProgress">
+        SELECT
+            t.id,
+            t.apply_id applyId,
+            t.feedback_time feedbackTime,
+            t.feedback_user_id feedbackUserId,
+            t.step_status stepStatus,
+            t.reject_reason rejectReason,
+            t.guide_item_id guideItemId,
+            t.guide_id guideId
+        FROM
+            t_cbo_resident_apply_progress t
+        WHERE
+            t.apply_id = #{applyId}
+    </select>
+
+    <!-- 判断流程是否已经被审核过 -->
+    <select id="getHandleProcess" resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id)
+        FROM
+            t_cbo_resident_apply_progress t
+        WHERE
+            t.apply_id = #{applyId}
+        AND t.guide_item_id = #{itemsId}
+    </select>
+
+    <!-- 根据申请ID检测业务低保信息是否完善 -->
+    <select id="getBasicLivingAllowancesCountByApplyId" resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id)
+        FROM
+            t_cbo_resident_apply_basic_living_allowances t
+        WHERE
+            t.apply_id = #{applyId}
+    </select>
+
+    <!-- 根据申请ID检测居家养老信息是否完善 -->
+    <select id="getHomeCareCountByApplyId" resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id)
+        FROM
+            t_cbo_resident_apply_home_care t
+        WHERE
+            t.apply_id = #{applyId}
+    </select>
+
+    <select id="getDisabledCountByApplyId" resultType="Integer">
+        SELECT
+            COUNT(t.id)
+        FROM
+            t_cbo_resident_apply_disabled_individuals t
+        WHERE
+            t.apply_id = #{applyId}
+    </select>
+
+    <select id="getSpecialSupportCountByApplyId" resultType="Integer">
+        SELECT
+            COUNT(t.id)
+        FROM
+            t_cbo_resident_apply_special_support t
+        WHERE
+            t.apply_id = #{applyId}
+    </select>
+
+    <insert id="addDisable" parameterType="com.bit.module.cbo.bean.ResidentApplyDisabledIndividuals">
+        INSERT INTO t_cbo_resident_apply_disabled_individuals
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyId!=null">
+                apply_id,
+            </if>
+            <if test="cardNum!=null and cardNum!=''">
+                card_num,
+            </if>
+            <if test="issuanceDate!=null">
+                issuance_date,
+            </if>
+            <if test="disabilityCategory!=null and disabilityCategory!=''">
+                disability_category,
+            </if>
+            <if test="disabilityLevel!=null and disabilityLevel!=''">
+                disability_level,
+            </if>
+            <if test="familyMobile!=null and familyMobile!=''">
+                family_mobile,
+            </if>
+            <if test="familyAddress!=null and familyAddress!=''">
+                family_address,
+            </if>
+            <if test="livingAble!=null">
+                living_able,
+            </if>
+            <if test="livingCardNum!=null and livingCardNum!=''">
+                living_card_num,
+            </if>
+            <if test="livingAmount!=null and livingAmount!=''">
+                living_amount,
+            </if>
+            <if test="rescueNum!=null and rescueNum!=''">
+                rescue_num,
+            </if>
+            <if test="livingIssuanceDate!=null">
+                living_issuance_date,
+            </if>
+            <if test="dataType!=null">
+                data_type,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="createUserId!=null">
+                create_user_id,
+            </if>
+            <if test="updateTime!=null">
+                update_time,
+            </if>
+            <if test="updateUserId!=null">
+                update_user_id,
+            </if>
+            <if test="rosterId!=null">
+                roster_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyId!=null">
+                #{applyId,jdbcType=BIGINT},
+            </if>
+            <if test="cardNum!=null and cardNum!=''">
+                #{cardNum,jdbcType=VARCHAR},
+            </if>
+            <if test="issuanceDate!=null">
+                #{issuanceDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="disabilityCategory!=null and disabilityCategory!=''">
+                #{disabilityCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="disabilityLevel!=null and disabilityLevel!=''">
+                #{disabilityLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="familyMobile!=null and familyMobile!=''">
+                #{familyMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="familyAddress!=null and familyAddress!=''">
+                #{familyAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="livingAble!=null">
+                #{livingAble,jdbcType=INTEGER},
+            </if>
+            <if test="livingCardNum!=null and livingCardNum!=''">
+                #{livingCardNum,jdbcType=VARCHAR},
+            </if>
+            <if test="livingAmount!=null and livingAmount!=''">
+                #{livingAmount,jdbcType=VARCHAR},
+            </if>
+            <if test="rescueNum!=null and rescueNum!=''">
+                #{rescueNum,jdbcType=VARCHAR},
+            </if>
+            <if test="livingIssuanceDate!=null">
+                #{livingIssuanceDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dataType!=null">
+                #{dataType,jdbcType=INTEGER},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserId!=null">
+                #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId!=null">
+                #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="rosterId!=null">
+                #{rosterId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+
+
+    <insert id="addSpecialSupport" parameterType="com.bit.module.cbo.bean.ResidentApplySpecialSupport">
+        INSERT INTO t_cbo_resident_apply_special_support
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyId!=null">
+                apply_id,
+            </if>
+            <if test="supportType!=null and supportType!=''">
+                support_type,
+            </if>
+            <if test="bankNum!=null and bankNum!=''">
+                bank_num,
+            </if>
+            <if test="issuanceDate!=null">
+                issuance_date,
+            </if>
+            <if test="amount!=null and amount!=''">
+                amount,
+            </if>
+            <if test="familyMobile!=null and familyMobile!=''">
+                family_mobile,
+            </if>
+            <if test="familyAddress!=null and familyAddress!=''">
+                family_address,
+            </if>
+            <if test="dataType!=null">
+                data_type,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="createUserId!=null">
+                create_user_id,
+            </if>
+            <if test="updateTime!=null">
+                update_time,
+            </if>
+            <if test="updateUserId!=null">
+                update_user_id,
+            </if>
+            <if test="rosterId!=null">
+                roster_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyId!=null">
+                #{applyId,jdbcType=BIGINT},
+            </if>
+            <if test="supportType!=null and supportType!=''">
+                #{supportType,jdbcType=VARCHAR},
+            </if>
+            <if test="bankNum!=null and bankNum!=''">
+                #{bankNum,jdbcType=VARCHAR},
+            </if>
+            <if test="issuanceDate!=null">
+                #{issuanceDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="amount!=null and amount!=''">
+                #{amount,jdbcType=VARCHAR},
+            </if>
+            <if test="familyMobile!=null and familyMobile!=''">
+                #{familyMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="familyAddress!=null and familyAddress!=''">
+                #{familyAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="dataType!=null">
+                #{dataType,jdbcType=INTEGER},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserId!=null">
+                #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId!=null">
+                #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="rosterId!=null">
+                #{rosterId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+
+
+    <select id="queryResidentApplyBasicLivingAllowancesByRosterId" parameterType="long" resultType="com.bit.module.cbo.bean.ResidentApplyBasicLivingAllowances">
+        SELECT card_num,
+        rescue_num,
+        amount,
+        bank_card,
+        release_time,
+        house_holder_name,
+        house_holder_card_num,
+        family_mobile,
+        family_address,
+        poor_reason
+        FROM t_cbo_resident_apply_basic_living_allowances
+        WHERE roster_id = #{rosterId,jdbcType=BIGINT}
+    </select>
+
+    <select id="queryResidentApplyHomeCareByRosterId" parameterType="long" resultType="com.bit.module.cbo.bean.ResidentApplyHomeCare">
+        SELECT residence_type,
+        treatment_type,
+        living_ability,
+        bank_card,
+        level,
+        amount,
+        report_time,
+        family_mobile,
+        family_address
+        FROM t_cbo_resident_apply_home_care
+        WHERE roster_id = #{rosterId,jdbcType=BIGINT}
+    </select>
+
+    <select id="queryResidentApplyDisabledIndividualsByRosterId" parameterType="long" resultType="com.bit.module.cbo.bean.ResidentApplyDisabledIndividuals">
+        SELECT card_num,
+        issuance_date,
+        disability_category,
+        disability_level,
+        family_mobile,
+        family_address,
+        living_able,
+        living_card_num,
+        living_amount,
+        rescue_num,
+        living_issuance_date
+        FROM t_cbo_resident_apply_disabled_individuals
+        WHERE roster_id = #{rosterId,jdbcType=BIGINT}
+    </select>
+
+    <select id="queryResidentApplySpecialSupportByRosterId" parameterType="long" resultType="com.bit.module.cbo.bean.ResidentApplySpecialSupport">
+        SELECT support_type,
+        bank_num,
+        issuance_date,
+        amount,
+        family_mobile,
+        family_address
+        FROM t_cbo_resident_apply_special_support
+        WHERE roster_id = #{rosterId,jdbcType=BIGINT}
+    </select>
+
+    <!-- 导出社区台账列表 -->
+    <select id="exportToExcel" resultType="com.bit.module.cbo.vo.ResidentApplyBaseExcelVO">
+        SELECT
+            (@i:=@i+1) as orderId,
+            t.id,
+            t.title,
+            t.org_id orgId,
+            CASE t.card_type
+                WHEN 1 THEN '身份证'
+                WHEN 2 THEN '士官证'
+                WHEN 3 THEN '护照'
+                WHEN 4 THEN '港澳通行证'
+                ELSE '其他'
+            END cardTypeName,
+            t.resident_id residentId,
+            t.category_id categoryId,
+            t.service_id serviceId,
+            t.resident_name residentName,
+            t.card_type cardType,
+            t.card_num cardNum,
+            t.mobile_num mobileNum,
+            DATE_FORMAT(t.apply_time,'%Y-%m-%d') applyTime,
+            t.operator_name operatorName,
+            CASE t.apply_status
+                WHEN 1 THEN '进行中'
+                WHEN 2 THEN '待完善'
+                WHEN 3 THEN '已办结'
+                WHEN 4 THEN '已终止'
+            END applyStatus
+        FROM
+        t_cbo_resident_apply_base t,
+        (select   @i:=0) as orderTable
+        <where>
+            <if test="base.orgId != null">
+                t.org_id = #{base.orgId}
+            </if>
+            <if test="base.residentId != null">
+                and t.resident_id = #{base.residentId}
+            </if>
+            <if test="base.categoryId != null">
+                AND t.category_id = #{base.categoryId}
+            </if>
+            <if test="base.serviceId != null">
+                AND t.service_id = #{base.serviceId}
+            </if>
+            <if test="base.applyStatus != null">
+                AND t.apply_status = #{base.applyStatus}
+            </if>
+            <if test="base.title != null and base.title != ''">
+                AND t.title like CONCAT('%',#{base.title},'%')
+            </if>
+            <if test="base.operatorName != null and base.operatorName != ''">
+                AND t.operator_name like CONCAT('%',#{base.operatorName},'%')
+            </if>
+            <if test="base.residentName != null and base.residentName != ''">
+                AND t.resident_name like CONCAT('%',#{base.residentName},'%')
+            </if>
+            <if test="base.applyBeginTime != null and base.applyEndTime != null ">
+                AND t.apply_time BETWEEN #{base.applyBeginTime} and #{base.applyEndTime}
+            </if>
+            <if test="base.residentId != null">
+                AND t.resident_id = #{base.residentId}
+            </if>
+        </where>
+        ORDER BY t.apply_time DESC,
+        t.id DESC
+    </select>
+</mapper>

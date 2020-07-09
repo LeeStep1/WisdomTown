@@ -1,0 +1,63 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8081/eureka/
+    healthCheck:
+      enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+spring:
+  application:
+    name: job-executor
+feign:
+  hystrix:
+    enabled: true
+redis:
+  hostName: 39.106.84.9
+  port: 6379
+  timeout: 30
+  maxIdle : 300
+  maxTotal: 1000
+  maxWaitMillis: 1000
+  minEvictableIdleTimeMillis : 300000
+  numTestsPerEvictionRun : 1024
+  timeBetweenEvictionRunsMillis : 30000
+  testOnBorrow : true
+  testWhileIdle : true
+  password: bit2019
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+zuul:
+  #ignored-services: microservice-provider-system          # 需要忽视的服务(配置后将不会被路由)
+  routes:
+    service1:                                              # 可以随便写，在zuul上面唯一即可；当这里的值 = service-id时，service-id可以不写。
+      path: /sys/**                                        # 想要映射到的路径
+      service-id: service-sys    # Eureka中的serviceId
+    service2:                                              # 可以随便写，在zuul上面唯一即可；当这里的值 = service-id时，service-id可以不写。
+      path: /pb/**                                   # 想要映射到的路径
+      service-id: service-pb    # Eureka中的serviceId
+    service3:
+      path: /vol/**
+      service-id: service-vol
+xxl:
+  job:
+    admin:
+      addresses: http://dev.smart1:8080/xxl-job-admin
+    executor:
+      appname: microservices
+      ip:
+      port: 9992
+      ### xxl-job log path
+      logpath: logs/xxl-job/jobhandler/
+      ### xxl-job log retention days
+      logretentiondays: 30
+    ### xxl-job, access token
+    accessToken:

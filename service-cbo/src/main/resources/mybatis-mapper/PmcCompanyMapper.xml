@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.PmcCompanyDao">
+
+    <!-- 新增物业公司 -->
+    <insert id="add" parameterType="com.bit.module.cbo.bean.PmcCompany" keyProperty="pmcCompany.id" useGeneratedKeys="true" keyColumn="id">
+        insert INTO t_cbo_pmc_company (
+            <if test="pmcCompany.companyName != null and pmcCompany.companyName != '' ">
+                company_name,
+            </if>
+            <if test="pmcCompany.status != null">
+                status,
+            </if>
+            <if test="pmcCompany.createTime != null">
+                create_time,
+            </if>
+            <if test="pmcCompany.createUserId != null ">
+                create_user_id,
+            </if>
+            <if test="pmcCompany.updateTime != null">
+                update_time,
+            </if>
+            <if test="pmcCompany.updateUserId != null ">
+                update_user_id
+            </if>
+        )VALUE (
+            <if test="pmcCompany.companyName != null and pmcCompany.companyName != '' ">
+                #{pmcCompany.companyName},
+            </if>
+            <if test="pmcCompany.status != null">
+                #{pmcCompany.status},
+            </if>
+            <if test="pmcCompany.createTime != null ">
+                #{pmcCompany.createTime},
+            </if>
+            <if test="pmcCompany.createUserId != null ">
+                #{pmcCompany.createUserId},
+            </if>
+            <if test="pmcCompany.updateTime != null">
+                #{pmcCompany.updateTime},
+            </if>
+            <if test="pmcCompany.updateUserId != null ">
+                #{pmcCompany.updateUserId}
+            </if>
+        )
+    </insert>
+
+    <!-- 修改物业公司 -->
+    <update id="modify" parameterType="com.bit.module.cbo.bean.PmcCompany">
+        update t_cbo_pmc_company
+        <set>
+            <if test="pmcCompany.companyName != null and pmcCompany.companyName != '' ">
+                company_name = #{pmcCompany.companyName},
+            </if>
+            <if test="pmcCompany.status != null">
+                status = #{pmcCompany.status},
+            </if>
+            <if test="pmcCompany.updateTime != null">
+                update_time = #{pmcCompany.updateTime},
+            </if>
+            <if test="pmcCompany.updateUserId != null and pmcCompany.updateUserId != '' ">
+                update_user_id = #{pmcCompany.updateUserId}
+            </if>
+        </set>
+        where
+          id = #{pmcCompany.id}
+    </update>
+
+    <!-- 根据ID删除物业公司 -->
+    <delete id="delete" parameterType="java.lang.Long">
+      DELETE FROM
+        t_cbo_pmc_company
+      WHERE
+        id = #{id}
+    </delete>
+
+    <!-- 查询物业公司列表 -->
+    <select id="findAllSql" resultType="com.bit.module.cbo.bean.PmcCompany">
+        SELECT
+            t.id,
+            t.company_name companyName,
+            t.status status,
+            t.create_time createTime
+        FROM
+            t_cbo_pmc_company t
+        <where>
+            <if test="pmcCompanyVO.companyName != null and pmcCompanyVO.companyName != '' ">
+                t.company_name LIKE CONCAT('%',#{pmcCompanyVO.companyName},"%")
+            </if>
+            <if test="pmcCompanyVO.status != null">
+                and t.status = #{pmcCompanyVO.status}
+            </if>
+        </where>
+        ORDER BY t.create_time DESC
+    </select>
+
+    <!-- 查询物业公司列表 -->
+    <select id="findPmcCompanySql" resultType="com.bit.module.cbo.bean.PmcCompany">
+        SELECT
+        t.id,
+        t.company_name companyName,
+        t.status status,
+        t.create_time createTime
+        FROM
+        t_cbo_pmc_company t
+        <where>
+            <if test="pmcCompany.companyName != null and pmcCompany.companyName != '' ">
+                t.company_name LIKE CONCAT('%',#{pmcCompanyVO.companyName},"%")
+            </if>
+            <if test="pmcCompany.status != null">
+                and t.status = #{pmcCompany.status}
+            </if>
+        </where>
+        ORDER BY t.create_time DESC
+    </select>
+
+    <!-- 查询物业公司列表 -->
+    <select id="findCompanyByNameSql" parameterType="java.lang.String"
+            resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id) count
+        FROM
+            t_cbo_pmc_company t
+        WHERE
+          t.company_name = #{name}
+    </select>
+
+    <!-- 查询物业公司列表 -->
+    <select id="modifyFindCompanyByNameSql" resultType="java.lang.Integer">
+        SELECT
+          COUNT(t.id) count
+        FROM
+          t_cbo_pmc_company t
+        WHERE
+          t.company_name = #{name}
+        and id != #{id}
+    </select>
+
+
+    <select id="getPmcCompanyById" parameterType="long" resultType="com.bit.module.cbo.bean.PmcCompany">
+        SELECT * FROM t_cbo_pmc_company
+        <where>
+            <if test="id!=null">and id = #{id,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+</mapper>

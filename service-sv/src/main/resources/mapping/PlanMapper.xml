@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.PlanDao">
+    <resultMap id="BaseResultMap" type="com.bit.module.sv.bean.Plan">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="source" jdbcType="INTEGER" property="source" />
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="units" jdbcType="OTHER" property="units"
+        typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="items" jdbcType="OTHER" property="items"
+        typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="inspectors" jdbcType="OTHER" property="inspectors"
+        typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="start_at" jdbcType="TIMESTAMP" property="startAt"/>
+        <result column="end_at" jdbcType="TIMESTAMP" property="endAt"/>
+        <result column="create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+        <result column="total_task_num" jdbcType="INTEGER" property="totalTaskNum"/>
+        <result column="completed_task_num" jdbcType="INTEGER" property="completedTaskNum"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+      id, `name`, source, `type`, `status`, units, items, inspectors,
+      start_at, end_at, create_at, update_at, total_task_num, completed_task_num
+  </sql>
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_plan
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteById" parameterType="java.lang.Long">
+    
+    delete from t_sv_plan
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Plan"
+            useGeneratedKeys="true">
+
+    insert into t_sv_plan (`name`, `type`, `status`, source, start_at, end_at, create_at, update_at,
+    units, items, inspectors, total_task_num, completed_task_num)
+    values (
+      #{name,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{source,jdbcType=INTEGER},
+      #{startAt,jdbcType=TIMESTAMP}, #{endAt,jdbcType=TIMESTAMP},
+      #{createAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP},
+      #{units,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{totalTaskNum,jdbcType=INTEGER}, #{completedTaskNum,jdbcType=INTEGER})
+  </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Plan"
+            useGeneratedKeys="true">
+
+        insert into t_sv_plan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="type != null">
+                `type`,
+            </if>
+            <if test="status != null">
+                `status`,
+            </if>
+            <if test="source != null">
+                source,
+            </if>
+            <if test="startAt != null">
+                start_at,
+            </if>
+            <if test="endAt != null">
+                end_at,
+            </if>
+            <if test="createAt != null">
+                create_at,
+            </if>
+            <if test="updateAt != null">
+                update_at,
+            </if>
+            <if test="units != null">
+                units,
+            </if>
+            <if test="items != null">
+                items,
+            </if>
+            <if test="inspectors != null">
+                inspectors,
+            </if>
+            <if test="totalTaskNum != null">
+                total_task_num,
+            </if>
+            <if test="completedTaskNum != null">
+                completed_task_num,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="source != null">
+                #{source,jdbcType=INTEGER},
+            </if>
+            <if test="startAt != null">
+                #{startAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="endAt != null">
+                #{endAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createAt != null">
+                #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="units != null">
+                #{units,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            </if>
+            <if test="items != null">
+                #{items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            </if>
+            <if test="inspectors != null">
+                #{inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            </if>
+            <if test="totalTaskNum != null">
+                #{totalTaskNum,jdbcType=INTEGER},
+            </if>
+            <if test="completedTaskNum != null">
+                #{completedTaskNum,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByIdSelective" parameterType="com.bit.module.sv.bean.Plan">
+
+        update t_sv_plan
+        <set>
+            <if test="name != null">
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                `type` = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                `status` = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="source != null">
+                source = #{source,jdbcType=INTEGER},
+            </if>
+            <if test="startAt != null">
+                start_at = #{startAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="endAt != null">
+                end_at = #{endAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="units != null">
+                units = #{units,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            </if>
+            <if test="items != null">
+                items = #{items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            </if>
+            <if test="inspectors != null">
+                inspectors = #{inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            </if>
+            <if test="totalTaskNum != null">
+                total_task_num = #{totalTaskNum,jdbcType=INTEGER},
+            </if>
+            <if test="completedTaskNum != null">
+                completed_task_num = #{completedTaskNum,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateById" parameterType="com.bit.module.sv.bean.Plan">
+    
+    update t_sv_plan
+    set `name` = #{name,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=INTEGER},
+      `status` = #{status,jdbcType=INTEGER},
+      source = #{source,jdbcType=INTEGER},
+      start_at = #{startAt,jdbcType=TIMESTAMP},
+      end_at = #{endAt,jdbcType=TIMESTAMP},
+      create_at = #{createAt,jdbcType=TIMESTAMP},
+      update_at = #{updateAt,jdbcType=TIMESTAMP},
+      units = #{units,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      items = #{items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      inspectors = #{inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      total_task_num = #{totalTaskNum,jdbcType=INTEGER},completed_task_num = #{completedTaskNum,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
+
+        insert into t_sv_plan
+        (`name`, `type`, `status`, source, start_at, end_at, create_at, update_at,
+        units, items, inspectors, total_task_num, completed_task_num)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=INTEGER},
+            #{item.status,jdbcType=INTEGER}, #{item.source,jdbcType=INTEGER},
+            #{item.startAt,jdbcType=TIMESTAMP}, #{item.endAt,jdbcType=TIMESTAMP},
+            #{item.createAt,jdbcType=TIMESTAMP}, #{item.updateAt,jdbcType=TIMESTAMP},
+            #{item.units,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            #{item.items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            #{item.inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            #{item.totalTaskNum,jdbcType=INTEGER}, #{item.completedTaskNum,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findByConditionPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_plan
+        <where>
+            <if test="type != null">
+              type = #{type,jdbcType=INTEGER}
+            </if>
+            <if test="status != null">
+              and status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="source != null">
+              and source = #{source,jdbcType=INTEGER}
+            </if>
+            <if test="endAt != null">
+                and end_at &lt;= #{endAt,jdbcType=TIMESTAMP}
+            </if>
+            <if test="startAt != null">
+                and start_at &gt;= #{startAt,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+    <update id="increaseCompletedTaskNum">
+      update t_sv_plan
+      set
+        completed_task_num = completed_task_num + #{count,jdbcType=INTEGER},
+        status = if(completed_task_num &gt;= total_task_num, 2, 1),
+        update_at = now()
+      where id = #{id,jdbcType=BIGINT}
+  </update>
+    <update id="increaseTotalTaskNum">
+      update t_sv_plan
+      set
+        total_task_num = total_task_num + #{count,jdbcType=INTEGER},
+        status = if(total_task_num = completed_task_num, 2, if(status = 0, 0, 1)),
+        update_at = now()
+      where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

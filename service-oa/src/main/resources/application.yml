@@ -1,0 +1,62 @@
+spring:
+  zipkin:
+    base-url: http://localhost:8085
+  sleuth:
+    sampler:
+      percentage: 1.0
+  cloud:
+    config:
+      discovery:
+        enabled: true # 通过服务发现的方式去找配置中心
+        serviceId: config_server # 配置中心的名字，直接配置名称可以在配置中心集群的时候实现负载均衡
+      profile: dev # 对应配置中心文件的${profile}部分
+    bus:
+      enabled: true
+  rabbitmq:
+      host: 47.98.190.69
+      port: 5672
+      username: guest
+      password: guest
+  jackson:
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: true
+    default-property-inclusion: always
+management:
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh
+redis:
+   hostName: 47.98.190.69
+   port: 6379
+   timeout: 30
+   maxIdle : 300
+   maxTotal: 1000
+   maxWaitMillis: 1000
+   minEvictableIdleTimeMillis : 300000
+   numTestsPerEvictionRun : 1024
+   timeBetweenEvictionRunsMillis : 30000
+   testOnBorrow : true
+   testWhileIdle : true
+   password: bit2019
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+  config-location:  classpath:mybatis-config.xml
+swagger:
+  basePath: com.bit.soft.service.controller
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: countSql
+logging:
+  level:
+     com.bit.module.oa.dao : debug
+oa:
+  flow:
+    vehicle : 1
+    application : 2
+    risk : 3
+    report : 4
+

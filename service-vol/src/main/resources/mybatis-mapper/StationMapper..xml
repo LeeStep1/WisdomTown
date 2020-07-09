@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.vol.dao.StationDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Station_columns">
+        <![CDATA[
+			id as id,
+			station_code as station_code,
+			station_name as station_name,
+			station_leader as station_leader,
+			station_leader_mobile as station_leader_mobile,
+			vice_station_leader as vice_station_leader,
+			vice_station_leader_mobile as vice_station_leader_mobile,
+			station_introduction as station_introduction,
+			station_type as station_type,
+			station_number as station_number,
+			station_campaign_count as station_campaign_count,
+			station_campaign_hour as station_campaign_hour,
+			station_donate_money as station_donate_money,
+			station_status as station_status,
+			first_charge_man as first_charge_man,
+			first_charge_man_mobile as first_charge_man_mobile,
+			station_level as station_level,
+			create_time as create_time,
+			partner_org_type as partner_org_type,
+			station_location as station_location,
+			information_file as information_file
+	    ]]>
+    </sql>
+
+
+
+
+
+
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.vol.bean.Station" id="StationMap">
+        <id column="id" property="id"/>
+        <result column="station_code" property="stationCode"/>
+        <result column="station_name" property="stationName"/>
+        <result column="station_leader" property="stationLeader"/>
+        <result column="station_leader_mobile" property="stationLeaderMobile"/>
+        <result column="vice_station_leader" property="viceStationLeader"/>
+        <result column="vice_station_leader_mobile" property="viceStationLeaderMobile"/>
+        <result column="station_introduction" property="stationIntroduction"/>
+        <result column="station_type" property="stationType"/>
+        <result column="station_number" property="stationNumber"/>
+        <result column="station_campaign_count" property="stationCampaignCount"/>
+        <result column="station_campaign_hour" property="stationCampaignHour"/>
+        <result column="station_donate_money" property="stationDonateMoney"/>
+        <result column="station_status" property="stationStatus"/>
+        <result column="first_charge_man" property="firstChargeMan"/>
+        <result column="first_charge_man_mobile" property="firstChargeManMobile"/>
+        <result column="station_level" property="stationLevel"/>
+        <result column="create_time" property="createTime"/>
+        <result column="partner_org_type" property="partnerOrgType"/>
+        <result column="station_location" property="stationLocation"/>
+        <result column="information_file" property="informationFile"/>
+    </resultMap>
+
+    <sql id="columns">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="id!=null">
+            id,
+        </if>
+        <if test="stationCode!=null and stationCode!=''">
+            station_code,
+        </if>
+        <if test="stationName!=null and stationName!=''">
+            station_name,
+        </if>
+        <if test="stationLeader!=null and stationLeader!=''">
+            station_leader,
+        </if>
+        <if test="stationLeaderMobile!=null and stationLeaderMobile!=''">
+            station_leader_mobile,
+        </if>
+        <if test="viceStationLeader!=null and viceStationLeader!=''">
+            vice_station_leader,
+        </if>
+        <if test="viceStationLeaderMobile!=null and viceStationLeaderMobile!=''">
+            vice_station_leader_mobile,
+        </if>
+        <if test="stationIntroduction!=null and stationIntroduction!=''">
+            station_introduction,
+        </if>
+        <if test="stationType!=null">
+            station_type,
+        </if>
+        <if test="stationNumber!=null">
+            station_number,
+        </if>
+
+        <if test="stationCampaignCount!=null">
+            station_campaign_count,
+        </if>
+        <if test="stationCampaignHour!=null">
+            station_campaign_hour,
+        </if>
+        <if test="stationDonateMoney!=null">
+            station_donate_money,
+        </if>
+        <if test="stationStatus!=null">
+            station_status,
+        </if>
+        <if test="firstChargeMan!=null and firstChargeMan!=''">
+            first_charge_man,
+        </if>
+        <if test="firstChargeManMobile!=null and firstChargeManMobile!=''">
+            first_charge_man_mobile,
+        </if>
+        <if test="createTime!=null">
+            create_time,
+        </if>
+        <if test="partnerOrgType!=null">
+            partner_org_type,
+        </if>
+        <if test="stationLevel!=null">
+            station_level,
+        </if>
+        <if test="stationLocation!=null and stationLocation!=''">
+            station_location,
+        </if>
+        <if test="informationFile!=null and informationFile!=''">
+            information_file
+        </if>
+        </trim>
+    </sql>
+
+    <sql id="values">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="id!=null ">
+            #{id,jdbcType=BIGINT},
+        </if>
+        <if test="stationCode!=null and stationCode!=''">
+            #{stationCode,jdbcType=VARCHAR},
+        </if>
+        <if test="stationName!=null and stationName!=''">
+            #{stationName,jdbcType=VARCHAR},
+        </if>
+        <if test="stationLeader!=null and stationLeader!=''">
+            #{stationLeader,jdbcType=VARCHAR},
+        </if>
+        <if test="stationLeaderMobile!=null and stationLeaderMobile!=''">
+            #{stationLeaderMobile,jdbcType=VARCHAR},
+        </if>
+        <if test="viceStationLeader!=null and viceStationLeader!=''">
+            #{viceStationLeader,jdbcType=VARCHAR},
+        </if>
+        <if test="viceStationLeaderMobile!=null and viceStationLeaderMobile!=''">
+            #{viceStationLeaderMobile,jdbcType=VARCHAR},
+        </if>
+        <if test="stationIntroduction!=null and stationIntroduction!=''">
+            #{stationIntroduction,jdbcType=VARCHAR},
+        </if>
+        <if test="stationType!=null">
+            #{stationType,jdbcType=INTEGER},
+        </if>
+        <if test="stationNumber!=null">
+            #{stationNumber,jdbcType=INTEGER},
+        </if>
+
+        <if test="stationCampaignCount!=null">
+            #{stationCampaignCount,jdbcType=INTEGER},
+        </if>
+        <if test="stationCampaignHour!=null">
+            #{stationCampaignHour,jdbcType=INTEGER},
+        </if>
+        <if test="stationDonateMoney!=null">
+            #{stationDonateMoney,jdbcType=INTEGER},
+        </if>
+        <if test="stationStatus!=null">
+            #{stationStatus,jdbcType=INTEGER},
+        </if>
+        <if test="firstChargeMan!=null and firstChargeMan!=''">
+            #{firstChargeMan,jdbcType=VARCHAR},
+        </if>
+        <if test="firstChargeManMobile!=null and firstChargeManMobile!=''">
+            #{firstChargeManMobile,jdbcType=VARCHAR},
+        </if>
+        <if test="createTime!=null">
+            #{createTime,jdbcType=INTEGER},
+        </if>
+        <if test="partnerOrgType!=null">
+            #{partnerOrgType,jdbcType=INTEGER},
+        </if>
+        <if test="stationLevel!=null">
+            #{stationLevel,jdbcType=INTEGER},
+        </if>
+        <if test="stationLocation!=null and stationLocation!=''">
+            #{stationLocation,jdbcType=VARCHAR},
+        </if>
+        <if test="informationFile!=null and informationFile!=''">
+            #{informationFile,jdbcType=VARCHAR}
+        </if>
+        </trim>
+    </sql>
+
+
+    <insert id="add" parameterType="com.bit.module.vol.bean.Station" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into t_volunteer_station
+            <include refid="columns"/>
+        VALUES
+            <include refid="values"/>
+
+    </insert>
+
+    <select id="findById" parameterType="long" resultType="com.bit.module.vol.bean.Station">
+        SELECT <include refid="Station_columns"/> FROM
+        t_volunteer_station
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="listPage" parameterType="com.bit.module.vol.vo.StationVO" resultMap="StationMap">
+        SELECT <include refid="Station_columns"/>
+        FROM t_volunteer_station
+        <where>
+            <if test="stationName!=null and stationName!=''">and station_name like CONCAT("%",#{stationName,jdbcType=VARCHAR},"%") </if>
+            <if test="stationStatus!=null ">and station_status = #{stationStatus,jdbcType=INTEGER}</if>
+            <if test="partnerOrgType!=null ">and partner_org_type = #{partnerOrgType,jdbcType=INTEGER}</if>
+            <if test="firstChargeMan!=null and firstChargeMan!='' ">and first_charge_man like CONCAT("%",#{firstChargeMan,jdbcType=VARCHAR},"%")</if>
+            <if test="firstChargeManMobile!=null and firstChargeManMobile!='' ">and first_charge_man_mobile like CONCAT("%",#{firstChargeManMobile,jdbcType=VARCHAR},"%")</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    
+    <update id="update" parameterType="com.bit.module.vol.bean.Station">
+        UPDATE t_volunteer_station
+        <set>
+            <if test="stationCode!=null">
+                station_code = #{stationCode,jdbcType=VARCHAR},
+            </if>
+            <if test="stationName!=null">
+                station_name = #{stationName,jdbcType=VARCHAR},
+            </if>
+            <if test="stationLeader!=null">
+                station_leader = #{stationLeader,jdbcType=VARCHAR},
+            </if>
+            <if test="stationLeaderMobile!=null">
+                station_leader_mobile = #{stationLeaderMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="viceStationLeader!=null">
+                vice_station_leader = #{viceStationLeader,jdbcType=VARCHAR},
+            </if>
+            <if test="viceStationLeaderMobile!=null">
+                vice_station_leader_mobile = #{viceStationLeaderMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="stationIntroduction!=null">
+                station_introduction = #{stationIntroduction,jdbcType=VARCHAR},
+            </if>
+            <if test="stationType!=null">
+                station_type = #{stationType,jdbcType=INTEGER},
+            </if>
+            <if test="stationNumber!=null">
+                station_number = #{stationNumber,jdbcType=INTEGER},
+            </if>
+
+            <if test="stationCampaignCount!=null">
+                station_campaign_count = #{stationCampaignCount,jdbcType=INTEGER},
+            </if>
+            <if test="stationCampaignHour!=null">
+                station_campaign_hour = #{stationCampaignHour,jdbcType=INTEGER},
+            </if>
+            <if test="stationDonateMoney!=null">
+                station_donate_money = #{stationDonateMoney,jdbcType=INTEGER},
+            </if>
+            <if test="stationStatus!=null">
+                station_status = #{stationStatus,jdbcType=INTEGER},
+            </if>
+            <if test="firstChargeMan!=null">
+                first_charge_man = #{firstChargeMan,jdbcType=VARCHAR},
+            </if>
+            <if test="firstChargeManMobile!=null">
+                first_charge_man_mobile = #{firstChargeManMobile,jdbcType=VARCHAR},
+            </if>
+
+            <if test="stationLevel!=null">
+                station_level = #{stationLevel,jdbcType=INTEGER},
+            </if>
+            <if test="stationLocation!=null">
+                station_location = #{stationLocation,jdbcType=VARCHAR},
+            </if>
+            <if test="informationFile!=null">
+                information_file = #{informationFile,jdbcType=VARCHAR}
+            </if>
+
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+
+
+    <select id="findAll" resultMap="StationMap">
+        SELECT <include refid="Station_columns"/> FROM
+        t_volunteer_station
+        WHERE station_status = 1
+    </select>
+
+    <select id="findSubStation" parameterType="string" resultMap="StationMap">
+        SELECT <include refid="Station_columns"/> FROM
+        t_volunteer_station
+        WHERE id like concat(#{stationId,jdbcType=VARCHAR},"%")
+        and station_status = 1
+    </select>
+
+    <select id="countSameCode" parameterType="string" resultType="integer">
+        SELECT count(station_code) FROM t_volunteer_station
+        WHERE station_code = #{stationCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="countSameName" parameterType="string" resultType="integer">
+        SELECT count(station_code) FROM t_volunteer_station
+        WHERE station_name = #{stationName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getMaxIds" resultType="long" parameterType="string">
+        SELECT id FROM t_volunteer_station
+        WHERE id like #{updid,jdbcType=VARCHAR}"%"
+    </select>
+
+
+    <!--查询下级服务站不包含自己-->
+    <select id="findSubStationExcludeSelfSql" resultType="com.bit.module.vol.bean.Station">
+        SELECT <include refid="Station_columns"/> FROM
+        t_volunteer_station
+        WHERE id like CONCAT('%',#{stationId,jdbcType=VARCHAR},'%')
+        and station_status = 1
+        and id != #{stationId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="batchSelectByIds" resultType="long" resultMap="StationMap">
+        SELECT <include refid="Station_columns"/>
+        FROM t_volunteer_station
+        WHERE id in
+        <foreach collection="stationIds" item="stationId" index="index" separator="," open="(" close=")">
+            #{stationId,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="listPageForExcel" parameterType="com.bit.module.vol.bean.Station" resultMap="StationMap">
+        SELECT <include refid="Station_columns"/>
+        FROM t_volunteer_station
+        <where>
+            <if test="stationName!=null and stationName!=''">and station_name like CONCAT("%",#{stationName,jdbcType=VARCHAR},"%") </if>
+            <if test="stationStatus!=null ">and station_status = #{stationStatus,jdbcType=INTEGER}</if>
+            <if test="partnerOrgType!=null ">and partner_org_type = #{partnerOrgType,jdbcType=INTEGER}</if>
+            <if test="firstChargeMan!=null and firstChargeMan!='' ">and first_charge_man like CONCAT("%",#{firstChargeMan,jdbcType=VARCHAR},"%") </if>
+            <if test="firstChargeManMobile!=null and firstChargeManMobile!='' ">and first_charge_man_mobile like CONCAT("%",#{firstChargeManMobile,jdbcType=VARCHAR},"%") </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <update id="batchUpdate" parameterType="com.bit.module.vol.bean.Station">
+        UPDATE t_volunteer_station
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="station_campaign_hour = case" suffix="end,">
+                <foreach collection="stationList" item="station" index="index" >
+                    <if test="station.stationCampaignHour!=null">
+                        WHEN id = #{station.id,jdbcType=BIGINT} then #{station.stationCampaignHour,jdbcType=DECIMAL}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="station_donate_money = case" suffix="end,">
+                <foreach collection="stationList" item="station" index="index" >
+                    <if test="station.stationDonateMoney!=null">
+                        WHEN id = #{station.id,jdbcType=BIGINT} then #{station.stationDonateMoney,jdbcType=DECIMAL}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="station_campaign_count = case" suffix="end,">
+                <foreach collection="stationList" item="station" index="index" >
+                    <if test="station.stationCampaignCount!=null">
+                        WHEN id = #{station.id,jdbcType=BIGINT} then #{station.stationCampaignCount,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="station_number = case" suffix="end,">
+                <foreach collection="stationList" item="station" index="index" >
+                    <if test="station.stationNumber!=null">
+                        WHEN id = #{station.id,jdbcType=BIGINT} then #{station.stationNumber,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+        </trim>
+        <where>
+            <foreach collection="stationList" item="station" index="index" separator=") or (" close=")" open="(">
+                id = #{station.id,jdbcType=BIGINT}
+            </foreach>
+
+        </where>
+    </update>
+
+
+    <select id="batchSelectByStationIds" parameterType="long" resultMap="StationMap">
+        SELECT <include refid="Station_columns"/> FROM t_volunteer_station
+        WHERE id in 
+        <foreach collection="stationIds" item="id" open="(" close=")" separator="," index="index">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="findTopStation" resultType="long">
+        SELECT id FROM t_volunteer_station WHERE station_level = 1
+    </select>
+
+    <select id="findTopStationInfo" resultMap="StationMap">
+        SELECT <include refid="Station_columns"/>
+        FROM t_volunteer_station WHERE station_level = 1
+    </select>
+
+    <select id="findParam" resultMap="StationMap">
+        SELECT <include refid="Station_columns"/>
+        FROM t_volunteer_station
+        <where>
+            <if test="stationLevel!=null">and  station_level = #{stationLevel,jdbcType=INTEGER}</if>
+            <if test="stationName!=null and stationName!=''">and station_name = #{stationName,jdbcType=VARCHAR}</if>
+            <if test="stationStatus!=null ">and station_status = #{stationStatus,jdbcType=INTEGER}</if>
+            <if test="partnerOrgType!=null ">and partner_org_type = #{partnerOrgType,jdbcType=INTEGER}</if>
+            <if test="firstChargeMan!=null and firstChargeMan!='' ">and first_charge_man = #{firstChargeMan,jdbcType=VARCHAR}</if>
+            <if test="firstChargeManMobile!=null and firstChargeManMobile!='' ">and first_charge_man_mobile = #{firstChargeManMobile,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+
+    <select id="findStationCodeByLetter" parameterType="string" resultType="string">
+        SELECT station_code FROM t_volunteer_station
+        <where>
+            <if test="letter!=null and letter!=''">and station_code like concat(#{letter,jdbcType=VARCHAR},"%")</if>
+        </where>
+    </select>
+</mapper>

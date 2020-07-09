@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.vol.dao.VolunteerNewsDao">
+
+    <!--增加志愿者风采-->
+    <insert id="add" parameterType="com.bit.module.vol.bean.VolNews" useGeneratedKeys="true" keyProperty="volNews.id">
+      insert into t_volunteer_news(
+            title,
+            content,
+            create_time,
+            create_user_id,
+            update_time,
+            update_user_id,
+            audit_state,
+            img_id,
+            create_station_id,
+            create_station_name,
+            apply_station_id
+        )VALUES (
+            #{volNews.title,jdbcType=VARCHAR},
+            #{volNews.content,jdbcType=VARCHAR},
+            #{volNews.createTime,jdbcType=TIMESTAMP},
+            #{volNews.createUserId,jdbcType=BIGINT},
+            #{volNews.updateTime,jdbcType=TIMESTAMP},
+            #{volNews.updateUserId,jdbcType=BIGINT},
+            #{volNews.auditState,jdbcType=INTEGER},
+            #{volNews.imgId,jdbcType=BIGINT},
+            #{volNews.createStationId,jdbcType=BIGINT},
+            #{volNews.createStationName,jdbcType=VARCHAR},
+            #{volNews.applyStationId,jdbcType=BIGINT}
+        )
+
+    </insert>
+
+    <!--保存修改-->
+    <update id="update" parameterType="com.bit.module.vol.bean.VolNews">
+      UPDATE t_volunteer_news
+      <set>
+          <if test="volNews.title!=null">
+              title = #{volNews.title,jdbcType=VARCHAR},
+          </if>
+          <if test="volNews.content!=null">
+              content = #{volNews.content,jdbcType=VARCHAR},
+          </if>
+          <if test="volNews.createTime!=null">
+              create_time = #{volNews.createTime,jdbcType=TIMESTAMP},
+          </if>
+          <if test="volNews.createUserId!=null">
+              create_user_id = #{volNews.createUserId,jdbcType=BIGINT},
+          </if>
+          <if test="volNews.updateTime!=null">
+              update_time = #{volNews.updateTime,jdbcType=TIMESTAMP},
+          </if>
+          <if test="volNews.updateUserId!=null">
+              update_user_id = #{volNews.updateUserId,jdbcType=BIGINT},
+          </if>
+          <if test="volNews.auditState!=null">
+              audit_state = #{volNews.auditState,jdbcType=INTEGER},
+          </if>
+          <if test="volNews.imgId!=null">
+              img_id = #{volNews.imgId,jdbcType=BIGINT},
+          </if>
+          <if test="volNews.createStationId!=null">
+              create_station_id = #{volNews.createStationId,jdbcType=BIGINT},
+          </if>
+          <if test="volNews.applyStationId!=null">
+              apply_station_id = #{volNews.applyStationId,jdbcType=BIGINT},
+          </if>
+          <if test="volNews.browseCount!=0">
+              browse_count = #{volNews.browseCount,jdbcType=INTEGER},
+          </if>
+      </set>
+      WHERE
+            id = #{volNews.id,jdbcType=BIGINT}
+    </update>
+
+    <!--根据ID和锁 修改状态-->
+    <update id="auditNewsByIdSql" parameterType="com.bit.module.vol.bean.VolNews">
+        UPDATE t_volunteer_news t
+        SET t.audit_state = #{volNews.auditState,jdbcType=INTEGER}, t.back_reason = #{volNews.backReason,jdbcType=VARCHAR},
+        t.version = #{volNews.version,jdbcType=INTEGER} + 1,t.apply_station_id = #{volNews.applyStationId,jdbcType=BIGINT}
+        WHERE
+            t.id = #{volNews.id,jdbcType=BIGINT}
+        AND t.version = #{volNews.version,jdbcType=INTEGER}
+    </update>
+
+    <!--根据ID 删除文章-->
+    <update id="delNewsByIdSql" parameterType="com.bit.module.vol.bean.VolNews">
+        UPDATE t_volunteer_news t
+        SET t. STATUS = #{volNews.id,jdbcType=BIGINT}
+        WHERE
+            t.id = #{volNews.id,jdbcType=BIGINT}
+    </update>
+
+    <!--分页查询所有风采-->
+    <select id="getAllNewsSql" parameterType="com.bit.module.vol.vo.VolNewsVo"
+            resultType="com.bit.module.vol.bean.VolNews">
+        SELECT
+            t.id,
+            t.title,
+            t.create_station_id,
+            t.create_station_name as createStationName,
+            t.update_time as updateTime,
+            t.audit_state as auditState
+        FROM
+            t_volunteer_news t
+        WHERE
+            t.create_station_id IN
+            <foreach collection="volNewsVo.stationIds" item="ids" index="index" open="(" close=")" separator=",">
+                #{ids}
+            </foreach>
+            <if test="volNewsVo.auditState != 5">
+                and t.audit_state = #{volNewsVo.auditState,jdbcType=INTEGER}
+            </if>
+            <if test="volNewsVo.title != null and volNewsVo.title != ''">
+                and t.title like CONCAT('%',#{volNewsVo.title,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="volNewsVo.startDate != null and volNewsVo.startDate != ''">
+                and  DATEDIFF(t.update_time,#{volNewsVo.startDate,jdbcType=TIMESTAMP})>= 0
+            </if>
+            <if test="volNewsVo.endDate != null and volNewsVo.endDate != ''">
+                and  DATEDIFF(t.update_time,#{volNewsVo.endDate,jdbcType=TIMESTAMP})&lt;= 0
+            </if>
+            and t.status = #{volNewsVo.status,jdbcType=INTEGER}
+        ORDER BY t.update_time DESC
+    </select>
+
+    <!--根据ID 获取新闻-->
+    <select id="getNewsVersionByIdSql" parameterType="com.bit.module.vol.bean.VolNews"
+            resultType="com.bit.module.vol.bean.VolNews">
+        SELECT
+            t.id,
+            t.title,
+            t.create_time createTime,
+            t.update_time updateTime,
+            t.create_user_id createUserId,
+            t.create_station_id createStationId,
+            t.apply_station_id applyStationId,
+            t.create_station_name createStationName,
+            t.version
+        FROM
+            t_volunteer_news t
+        WHERE
+            id = #{volNews.id,jdbcType=BIGINT}
+        and t.status = #{volNews.status,jdbcType=INTEGER}
+    </select>
+
+    <!--查看一条新闻-->
+    <select id="getNewsContextByIdSql" parameterType="com.bit.module.vol.bean.VolNews"
+            resultType="com.bit.module.vol.vo.VolNewsVo">
+        SELECT
+            t.id,
+            t.title,
+            t.content,
+            t.img_id,
+            t.audit_state auditState,
+            t.update_time updateTime,
+            t.create_user_id createUserId,
+            t.create_station_id createStationId,
+            t.browse_count browseCount,
+            t.back_reason backReason,
+            t.create_station_name createStationName
+        FROM
+            t_volunteer_news t
+        WHERE
+            id = #{volNews.id,jdbcType=BIGINT}
+        and t.status = #{volNews.status,jdbcType=INTEGER}
+    </select>
+
+    <!--获取APP端展示新闻-->
+    <select id="getNewsForAppShowSql"  parameterType="com.bit.module.vol.vo.VolNewsVo"
+            resultType="com.bit.module.vol.bean.VolNews">
+        SELECT
+            t.id,
+            t.title,
+            t.create_station_name createStationName,
+            t.update_time updateTime,
+            t.browse_count browseCount,
+            t.img_id imgId
+        FROM
+            t_volunteer_news t
+        WHERE
+            t.audit_state = #{volNewsVo.auditState}
+        AND t.status = #{volNewsVo.status}
+        ORDER BY t.update_time DESC
+    </select>
+
+    <!--分页查询下级志愿者风采-->
+    <select id="getChildNewsSql" parameterType="com.bit.module.vol.vo.VolNewsVo"
+            resultType="com.bit.module.vol.bean.VolNews">
+        SELECT
+            t.id,
+            t.title,
+            t.create_station_id,
+            t.create_station_name as createStationName,
+            t.update_time as updateTime,
+            t.audit_state as auditState
+        FROM
+          t_volunteer_news t
+        WHERE
+          t.create_station_id IN
+        <foreach collection="volNewsVo.stationIds" item="ids" index="index" open="(" close=")" separator=",">
+            #{ids}
+        </foreach>
+            and t.audit_state != #{volNewsVo.auditStateDraft,jdbcType=INTEGER}
+        <if test="volNewsVo.auditState != 5">
+            and t.audit_state = #{volNewsVo.auditState,jdbcType=INTEGER}
+        </if>
+        <if test="volNewsVo.title != null and volNewsVo.title != ''">
+            and t.title like CONCAT('%',#{volNewsVo.title,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="volNewsVo.startDate != null and volNewsVo.startDate != '' and volNewsVo.endDate != null and volNewsVo.endDate != ''">
+            and  <![CDATA[  t.update_time >=#{volNewsVo.startDate,jdbcType=TIMESTAMP} and t.update_time <=#{volNewsVo.endDate,jdbcType=TIMESTAMP} ]]>
+        </if>
+        <if test="volNewsVo.createStationName!=null and volNewsVo.createStationName!=''">
+            and t.create_station_name like concat("%",#{volNewsVo.createStationName,jdbcType=VARCHAR},"%")
+        </if>
+        and t.status = #{volNewsVo.status,jdbcType=INTEGER}
+        ORDER BY t.update_time DESC
+    </select>
+
+    <!-- 获取文章明细 (不带分页)-->
+    <select id="getNewsDetailsSql" parameterType="com.bit.module.vol.bean.VolNews"
+            resultType="com.bit.module.vol.bean.VolNews">
+        SELECT
+            t.id,
+            t.title title,
+            t.content content,
+            t.img_id imgId,
+            t.audit_state auditState,
+            t.update_time updateTime,
+            t.create_user_id createUserId,
+            t.create_station_id createStationId,
+            t.browse_count browseCount,
+            t.back_reason backReason,
+            t.apply_station_id applyStationId,
+            t.create_station_name createStationName
+        FROM
+            t_volunteer_news t
+        WHERE
+            id = #{volNews.id,jdbcType=BIGINT}
+        and t.status = #{volNews.status,jdbcType=INTEGER}
+    </select>
+
+</mapper>

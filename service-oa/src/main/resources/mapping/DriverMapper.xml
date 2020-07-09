@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.DriverDao">
+	<sql id="Driver_simple_columns">
+		id as id,
+		`name` as `name`,
+		mobile as mobile,
+		status as status
+	</sql>
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Driver_columns">
+	    <![CDATA[
+			id as id,
+			name as name,
+			age as age,
+			sex as sex,
+			height as height,
+		
+			weight as weight,
+			health as health,
+			left_vision as left_vision,
+			right_vision as right_vision,
+			driving_class as driving_class,
+		
+			driving_experience as driving_experience,
+			mobile as mobile,
+			driving_license_front_side as driving_license_front_side,
+			driving_license_back_side as driving_license_back_side,
+			id_card_front_side as id_card_front_side,
+		
+			id_card_back_side as id_card_back_side,
+			status as status
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.Driver" id="driverMap">
+		<id column="id" property="id"/>
+	    <result column="name" property="name"/>
+	    <result column="age" property="age"/>
+	    <result column="sex" property="sex"/>
+	    <result column="height" property="height"/>
+	    <result column="weight" property="weight"/>
+	    <result column="health" property="health"/>
+	    <result column="left_vision" property="leftVision"/>
+	    <result column="right_vision" property="rightVision"/>
+	    <result column="driving_class" property="drivingClass"/>
+	    <result column="driving_experience" property="drivingExperience"/>
+	    <result column="mobile" property="mobile"/>
+	    <result column="driving_license_front_side" property="drivingLicenseFrontSide"/>
+	    <result column="driving_license_back_side" property="drivingLicenseBackSide"/>
+	    <result column="id_card_front_side" property="idCardFrontSide"/>
+	    <result column="id_card_back_side" property="idCardBackSide"/>
+	    <result column="status" property="status"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.vo.driver.SimpleDriverVO" id="driverSimpleMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="mobile" property="mobile"/>
+		<result column="status" property="status" />
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="driverMap" parameterType="com.bit.module.oa.vo.driver.DriverVO">
+		select <include refid="Driver_columns" /> from t_oa_driver
+		<where>
+			<if test="name != null and name != '' " >name like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+			<if test="status != null" >and status =#{status,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="driverSimpleMap">
+		select <include refid="Driver_simple_columns" /> from t_oa_driver
+		<where>
+			status = 1
+			<if test="name != null and name != ''" >and `name` like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+		</where>
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="driverMap" parameterType="com.bit.module.oa.bean.Driver">
+		select <include refid="Driver_columns" /> 
+		from t_oa_driver
+		where 
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+    <select id="countByMobile" resultType="java.lang.Integer">
+		select count(id) from  t_oa_driver where mobile = #{mobile} and status = 1
+	</select>
+    <select id="findByIds" resultMap="driverSimpleMap">
+		select <include refid="Driver_simple_columns"/>
+		from t_oa_driver where id in
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+    <select id="findByCondition" resultMap="driverMap">
+		select <include refid="Driver_columns" />
+		from t_oa_driver
+		<where>
+			<if test="name != null and name != '' " >name like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+		</where>
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Driver">
+	insert INTO t_oa_driver (
+		name ,
+		age ,
+		sex ,
+		height ,
+		weight ,
+		health ,
+		left_vision ,
+		right_vision ,
+		driving_class ,
+		driving_experience ,
+		mobile ,
+		driving_license_front_side ,
+		driving_license_back_side ,
+		id_card_front_side ,
+		id_card_back_side ,
+		status 
+	) VALUES (
+		#{name,jdbcType=VARCHAR},
+		#{age,jdbcType=TINYINT},
+		#{sex,jdbcType=VARCHAR},
+		#{height,jdbcType=TINYINT},
+		#{weight,jdbcType=VARCHAR},
+		#{health,jdbcType=VARCHAR},
+		#{leftVision,jdbcType=VARCHAR},
+		#{rightVision,jdbcType=VARCHAR},
+		#{drivingClass,jdbcType=VARCHAR},
+		#{drivingExperience,jdbcType=TINYINT},
+		#{mobile,jdbcType=VARCHAR},
+		#{drivingLicenseFrontSide,jdbcType=VARCHAR},
+		#{drivingLicenseBackSide,jdbcType=VARCHAR},
+		#{idCardFrontSide,jdbcType=VARCHAR},
+		#{idCardBackSide,jdbcType=VARCHAR},
+		#{status,jdbcType=TINYINT}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.Driver">
+		update t_oa_driver
+		<set>
+		<if test="name != null">
+		 name =#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="age != null">
+		 age =#{age,jdbcType=TINYINT},
+		</if>
+		<if test="sex != null">
+		 sex =#{sex,jdbcType=VARCHAR},
+		</if>
+		<if test="height != null">
+		 height =#{height,jdbcType=TINYINT},
+		</if>
+		<if test="weight != null">
+		 weight =#{weight,jdbcType=VARCHAR},
+		</if>
+		<if test="health != null">
+		 health =#{health,jdbcType=VARCHAR},
+		</if>
+		<if test="leftVision != null">
+		 left_vision =#{leftVision,jdbcType=VARCHAR},
+		</if>
+		<if test="rightVision != null">
+		 right_vision =#{rightVision,jdbcType=VARCHAR},
+		</if>
+		<if test="drivingClass != null">
+		 driving_class =#{drivingClass,jdbcType=VARCHAR},
+		</if>
+		<if test="drivingExperience != null">
+		 driving_experience =#{drivingExperience,jdbcType=TINYINT},
+		</if>
+		<if test="mobile != null">
+		 mobile =#{mobile,jdbcType=VARCHAR},
+		</if>
+		<if test="drivingLicenseFrontSide != null">
+		 driving_license_front_side =#{drivingLicenseFrontSide,jdbcType=VARCHAR},
+		</if>
+		<if test="drivingLicenseBackSide != null">
+		 driving_license_back_side =#{drivingLicenseBackSide,jdbcType=VARCHAR},
+		</if>
+		<if test="idCardFrontSide != null">
+		 id_card_front_side =#{idCardFrontSide,jdbcType=VARCHAR},
+		</if>
+		<if test="idCardBackSide != null">
+		 id_card_back_side =#{idCardBackSide,jdbcType=VARCHAR},
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+
+	</update>
+    <update id="updateStatus">
+		update t_oa_driver set status = #{status,jdbcType=TINYINT} where id = #{id,jdbcType=BIGINT}
+	</update>
+    <!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Driver">
+		delete from t_oa_driver 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_oa_driver
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+</mapper>

@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.RegulationDao">
+    <resultMap id="BaseResultMap" type="com.bit.module.sv.bean.Regulation">
+
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="law_id" jdbcType="BIGINT" property="lawId"/>
+        <result column="parent_id" jdbcType="BIGINT" property="parentId"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+    <resultMap id="contentResultMap" type="com.bit.module.sv.vo.RegulationPreviewVO">
+        <id column="id" property="id"/>
+        <result column="law_id" property="lawId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="create_at" property="createAt"/>
+        <result column="update_at" property="updateAt"/>
+        <result column="law_name" property="lawName"/>
+        <collection property="contents" ofType="com.bit.module.sv.bean.RegulationContent" column="{regulationId=id}"
+                    select="com.bit.module.sv.dao.RegulationContentDao.findByRegulationId" fetchType="eager"/>
+    </resultMap>
+    <resultMap id="regulationMap" type="com.bit.module.sv.vo.RegulationPreviewVO">
+        <id column="r_id" property="id"/>
+        <result column="r_law_id" property="lawId"/>
+        <result column="r_parent_id" property="parentId"/>
+        <result column="r_title" property="title"/>
+        <result column="r_content" property="content"/>
+        <result column="l_law_name" property="lawName"/>
+        <collection property="contents" columnPrefix="c_" ofType="com.bit.module.sv.bean.RegulationContent">
+            <id column="id" property="id"/>
+            <result column="title" property="title"/>
+            <result column="content" property="content"/>
+        </collection>
+    </resultMap>
+    <resultMap id="lawRegulationMap" type="com.bit.module.sv.vo.LawRegulationVO">
+        <id property="id" column="id"/>
+        <result property="lawName" column="law_name"/>
+        <result property="title1" column="title1"/>
+        <result property="title2" column="title2"/>
+        <result property="title3" column="title3"/>
+        <result property="content1" column="content1"/>
+        <result property="content2" column="content2"/>
+        <result property="content3" column="content3"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+
+            id,
+            law_id,
+            parent_id,
+            title,
+            content,
+            create_at,
+            update_at
+    </sql>
+    <sql id="preview_Column_List">
+
+            r.id as r_id,
+            r.law_id as r_law_id,
+            r.parent_id as r_parent_id,
+            r.title as r_title,
+            r.content as r_content,
+            l.name as l_law_name,
+            c.id as c_id,
+            c.title as c_title,
+            c.content as c_content
+    </sql>
+    <select id="findByCondition" resultMap="BaseResultMap">
+        select
+            r.id,
+            law_id,
+            parent_id,
+            r.title,
+            r.content,
+            r.create_at,
+            r.update_at
+        from t_sv_law l right join t_sv_regulation r on l.id = r.law_id
+            left join t_sv_regulation_content c on r.id = c.regulation_id
+        <where>
+            <if test="content != null and content != ''">
+                and (r.title like concat('%', #{content,jdbcType=VARCHAR}, '%')
+                or r.id in (
+                select c.regulation_id where
+                c.content like concat('%', #{content,jdbcType=VARCHAR}, '%')
+                or c.title like concat('%', #{content,jdbcType=VARCHAR}, '%')
+                ))
+            </if>
+            <if test="lawId != null">
+                and r.law_id = #{lawId,jdbcType=BIGINT}
+            </if>
+            <if test="range != null">
+                and JSON_CONTAINS(l.ranges->'$[*]', CONCAT('', #{range,jdbcType=INTEGER}), '$')
+            </if>
+        </where>
+        order by parent_id , r.id
+    </select>
+    <select id="findById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_regulation
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+
+        delete
+        from t_sv_regulation
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Regulation"
+            useGeneratedKeys="true">
+
+        insert into t_sv_regulation (law_id, parent_id, title,
+                                     content, create_at, update_at)
+        values (#{lawId,jdbcType=BIGINT}, #{parentId,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR},
+                #{content,jdbcType=VARCHAR}, #{createAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Regulation"
+            useGeneratedKeys="true">
+
+        insert into t_sv_regulation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="lawId != null">
+                law_id,
+            </if>
+            <if test="parentId != null">
+                parent_id,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="createAt != null">
+                create_at,
+            </if>
+            <if test="updateAt != null">
+                update_at,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="lawId != null">
+                #{lawId,jdbcType=BIGINT},
+            </if>
+            <if test="parentId != null">
+                #{parentId,jdbcType=BIGINT},
+            </if>
+            <if test="title != null">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="createAt != null">
+                #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.bit.module.sv.bean.Regulation">
+
+        update t_sv_regulation
+        <set>
+            <if test="lawId != null">
+                law_id = #{lawId,jdbcType=BIGINT},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId,jdbcType=BIGINT},
+            </if>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.bit.module.sv.bean.Regulation">
+
+        update t_sv_regulation
+        set law_id    = #{lawId,jdbcType=BIGINT},
+            parent_id = #{parentId,jdbcType=BIGINT},
+            title     = #{title,jdbcType=VARCHAR},
+            content   = #{content,jdbcType=VARCHAR},
+            create_at = #{createAt,jdbcType=TIMESTAMP},
+            update_at = #{updateAt,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <insert id="batchAdd" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
+
+        insert into t_sv_regulation
+        (law_id, parent_id, title, content, create_at, update_at)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.lawId,jdbcType=BIGINT}, #{item.parentId,jdbcType=BIGINT}, #{item.title,jdbcType=VARCHAR},
+            #{item.content,jdbcType=VARCHAR}, #{item.createAt,jdbcType=TIMESTAMP}, #{item.updateAt,jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+
+    <select id="findByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_regulation
+        <where>
+            id IN
+            <foreach collection="ids" item="id" separator="," close=")" open="(">
+                #{id,jdbcType=BIGINT}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="findByParentId" resultType="long">
+        select id
+        from t_sv_regulation
+        where parent_id=#{parentId,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteByIdIn">
+        delete from t_sv_regulation
+        where id in
+        <foreach item="item" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </delete>
+
+    <select id="findAllContentByLawId" resultMap="contentResultMap">
+        select
+               r.id as id,
+               r.law_id as law_id,
+               r.parent_id as parent_id,
+               r.title as title,
+               r.content as content,
+               l.name as law_name,
+               r.create_at as create_at,
+               r.update_at as update_at
+        from t_sv_regulation r left join t_sv_law l on r.law_id = l.id
+        where law_id=#{lawId,jdbcType=BIGINT}
+    </select>
+
+    <select id="findIdByLawId" resultType="long">
+        select id
+        from t_sv_regulation
+        where law_id=#{lawId,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteByLawId">
+        delete
+        from t_sv_regulation
+        where law_id = #{lawId,jdbcType=BIGINT}
+    </delete>
+    <select id="getRegulationByContentIds" resultMap="lawRegulationMap">
+        SELECT
+        c.id,
+        l.NAME law_name,
+        IF
+        ( ISNULL( b.title ), r.title, b.title ) title1,
+        IF
+        ( ISNULL( b.content ), r.content, b.content ) content1,
+        IF
+        ( ISNULL( b.title ), NULL, r.title ) title2,
+        IF
+        ( ISNULL( b.content ), NULL, r.content ) content2,
+        c.title title3,
+        c.content content3
+
+        FROM
+        ( SELECT id, law_id, title, content, parent_id FROM t_sv_regulation ) r
+        LEFT JOIN t_sv_regulation b ON r.parent_id = b.id
+        LEFT JOIN t_sv_law l ON r.law_id = l.id
+        RIGHT JOIN t_sv_regulation_content c ON c.regulation_id = r.id
+        <where>
+            <if test="contentIds != null and contentIds.size() != 0">
+                c.id in <foreach collection="contentIds" item="id" open="(" close=")" separator=",">
+                #{id,jdbcType=BIGINT}
+            </foreach>
+            </if>
+        </where>
+    </select>
+    <update id="updateRegulationUpdateAtById">
+        update t_sv_regulation set update_at = now() where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

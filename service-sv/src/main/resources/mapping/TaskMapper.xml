@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.TaskDao">
+  <resultMap id="BaseResultMap" type="com.bit.module.sv.bean.Task">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="plan_id" jdbcType="BIGINT" property="planId" />
+    <result column="ref_id" jdbcType="BIGINT" property="refId" />
+    <result column="source" jdbcType="INTEGER" property="source" />
+    <result column="plan_name" jdbcType="VARCHAR" property="planName" />
+    <result column="no" jdbcType="VARCHAR" property="no" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="unit_id" jdbcType="BIGINT" property="unitId" />
+    <result column="unit_name" jdbcType="VARCHAR" property="unitName" />
+    <result column="unit_address" jdbcType="VARCHAR" property="unitAddress" />
+    <result column="start_at" jdbcType="TIMESTAMP" property="startAt" />
+    <result column="end_at" jdbcType="TIMESTAMP" property="endAt" />
+    <result column="result" jdbcType="INTEGER" property="result" />
+    <result column="check_start_at" jdbcType="TIMESTAMP" property="checkStartAt" />
+    <result column="check_end_at" jdbcType="TIMESTAMP" property="checkEndAt" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+    <result column="items" jdbcType="OTHER" property="items" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="inspectors" jdbcType="OTHER" property="inspectors" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="check_inspectors" jdbcType="OTHER" property="checkInspectors" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="description" jdbcType="OTHER" property="description" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="violation_regulations" jdbcType="OTHER" property="violationRegulations" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+  </resultMap>
+
+  <resultMap id="ReviewChecklistResultMap" type="com.bit.module.sv.vo.ReviewChecklist">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="ref_id" jdbcType="BIGINT" property="refId" />
+    <result column="start_at" jdbcType="TIMESTAMP" property="startAt" />
+    <result column="end_at" jdbcType="TIMESTAMP" property="endAt" />
+    <result column="result" jdbcType="INTEGER" property="result" />
+    <result column="check_start_at" jdbcType="TIMESTAMP" property="checkStartAt" />
+    <result column="check_end_at" jdbcType="TIMESTAMP" property="checkEndAt" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+    <result column="items" jdbcType="OTHER" property="items" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="inspectors" jdbcType="OTHER" property="inspectors" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="check_inspectors" jdbcType="OTHER" property="checkInspectors" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="description" jdbcType="OTHER" property="description" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="violation_regulations" jdbcType="OTHER" property="violationRegulations" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+  </resultMap>
+
+  <resultMap id="ExportResultMap" type="com.bit.module.sv.vo.ExportVO">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="street" jdbcType="VARCHAR" property="street" />
+    <result column="unit_name" jdbcType="VARCHAR" property="unitName" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="street" jdbcType="VARCHAR" property="street" />
+    <result column="principal_name" jdbcType="VARCHAR" property="principalName" />
+    <result column="principal_phone" jdbcType="VARCHAR" property="principalPhone" />
+    <result column="result" jdbcType="INTEGER" property="result" />
+    <result column="check_start_at" jdbcType="TIMESTAMP" property="checkStartAt" />
+    <result column="check_end_at" jdbcType="TIMESTAMP" property="checkEndAt" />
+    <result column="items" jdbcType="OTHER" property="items" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="check_inspectors" jdbcType="OTHER" property="checkInspectors" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="deadline" jdbcType="TIMESTAMP" property="deadline" />
+    <result column="demand" jdbcType="VARCHAR" property="demand" />
+    <result column="injuria" jdbcType="OTHER" property="injuria" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" />
+    <result column="review_result" jdbcType="INTEGER" property="reviewResult" />
+    <result column="review_remark" jdbcType="OTHER" property="reviewRemark" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    
+    id as id, source source, plan_id as plan_id, ref_id as ref_id, `no` as no, `type` as type, `status` as status,
+    unit_id as unit_id, start_at as start_at, end_at as end_at,
+    check_start_at as check_start_at, check_end_at as check_end_at,
+    result as result, create_at as create_at, update_at as update_at,
+    items as items, inspectors as inspectors, check_inspectors as check_inspectors,
+    description as description, violation_regulations as violation_regulations
+  </sql>
+  <sql id="Detail_Column_List34">
+
+    t.id as id, t.source source, t.plan_id as plan_id, p.name as plan_name,
+    t.ref_id as ref_id, t.`no` as no, t.`type` as type, t.`status` as status,
+    u.id as unit_id, u.name as unit_name, u.address as unit_address, u.street as street,
+    t.start_at as start_at, t.end_at as end_at, t.check_start_at as check_start_at, t.check_end_at as check_end_at,
+    t.result as result, t.create_at as create_at, t.update_at as update_at,
+    t.items as items, t.inspectors as inspectors, t.check_inspectors as check_inspectors,
+    t.description as description, t.violation_regulations as violation_regulations
+  </sql>
+  <sql id="Detail_Column_List6">
+
+    t.id as id, t.source source, t.plan_id as plan_id, p.name as plan_name,
+    t.ref_id as ref_id, t.`no` as no, t.`type` as type, t.`status` as status,
+    u.id as unit_id, u.name as unit_name, u.address as unit_address,
+    t.start_at as start_at, t.end_at as end_at, t.check_start_at as check_start_at, t.check_end_at as check_end_at,
+    t.result as result, t.create_at as create_at, t.update_at as update_at,
+    t.items as items, t.inspectors as inspectors, t.check_inspectors as check_inspectors,
+    t.description as description, t.violation_regulations as violation_regulations
+  </sql>
+  <sql id="Review_Checklist_Column_List">
+
+    id, ref_id, start_at, end_at, check_start_at,check_end_at,
+    result, create_at, update_at, items, inspectors, check_inspectors, description, violation_regulations
+  </sql>
+  <sql id="Export_Column_List">
+
+    t.id as id,
+    u.name as unit_name, u.address as address, u.street as street,
+    u.principal_name as principal_name, u.principal_phone as principal_phone,
+    t.check_start_at as check_start_at, t.check_end_at as check_end_at,
+    t.result as result, t.items as items, t.check_inspectors as check_inspectors, t.description as injuria,
+    rn.deadline as deadline, rn.demand as demand, rn.create_at as create_at,
+    rv.result as review_result, rv.description as review_remark
+  </sql>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+      select
+        <include refid="Base_Column_List"/>
+      from t_sv_task
+      where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteById" parameterType="java.lang.Long">
+    
+      delete from t_sv_task
+      where id = #{id,jdbcType=BIGINT}
+    </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Task" useGeneratedKeys="true">
+    
+    insert into t_sv_task (plan_id, ref_id, `no`, `type`,
+      `status`, source, unit_id,
+      start_at, end_at, check_start_at, check_end_at,
+      create_at, update_at, result,
+      items, inspectors, check_inspectors, description, violation_regulations)
+    values (#{planId,jdbcType=BIGINT}, #{refId,jdbcType=BIGINT}, #{no,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
+      #{status,jdbcType=INTEGER}, #{source,jdbcType=INTEGER}, #{unitId,jdbcType=BIGINT},
+      #{startAt,jdbcType=TIMESTAMP}, #{endAt,jdbcType=TIMESTAMP}, #{checkStartAt,jdbcType=TIMESTAMP}, #{checkEndAt,jdbcType=TIMESTAMP},
+      #{createAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP}, #{result,jdbcType=INTEGER},
+      #{items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{check_inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{description,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{violationRegulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Task" useGeneratedKeys="true">
+
+    insert into t_sv_task
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="planId != null">
+        plan_id,
+      </if>
+      <if test="refId != null">
+        ref_id,
+      </if>
+      <if test="no != null">
+        `no`,
+      </if>
+      <if test="type != null">
+        `type`,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="source != null">
+        source,
+      </if>
+      <if test="unitId != null">
+        unit,
+      </if>
+      <if test="startAt != null">
+        start_at,
+      </if>
+      <if test="endAt != null">
+        end_at,
+      </if>
+      <if test="checkStartAt != null">
+        check_start_at,
+      </if>
+      <if test="checkEndAt != null">
+        check_end_at,
+      </if>
+      <if test="createAt != null">
+        create_at,
+      </if>
+      <if test="updateAt != null">
+        update_at,
+      </if>
+      <if test="result != null">
+        result,
+      </if>
+      <if test="items != null">
+        items,
+      </if>
+      <if test="inspectors != null">
+        inspectors,
+      </if>
+      <if test="checkInspectors != null">
+        check_inspectors,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="violationRegulations != null">
+        violation_regulations,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="planId != null">
+        #{planId,jdbcType=BIGINT},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=BIGINT},
+      </if>
+      <if test="no != null">
+        #{no,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=INTEGER},
+      </if>
+      <if test="unitId != null">
+        #{unit_id,jdbcType=BIGINT},
+      </if>
+      <if test="startAt != null">
+        #{startAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endAt != null">
+        #{endAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkStartAt != null">
+        #{checkStartAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkEndAt != null">
+        #{checkEndAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createAt != null">
+        #{createAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateAt != null">
+        #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="result != null">
+        #{result,jdbcType=INTEGER},
+      </if>
+      <if test="items != null">
+        #{items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="inspectors != null">
+        #{inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="checkInspectors != null">
+        #{checkInspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="violationRegulations != null">
+        #{violationRegulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByIdSelective" parameterType="com.bit.module.sv.bean.Task">
+
+    update t_sv_task
+    <set>
+      <if test="planId != null">
+        plan_id = #{planId,jdbcType=BIGINT},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=BIGINT},
+      </if>
+      <if test="no != null">
+        `no` = #{no,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="source != null">
+        source = #{source,jdbcType=INTEGER},
+      </if>
+      <if test="unitId != null">
+        unit = #{unit_id,jdbcType=BIGINT},
+      </if>
+      <if test="startAt != null">
+        start_at = #{startAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endAt != null">
+        end_at = #{endAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkStartAt != null">
+        check_start_at = #{checkStartAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkEndAt != null">
+        check_end_at = #{checkEndAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createAt != null">
+        create_at = #{createAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateAt != null">
+        update_at = #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="result != null">
+        result = #{result,jdbcType=INTEGER},
+      </if>
+      <if test="items != null">
+        items = #{items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="inspectors != null">
+        inspectors = #{inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="checkInspectors != null">
+        check_inspectors = #{checkInspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="violationRegulations != null">
+        violation_regulations = #{violationRegulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateById" parameterType="com.bit.module.sv.bean.Task">
+    
+    update t_sv_task
+    set plan_id = #{planId,jdbcType=BIGINT},
+      ref_id = #{refId,jdbcType=BIGINT},
+      `no` = #{no,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=INTEGER},
+      `status` = #{status,jdbcType=INTEGER},
+      source = #{source,jdbcType=INTEGER},
+      result = #{result,jdbcType=INTEGER},
+      unit_id = #{unitId,jdbcType=BIGINT},
+      start_at = #{startAt,jdbcType=TIMESTAMP},
+      end_at = #{endAt,jdbcType=TIMESTAMP},
+      check_start_at = #{checkStartAt,jdbcType=TIMESTAMP},
+      check_end_at = #{checkEndAt,jdbcType=TIMESTAMP},
+      create_at = #{createAt,jdbcType=TIMESTAMP},
+      update_at = #{updateAt,jdbcType=TIMESTAMP},
+      items = #{items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      inspectors = #{inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      check_inspectors = #{checkInspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      description = #{description,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      violation_regulations = #{violationRegulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
+
+    insert into t_sv_task
+    (plan_id, ref_id, `no`, `type`, `status`, source, unit_id, start_at, end_at, check_start_at, check_end_at,
+    create_at, update_at, result, items, inspectors, check_inspectors, description, violation_regulations)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.planId,jdbcType=BIGINT}, #{item.refId,jdbcType=BIGINT}, #{item.no,jdbcType=VARCHAR}, #{item.type,jdbcType=INTEGER},
+        #{item.status,jdbcType=INTEGER}, #{item.source,jdbcType=INTEGER}, #{item.unitId,jdbcType=BIGINT},
+        #{item.startAt,jdbcType=TIMESTAMP}, #{item.endAt,jdbcType=TIMESTAMP},
+        #{item.checkStartAt,jdbcType=TIMESTAMP}, #{item.checkEndAt,jdbcType=TIMESTAMP},
+        #{item.createAt,jdbcType=TIMESTAMP}, #{item.updateAt,jdbcType=TIMESTAMP},
+        #{item.result,jdbcType=INTEGER},
+        #{item.items,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+        #{item.inspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+        #{item.checkInspectors,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+        #{item.description,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+        #{item.violationRegulations,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler})
+    </foreach>
+  </insert>
+
+  <delete id="deleteByPlanId" parameterType="java.lang.Long">
+
+    delete from t_sv_task
+    where plan_id = #{planId,jdbcType=BIGINT}
+  </delete>
+
+  <select id="findByConditionPage" resultMap="BaseResultMap">
+    select
+    <if test="source == 3 or source == 4">
+      <include refid="Detail_Column_List34"/>
+    </if>
+    <if test="source == 6">
+      <include refid="Detail_Column_List6"/>
+    </if>
+    from t_sv_task t
+      left join t_sv_plan p on t.plan_id = p.id
+      <if test="source == 3 or source == 4">
+        left join t_sv_unit u on t.unit_id = u.id
+      </if>
+      <if test="source == 6">
+        left join t_sv_project u on t.unit_id = u.id
+      </if>
+
+    <where>
+      t.plan_id = #{planId,jdbcType=BIGINT} and t.source = #{source,jdbcType=INTEGER}
+      <if test="type != null">
+        and t.type = #{type,jdbcType=INTEGER}
+      </if>
+      <if test="status != null">
+        and t.status = #{status,jdbcType=INTEGER}
+      </if>
+    </where>
+    <if test="orderBy!=null and orderBy!=''">
+      ORDER BY ${orderBy}
+    </if>
+    <if test="order!=null and order!=''">
+      ${order}
+    </if>
+  </select>
+
+  <select id="selectByPlanId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+    select id, plan_id, status
+    from t_sv_task
+    where plan_id = #{planId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectUnitByPlanIdAndSource" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+    select t.id as id, t.no as no, u.name as unit_name
+    from t_sv_task t
+    <if test="source == 3 or source == 4">
+      left join t_sv_unit u on t.unit_id = u.id
+    </if>
+    <if test="source == 6">
+      left join t_sv_project u on t.unit_id = u.id
+    </if>
+    where t.plan_id = #{planId,jdbcType=BIGINT}
+  </select>
+
+  <select id="countBySourceAndUserIdAndDate" resultType="com.bit.module.sv.vo.StatisticsVO">
+
+    select status, count(id) num
+    from t_sv_task
+    <where>
+      source = #{source,jdbcType=INTEGER} and start_at BETWEEN #{startAt,jdbcType=TIMESTAMP} and #{endAt,jdbcType=TIMESTAMP}
+    <if test="userId != null">
+      and JSON_CONTAINS(inspectors -> '$[*].id', CONCAT('', #{userId, jdbcType=BIGINT}, ''), '$')
+    </if>
+      and ISNULL(ref_id)
+    </where>
+    GROUP BY `status`
+  </select>
+
+  <select id="incrementTasks" resultMap="BaseResultMap">
+    select
+    <if test="source == 3 or source == 4">
+      <include refid="Detail_Column_List34"/>
+    </if>
+    <if test="source == 6">
+      <include refid="Detail_Column_List6"/>
+    </if>
+    from t_sv_task t
+      left join t_sv_plan p on t.plan_id = p.id
+    <if test="source == 3 or source == 4">
+      left join t_sv_unit u on t.unit_id = u.id
+    </if>
+    <if test="source == 6">
+      left join t_sv_project u on t.unit_id = u.id
+    </if>
+    <where>
+        ISNULL(ref_id) and t.source = #{source,jdbcType=INTEGER}
+      <if test="unitId != null">
+        and t.unit_id = #{unitId,jdbcType=BIGINT}
+      </if>
+      <if test="userId != null">
+        and JSON_CONTAINS(t.inspectors -> '$[*].id', CONCAT('', #{userId, jdbcType=BIGINT}, ''), '$')
+      </if>
+      <if test="type != null">
+        and t.`type` = #{type,jdbcType=INTEGER}
+      </if>
+      <if test="status != null and status.size() > 0">
+        and t.`status` IN
+          <foreach collection="status" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=INTEGER}
+          </foreach>
+      </if>
+      <if test="direction == 0">
+        <if test="previous != null">
+          and t.id &lt; #{previous,jdbcType=BIGINT}
+        </if>
+        ORDER BY t.id DESC
+      </if>
+      <if test="direction == 1">
+        <if test="previous != null">
+          and t.id &gt; #{previous,jdbcType=BIGINT}
+        </if>
+        ORDER BY t.id asc
+      </if>
+      LIMIT #{limit,jdbcType=INTEGER}
+    </where>
+  </select>
+
+  <select id="selectByRefId" parameterType="java.lang.Long" resultMap="ReviewChecklistResultMap">
+
+    select
+    <include refid="Review_Checklist_Column_List" />
+    from t_sv_task
+    where ref_id = #{refId,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByRefId" parameterType="java.lang.Long">
+
+    delete from t_sv_task
+    where ref_id = #{refId,jdbcType=BIGINT}
+  </delete>
+
+  <select id="exportById" parameterType="java.lang.Long" resultMap="ExportResultMap">
+
+    select
+    <include refid="Export_Column_List" />
+    from t_sv_task t
+      LEFT JOIN t_sv_unit u ON t.unit_id = u.id
+      LEFT JOIN t_sv_rectification_notice rn ON rn.task_id = t.id
+      LEFT JOIN t_sv_task rv ON rv.ref_id = t.id
+    where t.id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="findTaskWithOutUCByEndAt" resultMap="BaseResultMap">
+
+    select t.id as id, t.no as no, u.name as unit_name, t.source as source,
+	  t.type as type, t.inspectors as inspectors, t.end_at as end_at
+    from t_sv_task t left join t_sv_unit u on t.unit_id = u.id
+    where ISNULL(t.ref_id) and t.`status` != 4
+      and t.source != 6
+      and t.end_at &gt;= DATE_FORMAT(#{startAt,jdbcType=TIMESTAMP},"%Y-%m-%d")
+      and t.end_at &lt; DATE_FORMAT(#{endAt,jdbcType=TIMESTAMP},"%Y-%m-%d")
+  </select>
+
+  <select id="findReviewTaskWithOutUCByEndAt" resultMap="BaseResultMap">
+
+    select t.id as id, t.no as no, u.name as unit_name, t.source as source,
+	  rv.inspectors as inspectors, rv.end_at as end_at
+    from t_sv_task t
+	  LEFT JOIN t_sv_task rv ON rv.ref_id = t.id
+	  LEFT JOIN t_sv_unit u ON t.unit_id = u.id
+    where !ISNULL(rv.ref_id) and ISNULL(rv.result)
+      and t.source != 6
+      and rv.end_at &gt;= DATE_FORMAT(#{startAt,jdbcType=TIMESTAMP},"%Y-%m-%d")
+      and rv.end_at &lt; DATE_FORMAT(#{endAt,jdbcType=TIMESTAMP},"%Y-%m-%d")
+  </select>
+
+  <select id="selectByIdAndSource" resultMap="BaseResultMap">
+    select
+    <if test="source == 3 or source == 4">
+      <include refid="Detail_Column_List34"/>
+    </if>
+    <if test="source == 6">
+      <include refid="Detail_Column_List6"/>
+    </if>
+    from t_sv_task t
+      left join t_sv_plan p on t.plan_id = p.id
+
+    <if test="source == 3 or source == 4">
+      left join t_sv_unit u on t.unit_id = u.id
+    </if>
+    <if test="source == 6">
+      left join t_sv_project u on t.unit_id = u.id
+    </if>
+    where t.id = #{id,jdbcType=BIGINT} and t.source = #{source,jdbcType=INTEGER}
+  </select>
+
+  <select id="findReviewTaskOnlyUCByEndAt" resultMap="BaseResultMap">
+
+    select t.id as id, t.no as no, p.name as unit_name, t.source as source,
+	  rv.inspectors as inspectors, rv.end_at as end_at
+    from t_sv_task t
+	  LEFT JOIN t_sv_task rv ON rv.ref_id = t.id
+	  LEFT JOIN t_sv_project p ON t.unit_id = p.id
+    where !ISNULL(rv.ref_id) and ISNULL(rv.result)
+      and t.source = 6
+      and rv.end_at &gt;= DATE_FORMAT(#{startAt,jdbcType=TIMESTAMP},"%Y-%m-%d")
+      and rv.end_at &lt; DATE_FORMAT(#{endAt,jdbcType=TIMESTAMP},"%Y-%m-%d")
+  </select>
+
+  <select id="findTaskOnlyUCByEndAt" resultMap="BaseResultMap">
+    select t.id as id, t.no as no, p.name as unit_name, t.source as source,
+	  t.type as type, t.inspectors as inspectors, t.end_at as end_at
+    from t_sv_task t left join t_sv_project p on t.unit_id = p.id
+    where ISNULL(t.ref_id) and t.`status` != 4
+      and t.source = 6
+      and t.end_at &gt;= DATE_FORMAT(#{startAt,jdbcType=TIMESTAMP},"%Y-%m-%d")
+      and t.end_at &lt; DATE_FORMAT(#{endAt,jdbcType=TIMESTAMP},"%Y-%m-%d")
+  </select>
+</mapper>

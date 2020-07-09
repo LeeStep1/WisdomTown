@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.vol.dao.CampaignVolunteerRecordDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="CampainVolunteerRecord_columns">
+        <![CDATA[
+			id as id,
+			campaign_id as campaign_id,
+			volunteer_id as volunteer_id,
+			campaign_hour as campaign_hour,
+			donate_money as donate_money,
+			sign_time as sign_time,
+			create_time as create_time,
+            sign_status as sign_status,
+            station_id as station_id,
+            record_status as record_status,
+            version as version
+	    ]]>
+    </sql>
+
+
+
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.vol.bean.CampaignVolunteerRecord" id="CampainVolunteerRecordMap">
+        <id column="id" property="id"/>
+        <result column="campaign_id" property="campaignId"/>
+        <result column="volunteer_id" property="volunteerId"/>
+        <result column="campaign_hour" property="campaignHour"/>
+        <result column="donate_money" property="donateMoney"/>
+        <result column="sign_time" property="signTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="sign_status" property="signStatus"/>
+        <result column="station_id" property="stationId"/>
+        <result column="record_status" property="recordStatus"/>
+        <result column="version" property="version"/>
+    </resultMap>
+
+    <sql id="columns">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="campaignId!=null">
+            campaign_id,
+        </if>
+        <if test="volunteerId!=null">
+            volunteer_id,
+        </if>
+        <if test="campaignHour!=null">
+            campaign_hour,
+        </if>
+        <if test="donateMoney!=null">
+            donate_money,
+        </if>
+        <if test="signTime!=null">
+            sign_time,
+        </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+        <if test="signStatus!=null">
+            sign_status,
+        </if>
+        <if test="stationId!=null">
+            station_id,
+        </if>
+        <if test="recordStatus!=null">
+            record_status,
+        </if>
+        <if test="version!=null">
+            version
+        </if>
+        </trim>
+    </sql>
+
+    <sql id="values">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="campaignId!=null">
+            #{campaignId,jdbcType=BIGINT},
+        </if>
+        <if test="volunteerId!=null">
+            #{volunteerId,jdbcType=BIGINT},
+        </if>
+        <if test="campaignHour!=null">
+            #{campaignHour,jdbcType=DECIMAL},
+        </if>
+        <if test="donateMoney!=null">
+            #{donateMoney,jdbcType=DECIMAL},
+        </if>
+        <if test="signTime!=null">
+            #{signTime,jdbcType=TIMESTAMP},
+        </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        <if test="signStatus!=null">
+            #{signStatus,jdbcType=INTEGER},
+        </if>
+        <if test="stationId!=null">
+            #{stationId,jdbcType=INTEGER},
+        </if>
+        <if test="recordStatus!=null">
+            #{recordStatus,jdbcType=INTEGER},
+        </if>
+        <if test="version!=null">
+            #{version,jdbcType=INTEGER} + 1
+        </if>
+        </trim>
+    </sql>
+
+
+    <insert id="add" parameterType="com.bit.module.vol.bean.CampaignVolunteerRecord" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into t_volunteer_campaign_volunteer_record
+            <include refid="columns"/>
+        VALUES
+            <include refid="values"/>
+    </insert>
+
+    <select id="findByParam" parameterType="com.bit.module.vol.bean.CampaignVolunteerRecord" resultType="com.bit.module.vol.bean.CampaignVolunteerRecord">
+        SELECT t1.*,t2.campaign_theme,t3.real_name,t3.card_id as idcard FROM
+        t_volunteer_campaign_volunteer_record t1
+        INNER JOIN t_volunteer_campaign t2
+        on t1.campaign_id = t2.id
+        INNER JOIN t_volunteer_volunteer_info t3
+        on t1.volunteer_id = t3.id
+        <where>
+            <if test="campaignId!=null ">and t1.campaign_id = #{campaignId,jdbcType=BIGINT}</if>
+            <if test="volunteerId!=null ">and t1.volunteer_id = #{volunteerId,jdbcType=BIGINT}</if>
+            <if test="campaignTheme!=null and campaignTheme!='' ">and t2.campaign_theme like concat("%",#{campaignTheme,jdbcType=VARCHAR},"%") </if>
+            <if test="signStatus!=null ">and t1.sign_status = #{signStatus,jdbcType=INTEGER}</if>
+            <if test="stationId!=null ">and t1.station_id = #{stationId,jdbcType=BIGINT}</if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <select id="findVolunteerCampaign" parameterType="com.bit.module.vol.bean.CampaignVolunteerRecord" resultType="com.bit.module.vol.bean.CampaignVolunteerRecord">
+        SELECT <include refid="CampainVolunteerRecord_columns"/> FROM
+        t_volunteer_campaign_volunteer_record
+        <where>
+            record_status = 1 and sign_status = 1
+            <if test="campaignTheme!=null ">and campaign_theme like concat("%",#{campaignTheme,jdbcType=VARCHAR},"%")</if>
+            <if test="volunteerId!=null ">and volunteer_id = #{volunteerId,jdbcType=BIGINT}</if>
+            <if test="campaignId!=null ">and campaign_id = #{campaignId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <select id="countTimeAndMoneyAndNumber" parameterType="com.bit.module.vol.bean.CalculateParam" resultType="com.bit.module.vol.bean.Calculate">
+        SELECT sum(campaign_hour) as hour,sum(donate_money) as money,COUNT(id) as number
+        FROM t_volunteer_campaign_volunteer_record
+        <where>
+            record_status = 1 and sign_status = 1
+            <if test="volunteerId!=null and volunteerId!=''">and volunteer_id=#{volunteerId,jdbcType=BIGINT}</if>
+            <if test="campaignId!=null and campaignId!=''">and campaign_id=#{campaignId,jdbcType=BIGINT}</if>
+            <if test="stationId!=null and stationId!=''">and station_id=#{stationId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <select id="countTimeAndMoneyByVoIdAndCamId" parameterType="long" resultType="com.bit.module.vol.bean.Calculate">
+        SELECT sum(campaign_hour) as hour,sum(donate_money) as money,COUNT(id) as number
+        FROM t_volunteer_campaign_volunteer_record
+        WHERE volunteer_id=#{volunteerId,jdbcType=BIGINT} and campaign_id = #{campaignId,jdbcType=BIGINT} and record_status = 1
+    </select>
+
+    <select id="countTimeAndMoneyByCampaignId" parameterType="long" resultType="com.bit.module.vol.bean.Calculate">
+        SELECT sum(campaign_hour) as hour,sum(donate_money) as money,COUNT(volunteer_id) as number
+        FROM t_volunteer_campaign_volunteer_record
+        WHERE  campaign_id = #{campaignId,jdbcType=BIGINT} and record_status = 1
+    </select>
+
+    <delete id="batchDelete" parameterType="long">
+        DELETE FROM t_volunteer_campaign_volunteer_record
+        WHERE id in
+        <foreach collection="ids" item="id" index="index" separator="," open="(" close=")">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>
+
+    <select id="countByCampaignId" parameterType="long" resultType="integer">
+        SELECT COUNT(id) FROM t_volunteer_campaign_volunteer_record
+        WHERE campaign_id = #{campaignId,jdbcType=BIGINT} and record_status = 1
+    </select>
+
+    <select id="countByCampaignIdAndVolunteerId" parameterType="long" resultType="integer">
+        SELECT COUNT(id) FROM t_volunteer_campaign_volunteer_record
+        WHERE campaign_id = #{campaignId,jdbcType=BIGINT}
+        and volunteer_id = #{volunteerId,jdbcType=BIGINT}
+        and record_status = 1
+    </select>
+
+    <update id="batchUpdateInactive" parameterType="long">
+        UPDATE t_volunteer_campaign_volunteer_record
+        <set>
+            record_status = 0
+        </set>
+        WHERE id IN
+        <foreach collection="ids" separator="," index="index" item="id" open="(" close=")">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="com.bit.module.vol.bean.CampaignVolunteerRecord">
+        UPDATE t_volunteer_campaign_volunteer_record
+        <set>
+            <if test="campaignId!=null">
+                campaign_id = #{campaignId,jdbcType=BIGINT},
+            </if>
+            <if test="volunteerId!=null">
+                volunteer_id = #{volunteerId,jdbcType=BIGINT},
+            </if>
+            <if test="campaignHour!=null">
+                campaign_hour = #{campaignHour,jdbcType=DECIMAL},
+            </if>
+            <if test="donateMoney!=null">
+                donate_money = #{donateMoney,jdbcType=DECIMAL},
+            </if>
+            <if test="signTime!=null">
+                sign_time = #{signTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="signStatus!=null">
+                sign_status = #{signStatus,jdbcType=INTEGER},
+            </if>
+            <if test="stationId!=null">
+                station_id = #{stationId,jdbcType=INTEGER},
+            </if>
+            <if test="recordStatus!=null">
+                record_status = #{recordStatus,jdbcType=INTEGER},
+            </if>
+            <if test="version!=null">
+                version =#{version,jdbcType=INTEGER} + 1
+            </if>
+        </set>
+        <where>
+            <if test="id!=null"> and id =#{id,jdbcType=BIGINT}</if>
+            <if test="version!=null"> and version =#{version,jdbcType=INTEGER}</if>
+        </where>
+    </update>
+
+    <select id="countEnrollNumberByCampaignId" parameterType="long" resultType="integer">
+        SELECT COUNT(id) FROM t_volunteer_campaign_volunteer_record
+        WHERE campaign_id = #{campaignId,jdbcType=BIGINT}
+        and sign_status = 0
+        and sign_time is null
+        and record_status = 1
+    </select>
+
+    <select id="countSignNumberByCampaignId" parameterType="long" resultType="integer">
+        SELECT COUNT(id) FROM t_volunteer_campaign_volunteer_record
+        WHERE campaign_id = #{campaignId,jdbcType=BIGINT}
+        and sign_status = 1
+        and sign_time is not null
+         and record_status = 1
+    </select>
+
+    <select id="findSignedVolunteerCampaign" parameterType="com.bit.module.vol.bean.CampaignVolunteerRecord" resultMap="CampainVolunteerRecordMap">
+        SELECT <include refid="CampainVolunteerRecord_columns"/> FROM
+        t_volunteer_campaign_volunteer_record
+        <where>
+            record_status = 1
+            <if test="signStatus!=null">and sign_status = #{signStatus,jdbcType=INTEGER}</if>
+            <if test="volunteerId!=null ">and volunteer_id = #{volunteerId,jdbcType=BIGINT}</if>
+            <if test="campaignId!=null ">and campaign_id = #{campaignId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+    
+    <update id="batchUpdate" parameterType="com.bit.module.vol.bean.CampaignVolunteerRecord">
+        UPDATE t_volunteer_campaign_volunteer_record
+        <trim prefix="set" suffixOverrides=",">
+
+            <trim prefix="donate_money = case" suffix="end,">
+                <foreach collection="recordList" item="record" index="index" >
+                    <if test="record.donateMoney!=null">
+                        WHEN id = #{record.id,jdbcType=BIGINT} then #{record.donateMoney,jdbcType=DECIMAL}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="recordList" item="record" index="index" >
+                    <if test="record.version!=null">
+                        WHEN id = #{record.id,jdbcType=BIGINT} then #{record.version,jdbcType=INTEGER} + 1
+                    </if>
+                </foreach>
+            </trim>
+
+
+        </trim>
+        <where>
+            <foreach collection="recordList" item="record" index="index" separator=") or (" close=")" open="(">
+                id = #{record.id,jdbcType=BIGINT} and version = #{record.version,jdbcType=INTEGER}
+            </foreach>
+
+        </where>
+    </update>
+
+
+    <select id="batchSelectByRecord" parameterType="com.bit.module.vol.bean.CampaignVolunteerRecord" resultMap="CampainVolunteerRecordMap">
+        SELECT <include refid="CampainVolunteerRecord_columns"/>
+        FROM t_volunteer_campaign_volunteer_record
+        <where>
+            <foreach collection="searchList" item="search" index="index" open="(" close=")" separator=",">
+                campaign_id = #{search.campaignId,jdbcType=BIGINT} and volunteer_id = #{search.volunteerId,jdbcType=BIGINT}
+            </foreach>
+        </where>
+    </select>
+
+    <update id="batchUpdateRecordMoney" parameterType="com.bit.module.vol.bean.CampaignVolunteerRecord">
+        UPDATE t_volunteer_campaign_volunteer_record
+        <trim prefix="set" suffixOverrides=",">
+
+            <trim prefix="donate_money = case" suffix="end,">
+                <foreach collection="recordList" item="record" index="index" >
+                    <if test="record.donateMoney!=null">
+                        WHEN id = #{record.id,jdbcType=BIGINT} then #{record.donateMoney,jdbcType=DECIMAL}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="recordList" item="record" index="index" >
+                    <if test="record.version!=null">
+                        WHEN id = #{record.id,jdbcType=BIGINT} then #{record.version,jdbcType=INTEGER} + 1
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="recordList" item="record" index="index" separator=") or (" close=")" open="(">
+                id = #{record.id,jdbcType=BIGINT} and version = #{record.version,jdbcType=INTEGER}
+            </foreach>
+
+        </where>
+    </update>
+</mapper>

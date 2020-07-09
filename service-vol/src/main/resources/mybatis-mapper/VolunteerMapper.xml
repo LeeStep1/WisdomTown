@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.vol.dao.VolunteerDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="VolunteerInfo_columns">
+        <![CDATA[
+			id as id,
+			serial_number as serial_number,
+			real_name as real_name,
+			sex as sex,
+			card_id as card_id,
+			mobile as mobile,
+			people as people,
+			education as education,
+			birthday as birthday,
+			health as health,
+			marriage as marriage,
+			experience as experience,
+			political as political,
+			service_type as service_type,
+			service_time as service_time,
+			hobby as hobby,
+			native_place as native_place,
+			living_place as living_place,
+			company as company,
+			station_id as station_id,
+			wechat_id as wechat_id,
+			campaign_hour as campaign_hour,
+			donate_money as donate_money,
+			campaign_count as campaign_count,
+			volunteer_status as volunteer_status,
+			volunteer_syncho as volunteer_syncho,
+			volunteer_image as volunteer_image,
+			create_time as create_time,
+			service_level as service_level,
+			point as point,
+			version as version,
+			init_hour as init_hour,
+			init_money as init_money
+	    ]]>
+    </sql>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Volunteer_columns">
+        <![CDATA[
+			t1.id as id,
+			t1.serial_number as serial_number,
+			t1.real_name as real_name,
+			t1.sex as sex,
+			t1.card_id as card_id,
+			t1.mobile as mobile,
+			t1.people as people,
+			t1.education as education,
+			t1.birthday as birthday,
+			t1.health as health,
+			t1.marriage as marriage,
+			t1.experience as experience,
+			t1.political as political,
+			t1.service_type as service_type,
+			t1.service_time as service_time,
+			t1.hobby as hobby,
+			t1.native_place as native_place,
+			t1.living_place as living_place,
+			t1.company as company,
+			t1.station_id as station_id,
+			t1.wechat_id as wechat_id,
+			t1.campaign_hour as campaign_hour,
+			t1.donate_money as donate_money,
+			t1.campaign_count as campaign_count,
+			t1.volunteer_status as volunteer_status,
+			t1.volunteer_syncho as volunteer_syncho,
+			t1.volunteer_image as volunteer_image,
+			t1.create_time as create_time,
+			t1.service_level as service_level,
+			t1.point as point,
+			t2.station_name as station_name
+	    ]]>
+    </sql>
+
+
+
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.vol.bean.Volunteer" id="VolunteerInfoMap">
+        <id column="id" property="id"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="real_name" property="realName"/>
+        <result column="sex" property="sex"/>
+        <result column="card_id" property="cardId"/>
+        <result column="mobile" property="mobile"/>
+        <result column="people" property="people"/>
+        <result column="education" property="education"/>
+        <result column="birthday" property="birthday"/>
+        <result column="health" property="health"/>
+        <result column="marriage" property="marriage"/>
+        <result column="experience" property="experience"/>
+        <result column="political" property="political"/>
+        <result column="service_type" property="serviceType"/>
+        <result column="service_time" property="serviceTime"/>
+        <result column="hobby" property="hobby"/>
+        <result column="native_place" property="nativePlace"/>
+        <result column="living_place" property="livingPlace"/>
+        <result column="company" property="company"/>
+        <result column="station_id" property="stationId"/>
+        <result column="wechat_id" property="weChatId"/>
+        <result column="campaign_hour" property="campaignHour"/>
+        <result column="donate_money" property="donateMoney"/>
+        <result column="campaign_count" property="campaignCount"/>
+        <result column="volunteer_status" property="volunteerStatus"/>
+        <result column="volunteer_syncho" property="volunteerSyncho"/>
+        <result column="volunteer_image" property="volunteerImage"/>
+        <result column="create_time" property="createTime"/>
+        <result column="service_level" property="serviceLevel"/>
+        <result column="point" property="point"/>
+        <result column="version" property="version"/>
+        <result column="init_hour" property="initHour"/>
+        <result column="init_money" property="initMoney"/>
+    </resultMap>
+
+    <sql id="columns">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="serialNumber!=null and serialNumber!=''">
+            serial_number,
+        </if>
+        <if test="realName!=null and realName!=''">
+            real_name,
+        </if>
+        <if test="sex!=null">
+            sex,
+        </if>
+        <if test="cardId!=null and cardId!=''">
+            card_id,
+        </if>
+        <if test="mobile!=null and mobile!=''">
+            mobile,
+        </if>
+        <if test="people!=null">
+            people,
+        </if>
+        <if test="education!=null">
+            education,
+        </if>
+        <if test="birthday!=null">
+            birthday,
+        </if>
+        <if test="health!=null">
+            health,
+        </if>
+        <if test="marriage!=null">
+            marriage,
+        </if>
+        <if test="experience!=null">
+            experience,
+        </if>
+        <if test="political!=null">
+            political,
+        </if>
+        <if test="serviceType!=null and serviceType!=''">
+            service_type,
+        </if>
+        <if test="serviceTime!=null and serviceTime!=''">
+            service_time,
+        </if>
+        <if test="hobby!=null and hobby!=''">
+            hobby,
+        </if>
+        <if test="nativePlace!=null and nativePlace!=''">
+            native_place,
+        </if>
+        <if test="livingPlace!=null and livingPlace!=''">
+            living_place,
+        </if>
+        <if test="company!=null and company!=''">
+            company,
+        </if>
+        <if test="stationId!=null">
+            station_id,
+        </if>
+        <if test="weChatId!=null and weChatId!=''">
+            wechat_id,
+        </if>
+        <if test="campaignHour!=null">
+            campaign_hour,
+        </if>
+        <if test="donateMoney!=null">
+            donate_money,
+        </if>
+        <if test="campaignCount!=null">
+            campaign_count,
+        </if>
+        <if test="volunteerStatus!=null">
+            volunteer_status,
+        </if>
+        <if test="volunteerSyncho!=null">
+            volunteer_syncho,
+        </if>
+        <if test="volunteerImage!=null and volunteerImage!=''">
+            volunteer_image,
+        </if>
+        <if test="serviceLevel!=null">
+            service_level,
+        </if>
+        <if test="point!=null">
+            point,
+        </if>
+        <if test="version!=null">
+            version,
+        </if>
+        <if test="createTime!=null">
+            create_time,
+        </if>
+        <if test="initHour!=null">
+            init_hour,
+        </if>
+        <if test="initMoney!=null">
+            init_money,
+        </if>
+        </trim>
+    </sql>
+
+    <sql id="values">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="serialNumber!=null and serialNumber!=''">
+            #{serialNumber,jdbcType=VARCHAR},
+        </if>
+        <if test="realName!=null and realName!=''">
+            #{realName,jdbcType=VARCHAR},
+        </if>
+        <if test="sex!=null">
+            #{sex,jdbcType=INTEGER},
+        </if>
+        <if test="cardId!=null and cardId!=''">
+            #{cardId,jdbcType=VARCHAR},
+        </if>
+        <if test="mobile!=null and mobile!=''">
+            #{mobile,jdbcType=VARCHAR},
+        </if>
+        <if test="people!=null">
+            #{people,jdbcType=INTEGER},
+        </if>
+        <if test="education!=null">
+            #{education,jdbcType=INTEGER},
+        </if>
+        <if test="birthday!=null">
+            #{birthday,jdbcType=TIMESTAMP},
+        </if>
+        <if test="health!=null">
+            #{health,jdbcType=INTEGER},
+        </if>
+        <if test="marriage!=null">
+            #{marriage,jdbcType=INTEGER},
+        </if>
+        <if test="experience!=null">
+            #{experience,jdbcType=INTEGER},
+        </if>
+        <if test="political!=null">
+            #{political,jdbcType=INTEGER},
+        </if>
+        <if test="serviceType!=null and serviceType!=''">
+            #{serviceType,jdbcType=VARCHAR},
+        </if>
+        <if test="serviceTime!=null and serviceTime!=''">
+            #{serviceTime,jdbcType=VARCHAR},
+        </if>
+        <if test="hobby!=null and hobby!=''">
+            #{hobby,jdbcType=VARCHAR},
+        </if>
+        <if test="nativePlace!=null and nativePlace!=''">
+            #{nativePlace,jdbcType=VARCHAR},
+        </if>
+        <if test="livingPlace!=null and livingPlace!=''">
+            #{livingPlace,jdbcType=VARCHAR},
+        </if>
+        <if test="company!=null and company!=''">
+            #{company,jdbcType=VARCHAR},
+        </if>
+        <if test="stationId!=null">
+            #{stationId,jdbcType=BIGINT},
+        </if>
+        <if test="weChatId!=null and weChatId!=''">
+            #{weChatId,jdbcType=VARCHAR},
+        </if>
+        <if test="campaignHour!=null">
+            #{campaignHour,jdbcType=DECIMAL},
+        </if>
+        <if test="donateMoney!=null">
+            #{donateMoney,jdbcType=DECIMAL},
+        </if>
+        <if test="campaignCount!=null">
+            #{campaignCount,jdbcType=INTEGER},
+        </if>
+        <if test="volunteerStatus!=null">
+            #{volunteerStatus,jdbcType=INTEGER},
+        </if>
+        <if test="volunteerSyncho!=null">
+            #{volunteerSyncho,jdbcType=INTEGER},
+        </if>
+        <if test="volunteerImage!=null and volunteerImage!=''">
+            #{volunteerImage,jdbcType=BIGINT},
+        </if>
+        <if test="serviceLevel!=null">
+            #{serviceLevel,jdbcType=INTEGER},
+        </if>
+        <if test="point!=null">
+            #{point,jdbcType=DECIMAL},
+        </if>
+        <if test="version!=null">
+            #{version,jdbcType=INTEGER},
+        </if>
+        <if test="createTime!=null">
+            #{createTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="initHour!=null">
+            #{initHour,jdbcType=DECIMAL},
+        </if>
+        <if test="initMoney!=null">
+            #{initMoney,jdbcType=DECIMAL},
+        </if>
+        </trim>
+    </sql>
+
+
+    <insert id="add" parameterType="com.bit.module.vol.bean.Volunteer" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into t_volunteer_volunteer_info
+          <include refid="columns"/>
+        VALUES
+          <include refid="values"/>
+
+    </insert>
+    
+    <select id="findById" parameterType="long" resultMap="VolunteerInfoMap">
+        SELECT <include refid="VolunteerInfo_columns"/>
+        FROM t_volunteer_volunteer_info
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <update id="update" parameterType="com.bit.module.vol.bean.Volunteer">
+        UPDATE t_volunteer_volunteer_info
+        <set>
+            <if test="serialNumber!=null and serialNumber!=''">
+                serial_number=#{serialNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="realName!=null and realName!=''">
+                real_name=#{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="sex!=null ">
+                sex=#{sex,jdbcType=INTEGER},
+            </if>
+            <if test="cardId!=null and cardId!=''">
+                card_id=#{cardId,jdbcType=VARCHAR},
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                mobile=#{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="people!=null ">
+                people=#{people,jdbcType=INTEGER},
+            </if>
+            <if test="people==null ">
+                people=null,
+            </if>
+            <if test="education!=null ">
+                education=#{education,jdbcType=INTEGER},
+            </if>
+            <if test="education==null ">
+                education=null,
+            </if>
+            <if test="birthday!=null ">
+                birthday=#{birthday,jdbcType=TIMESTAMP},
+            </if>
+            <if test="birthday==null ">
+                birthday=null,
+            </if>
+            <if test="health!=null ">
+                health=#{health,jdbcType=INTEGER},
+            </if>
+            <if test="health==null ">
+                health=null,
+            </if>
+            <if test="marriage!=null ">
+                marriage=#{marriage,jdbcType=INTEGER},
+            </if>
+            <if test="marriage==null ">
+                marriage=null,
+            </if>
+            <if test="experience!=null ">
+                experience=#{experience,jdbcType=INTEGER},
+            </if>
+            <if test="experience==null ">
+                experience=null,
+            </if>
+            <if test="political!=null ">
+                political=#{political,jdbcType=INTEGER},
+            </if>
+            <if test="political==null ">
+                political=null,
+            </if>
+            <if test="serviceType!=null ">
+                service_type=#{serviceType,jdbcType=VARCHAR},
+            </if>
+            <if test="serviceTime!=null ">
+                service_time=#{serviceTime,jdbcType=VARCHAR},
+            </if>
+            <if test="hobby!=null ">
+                hobby=#{hobby,jdbcType=VARCHAR},
+            </if>
+            <if test="nativePlace!=null ">
+                native_place=#{nativePlace,jdbcType=VARCHAR},
+            </if>
+            <if test="livingPlace!=null ">
+                living_place=#{livingPlace,jdbcType=VARCHAR},
+            </if>
+            <if test="company!=null ">
+                company=#{company,jdbcType=VARCHAR},
+            </if>
+
+            <if test="stationId!=null ">
+                station_id=#{stationId,jdbcType=BIGINT},
+            </if>
+            <if test="weChatId!=null ">
+                wechat_id=#{weChatId,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignHour!=null ">
+                campaign_hour=#{campaignHour,jdbcType=DECIMAL},
+            </if>
+            <if test="donateMoney!=null ">
+                donate_money=#{donateMoney,jdbcType=DECIMAL},
+            </if>
+            <if test="campaignCount!=null ">
+                campaign_count=#{campaignCount,jdbcType=INTEGER},
+            </if>
+            <if test="volunteerStatus!=null ">
+                volunteer_status=#{volunteerStatus,jdbcType=INTEGER},
+            </if>
+            <if test="volunteerSyncho!=null ">
+                volunteer_syncho=#{volunteerSyncho,jdbcType=INTEGER},
+            </if>
+            <if test="volunteerImage!=null ">
+                volunteer_image=#{volunteerImage,jdbcType=INTEGER},
+            </if>
+            <if test="serviceLevel!=null">
+                service_level=#{serviceLevel,jdbcType=INTEGER},
+            </if>
+            <if test="point!=null">
+                point = #{point,jdbcType=DECIMAL},
+            </if>
+            <if test="version!=null">
+                version = #{version,jdbcType=INTEGER} + 1
+            </if>
+            <if test="initHour!=null">
+                init_hour = #{initHour,jdbcType=DECIMAL},
+            </if>
+            <if test="initMoney!=null">
+                init_money = #{initMoney,jdbcType=DECIMAL},
+            </if>
+        </set>
+        <where>
+            <if test="id!=null">and id = #{id,jdbcType=BIGINT}</if>
+            <if test="version!=null">and version = #{version,jdbcType=INTEGER}</if>
+        </where>
+    </update>
+
+
+    <select id="listPage" parameterType="com.bit.module.vol.vo.VolunteerVO" resultMap="VolunteerInfoMap">
+        SELECT <include refid="Volunteer_columns"/>
+        FROM t_volunteer_volunteer_info t1 INNER JOIN t_volunteer_station t2
+        on t1.station_id = t2.id
+        <where>
+            <if test="realName!=null and realName!=''">and t1.real_name like CONCAT("%",#{realName,jdbcType=VARCHAR},"%")</if>
+            <if test="cardId!=null and cardId!=''">and t1.card_id like CONCAT("%",#{cardId,jdbcType=VARCHAR},"%") </if>
+            <if test="stationId!=null and stationId!=''">and t1.station_id = #{stationId,jdbcType=VARCHAR}</if>
+            <if test="serviceLevel!=null">and t1.service_level= #{serviceLevel,jdbcType=INTEGER}</if>
+            <if test="stationName!=null">and t2.station_name like CONCAT("%",#{stationName,jdbcType=VARCHAR},"%")</if>
+            <if test="childStationList!=null and childStationList.size()>0">
+                and t1.station_id in
+                <foreach collection="childStationList" item="item" index="index" separator="," open="(" close=")">
+                    #{item,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="lhour!=null  and rhour!=null ">
+                and <![CDATA[ t1.campaign_hour >= #{lhour,jdbcType=DECIMAL} and t1.campaign_hour <= #{rhour,jdbcType=DECIMAL}]]>
+            </if>
+            <if test="lhour!=null and lhour == 1500 ">
+                and <![CDATA[ t1.campaign_hour > 1500]]>
+            </if>
+            <if test="volunteerStatus!=null">and t1.volunteer_status=#{volunteerStatus,jdbcType=INTEGER}</if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <select id="countMan" parameterType="long" resultType="integer">
+        SELECT count(id) FROM t_volunteer_volunteer_info
+        WHERE station_id = #{stationId,jdbcType=BIGINT} and volunteer_status = 1
+    </select>
+    
+    <select id="queryBySerialNumber" parameterType="string" resultMap="VolunteerInfoMap">
+        SELECT <include refid="VolunteerInfo_columns"/>
+        FROM t_volunteer_volunteer_info
+        WHERE serial_number=#{serialNumber,jdbcType=VARCHAR}
+    </select>
+
+    <select id="queryBynewSerialNumber" parameterType="string" resultType="string">
+        SELECT serial_number
+        FROM t_volunteer_volunteer_info
+        WHERE serial_number like concat(#{serialNumber,jdbcType=VARCHAR},"%")
+    </select>
+
+    <select id="queryByCardId" parameterType="string" resultMap="VolunteerInfoMap">
+        SELECT <include refid="VolunteerInfo_columns"/>
+        FROM t_volunteer_volunteer_info
+        WHERE card_id = #{cardId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="findAllActiveVolunteer" parameterType="com.bit.module.vol.bean.Volunteer" resultMap="VolunteerInfoMap">
+        SELECT <include refid="VolunteerInfo_columns"/>
+        FROM t_volunteer_volunteer_info
+        <where>
+            <if test="volunteerStatus!=null">and volunteer_status = #{volunteerStatus,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+    <select id="verifyCardIdAndMobile" parameterType="com.bit.module.vol.bean.VerifyParam" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM t_volunteer_volunteer_info
+        <where>
+            <if test="cardId!=null and cardId!=''">and card_id = #{cardId,jdbcType=VARCHAR}</if>
+            <if test="mobile!=null and mobile!=''">and mobile = #{mobile,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+
+    <select id="findByParam" parameterType="com.bit.module.vol.bean.Volunteer" resultMap="VolunteerInfoMap">
+        SELECT <include refid="VolunteerInfo_columns"/>
+        FROM t_volunteer_volunteer_info
+        <where>
+            <if test="cardId!=null and cardId!=''">and card_id = #{cardId,jdbcType=VARCHAR}</if>
+            <if test="mobile!=null and mobile!=''">and mobile = #{mobile,jdbcType=VARCHAR}</if>
+            <if test="stationId!=null">and station_id = #{stationId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <select id="board" parameterType="com.bit.module.vol.vo.VolunteerVO" resultType="com.bit.module.vol.bean.Board">
+        SELECT t1.id,t1.real_name,t1.campaign_hour,t2.station_name
+        FROM t_volunteer_volunteer_info t1 INNER JOIN t_volunteer_station t2
+        on t1.station_id = t2.id
+        ORDER BY campaign_hour DESC
+    </select>
+
+
+    <select id="listPageForExcel" parameterType="com.bit.module.vol.bean.Volunteer" resultMap="VolunteerInfoMap">
+        SELECT <include refid="Volunteer_columns"/>
+        FROM t_volunteer_volunteer_info t1 INNER JOIN t_volunteer_station t2
+        on t1.station_id = t2.id
+        <where>
+            <if test="realName!=null and realName!=''">and t1.real_name like CONCAT("%",#{realName,jdbcType=VARCHAR},"%")</if>
+            <if test="cardId!=null and cardId!=''">and t1.card_id like CONCAT("%",#{cardId,jdbcType=VARCHAR},"%") </if>
+            <if test="stationId!=null and stationId!=''">and t1.station_id = #{stationId,jdbcType=VARCHAR}</if>
+            <if test="serviceLevel!=null">and t1.service_level= #{serviceLevel,jdbcType=INTEGER}</if>
+            <if test="stationName!=null">and t2.station_name like CONCAT("%",#{stationName,jdbcType=VARCHAR},"%")</if>
+            <if test="childStationList!=null and childStationList.size()>0">
+                and t1.station_id in
+                <foreach collection="childStationList" item="item" index="index" separator="," open="(" close=")">
+                    #{item,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="lhour!=null and rhour!=null ">
+                and <![CDATA[ t1.campaign_hour >= #{lhour,jdbcType=DECIMAL} and t1.campaign_hour <= #{rhour,jdbcType=DECIMAL}]]>
+            </if>
+            <if test="lhour!=null and lhour == 1500 ">
+                and <![CDATA[ t1.campaign_hour > 1500]]>
+            </if>
+            <if test="volunteerStatus!=null">and t1.volunteer_status = #{volunteerStatus,jdbcType=INTEGER}</if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <!--获取所有志愿者ID-->
+    <select id="getAllVolUserIdsSql" parameterType="com.bit.module.vol.bean.Volunteer"
+            resultType="java.lang.Long">
+        SELECT
+            t.id
+        FROM
+            t_volunteer_volunteer_info t
+        WHERE
+            t.volunteer_status = #{volunteer.volunteerStatus}
+    </select>
+
+    <update id="batchUpdate" parameterType="com.bit.module.vol.bean.Volunteer">
+        UPDATE t_volunteer_volunteer_info
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="campaign_hour = case" suffix="end,">
+                <foreach collection="volunteerList" item="volunteer" index="index" >
+                    <if test="volunteer.campaignHour!=null">
+                        WHEN id = #{volunteer.id,jdbcType=BIGINT} then #{volunteer.campaignHour,jdbcType=DECIMAL}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="donate_money = case" suffix="end,">
+                 <foreach collection="volunteerList" item="volunteer" index="index" >
+                      <if test="volunteer.donateMoney!=null">
+                          WHEN id = #{volunteer.id,jdbcType=BIGINT} then #{volunteer.donateMoney,jdbcType=DECIMAL}
+                      </if>
+                 </foreach>
+            </trim>
+            <trim prefix="campaign_count = case" suffix="end,">
+                <foreach collection="volunteerList" item="volunteer" index="index" >
+                    <if test="volunteer.campaignCount!=null">
+                        WHEN id = #{volunteer.id,jdbcType=BIGINT} then #{volunteer.campaignCount,jdbcType=DECIMAL}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="volunteerList" item="volunteer" index="index" >
+                    <if test="volunteer.version!=null">
+                        WHEN id = #{volunteer.id,jdbcType=BIGINT} then #{volunteer.version,jdbcType=INTEGER} + 1
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="volunteerList" item="volunteer" index="index" separator=") or (" close=")" open="(">
+                id = #{volunteer.id,jdbcType=BIGINT} and version = #{volunteer.version,jdbcType=INTEGER}
+            </foreach>
+
+        </where>
+    </update>
+
+    <select id="batchSelectByIds" parameterType="long" resultType="string">
+        SELECT card_id FROM t_volunteer_volunteer_info
+        WHERE id in
+        <foreach collection="ids" item="id" index="index" separator="," open="(" close=")">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="batchSelectByCardIds" resultMap="VolunteerInfoMap">
+        SELECT DISTINCT <include refid="VolunteerInfo_columns"/> FROM t_volunteer_volunteer_info
+        WHERE card_id in
+        <foreach collection="cardIds" separator="," open="(" close=")" index="index" item="cardId">
+            #{cardId,jdbcType=VARCHAR}
+        </foreach>
+        order by FIND_IN_SET(card_id,#{orderlist})
+    </select>
+
+    <!-- 校验身份证是否重复 -->
+    <select id="verifyCardId" parameterType="com.bit.module.vol.bean.VerifyParam"
+            resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM t_volunteer_volunteer_info
+        <where>
+            <if test="cardId!=null and cardId!=''">and card_id = #{cardId,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+</mapper>

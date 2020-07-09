@@ -1,0 +1,15 @@
+
+<html>
+<script src="http://cdn.bootcss.com/sockjs-client/1.1.1/sockjs.min.js"></script>  
+<script src="http://cdn.bootcss.com/stomp.js/2.3.3/stomp.js"></script>
+<script type="text/javascript">
+var socket = new SockJS('http://localhost:8086/webServer');
+var stompClient = Stomp.over(socket);
+stompClient.connect({'token': "1111"}, function(frame) {
+	stompClient.subscribe('/topic/msg/1', function(txt) {
+
+		alert(txt.body);
+	});
+});
+ 
+</script>

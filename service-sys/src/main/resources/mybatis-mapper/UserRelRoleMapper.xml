@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.UserRelRoleDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="UserRelRole_columns">
+	    <![CDATA[
+			id as id,
+			user_id as user_id,
+			role_id as role_id
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.UserRelRole" id="userRelRoleMap">
+		<id column="id" property="id"/>
+	    <result column="user_id" property="userId"/>
+	    <result column="role_id" property="roleId"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="userRelRoleMap" parameterType="com.bit.module.system.vo.UserRelRoleVO">
+		select <include refid="UserRelRole_columns" /> from t_sys_user_rel_role
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="userId != null and userId != '' " >and user_id =#{userId,jdbcType=BIGINT}</if>
+			<if test="roleId != null and roleId != '' " >and role_id =#{roleId,jdbcType=BIGINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="userRelRoleMap" parameterType="String">
+		select <include refid="UserRelRole_columns" /> from t_sys_user_rel_role
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="userRelRoleMap" parameterType="com.bit.module.system.bean.UserRelRole">
+		select <include refid="UserRelRole_columns" /> 
+		from t_sys_user_rel_role
+		where 
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.UserRelRole">
+	insert INTO t_sys_user_rel_role (
+		user_id ,
+		role_id 
+	) VALUES (
+		#{userId,jdbcType=BIGINT},
+		#{roleId,jdbcType=BIGINT}
+	)
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.system.bean.UserRelRole">
+		update t_sys_user_rel_role
+		<set>
+		<if test="userId != null">
+		 user_id =#{userId,jdbcType=BIGINT},
+		</if>
+		<if test="roleId != null">
+		 role_id =#{roleId,jdbcType=BIGINT}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.UserRelRole">
+		delete from t_sys_user_rel_role 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+
+</mapper>

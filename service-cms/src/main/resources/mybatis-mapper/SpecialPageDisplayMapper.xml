@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.website.dao.SpecialPageDisplayDao">
+
+	<!--根据站点获得所有导航-->
+	<select id="getLeaderIntroductionByCategoryIdSql" parameterType="com.bit.module.manager.bean.PortalOaLeader"
+			resultType="com.bit.module.manager.bean.PortalOaLeader">
+		SELECT
+			t.id,
+			t.duty_code dutyCode,
+			t.name,
+			t.duty_detail dutyDetail,
+			t.individual_resume individualResume,
+			t.img_url imgUrl
+		FROM
+			t_portal_oa_leader t
+		WHERE
+			t.STATUS = #{portalOaLeader.status}
+		AND	t.del_status = #{portalOaLeader.delStatus}
+		AND	t.category_id = #{portalOaLeader.categoryId}
+	</select>
+
+	<!-- 查询领导明细 -->
+	<select id="getLeaderDetailByIdSql" parameterType="com.bit.module.manager.bean.PortalOaLeader"
+			resultType="com.bit.module.manager.bean.PortalOaLeader">
+		SELECT
+			t.id,
+			t.duty_code dutyCode,
+			t.name,
+			t.duty_detail dutyDetail,
+			t.individual_resume individualResume,
+			t.img_url imgUrl
+		FROM
+			t_portal_oa_leader t
+		WHERE
+			t. STATUS = #{portalOaLeader.status}
+		AND	t.id = #{portalOaLeader.id}
+	</select>
+
+	<!-- 党建组织导航下栏目展示 -->
+	<select id="getPbOrgNavigationContendSql" parameterType="java.lang.Long"
+			resultType="com.bit.module.manager.bean.ProtalPbOrg">
+		SELECT
+			t.id,
+			t.content,
+			t.category_id
+		FROM
+			t_protal_pb_org t
+		WHERE
+			t.category_id = #{categoryId}
+	</select>
+
+	<!-- 党建组织领导班子头像展示 -->
+	<select id="getLeaderImageSql" parameterType="com.bit.module.manager.bean.PortalPbLeader"
+			resultType="com.bit.module.manager.bean.PortalPbLeader">
+		select
+			t.id,
+			t.name,
+			t.head_img_url headImgUrl
+		FROM
+			t_portal_pb_leader t
+		WHERE
+			t.status = #{portalPbLeader.status}
+		and	t.del_status = #{portalPbLeader.delStatus}
+		ORDER BY t.rank
+	</select>
+
+	<!-- 查询一级栏目 -->
+	<select id="getTopCategoryByIdSql" resultType="com.bit.module.manager.bean.PortalCategory">
+		SELECT
+			t.id,
+			t.rank,
+			t.category_name
+		FROM
+			t_portal_category t
+		WHERE
+			t.navigation_id = #{portalCategory.navigationId}
+		AND LENGTH(id) = #{idLength}
+		and t.status=#{portalCategory.status}
+	</select>
+
+	<!-- 查询子栏目 -->
+	<select id="getSubCategoryByIdSql"	resultType="com.bit.module.manager.bean.PortalCategory">
+		SELECT
+			t.id,
+			t.rank,
+			t.category_name
+		FROM
+			t_portal_category t
+		WHERE
+			t.id LIKE CONCAT(#{portalCategory.id},'%')
+		AND t.id != #{portalCategory.id}
+		AND LENGTH(id) = #{newIdLength}
+		and t.status=#{portalCategory.status}
+		ORDER BY t.rank;
+	</select>
+
+	<!-- 查询一级栏目下所有内容(办事指南) -->
+	<select id="getAllContentByCategoryIdSql" parameterType="com.bit.module.manager.vo.ServiceTypeVO"
+			resultType="com.bit.module.manager.bean.ServiceType">
+		SELECT
+			t.id,
+			t.title title,
+			t.category_id categoryId,
+			t.files_detail filesDetail
+		FROM
+			t_service_type t
+		WHERE
+			t.category_id IN (
+				SELECT
+					tt.id
+				FROM
+					t_portal_category tt
+				WHERE
+					tt.id LIKE CONCAT('%',#{serviceTypeVo.categoryId},'%')
+				AND tt.id != #{serviceTypeVo.categoryId}
+				AND tt. STATUS = #{serviceTypeVo.status}
+				ORDER BY tt.rank
+			)
+			<if test="serviceTypeVo.title != null and serviceTypeVo.title != '' ">
+				AND t.title LIKE CONCAT('%',#{serviceTypeVo.title},'%')
+			</if>
+			ORDER BY t.common_status,t.rank
+	</select>
+
+	<!-- 根据二级栏目ID获取指定指南下内容(分页) -->
+	<select id="getContentByCategoryIdSql" parameterType="com.bit.module.manager.vo.ServiceTypeVO"
+			resultType="com.bit.module.manager.bean.ServiceType">
+		SELECT
+			t.id,
+			t.title title,
+			t.category_id categoryId,
+			t.files_detail filesDetail
+		FROM
+		t_service_type t
+		WHERE
+		t.category_id = #{serviceTypeVo.categoryId}
+		and t.status = #{serviceTypeVo.status}
+		ORDER BY t.common_status,t.rank
+	</select>
+
+	<!-- 办事指南根据ID获取内容明细 -->
+	<select id="getGuidanceContentDetailSql" parameterType="com.bit.module.manager.bean.ServiceType"
+			resultType="com.bit.module.manager.bean.ServiceType">
+		SELECT
+			t.id,
+			t.title title,
+			t.category_id categoryId,
+			tpc.category_name categoryName,
+			t.application_require applicationRequire,
+			t.application_materials applicationMaterials,
+			t.handling_process handlingProcess,
+			t.frequently_asked_questions frequentlyAskedQuestions,
+			t.files_detail filesDetail
+		FROM
+			t_service_type t,t_portal_category tpc
+		WHERE
+			t.category_id = tpc.id
+		AND
+			t.id = #{serviceType.id}
+		and t.status = #{serviceType.status}
+	</select>
+
+	<!-- 首页获取办事指南前N条（常用>二级栏目>二级栏目排序） -->
+	<select id="getGuidanceContentForHomePageSql" parameterType="java.lang.Integer"
+			resultType="com.bit.module.manager.bean.ServiceType">
+		SELECT
+			t.id,
+			t.title,
+			t.category_id categoryId
+		FROM
+			t_service_type t
+		WHERE
+			t.del_status = #{status}
+		ORDER BY
+			t.common_status ASC,
+			t.category_id ASC,
+			t.rank ASC
+		LIMIT ${pageSize}
+	</select>
+
+	<!-- 魅力杨柳青展示，根据栏目ID获取内容 -->
+	<select id="getGlamourShowSql" parameterType="java.lang.Long"
+			resultType="com.bit.module.manager.bean.ProtalPbOrg">
+		SELECT
+		t.id,
+		t.content,
+		t.category_id
+		FROM
+		t_protal_pb_org t
+		WHERE
+		t.category_id = #{categoryId}
+	</select>
+</mapper>

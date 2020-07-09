@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.CommunityDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Community_columns">
+	    <![CDATA[
+			id as id,
+			community_name as community_name,
+			org_id as org_id,
+			pmc_company_id as pmc_company_id,
+			attachment_ids as attachment_ids,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			update_time as update_time,
+			update_user_id as update_user_id
+	    ]]>
+	</sql>
+
+    <!-- 根据ID删除小区 -->
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE
+        FROM
+            t_cbo_community
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.cbo.bean.Community" id="communityMap">
+		<id column="id" property="id"/>
+		<result column="community_name" property="communityName"/>
+        <result column="org_id" property="orgId"/>
+        <result column="pmc_company_id" property="pmcCompanyId"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="create_time" property="createTime"/>
+		<result column="create_user_id" property="createUserId"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_user_id" property="updateUserId"/>
+	</resultMap>
+
+    <!-- 新增小区 -->
+    <insert id="add" parameterType="com.bit.module.cbo.bean.Community" keyProperty="community.id" useGeneratedKeys="true" keyColumn="id">
+        insert INTO t_cbo_community (
+            <if test="community.communityName != null and community.communityName != '' ">
+                community_name,
+            </if>
+            <if test="community.orgId != null">
+                org_id,
+            </if>
+            <if test="community.pmcCompanyId != null">
+                pmc_company_id,
+            </if>
+            <if test="community.attachmentIds != null and community.attachmentIds != '' ">
+                attachment_ids,
+            </if>
+            <if test="community.createTime != null">
+                create_time,
+            </if>
+            <if test="community.createUserId != null ">
+                create_user_id,
+            </if>
+            <if test="community.updateTime != null">
+                update_time,
+            </if>
+            <if test="community.updateUserId != null">
+                update_user_id
+            </if>
+        )VALUE (
+            <if test="community.communityName != null and community.communityName != ''">
+                #{community.communityName},
+            </if>
+            <if test="community.orgId != null">
+                #{community.orgId},
+            </if>
+            <if test="community.pmcCompanyId != null">
+                #{community.pmcCompanyId},
+            </if>
+            <if test="community.attachmentIds != null and community.attachmentIds != '' ">
+                #{community.attachmentIds},
+            </if>
+            <if test="community.createTime != null">
+                #{community.createTime},
+            </if>
+            <if test="community.createUserId != null ">
+                #{community.createUserId},
+            </if>
+            <if test="community.updateTime != null">
+                #{community.updateTime},
+            </if>
+            <if test="community.updateUserId != null">
+                #{community.updateUserId}
+            </if>
+        )
+    </insert>
+
+    <select id="batchSelectByIds" parameterType="long" resultMap="communityMap">
+        SELECT <include refid="Community_columns"/>
+        FROM t_cbo_community
+        WHERE id in 
+        <foreach collection="communityIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="batchSelectByOrgIds" parameterType="long" resultMap="communityMap">
+        SELECT <include refid="Community_columns"/>
+        FROM t_cbo_community
+        WHERE org_id in
+        <foreach collection="orgIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <!-- 根据物业公司ID查询该公司绑定小区个数 -->
+    <select id="communityByPmcCountSql" parameterType="java.lang.Long"
+            resultType="java.lang.Integer">
+        SELECT
+          COUNT(t.id) communityCount
+        FROM
+            t_cbo_community t
+        WHERE
+            t.pmc_company_id = #{companyId}
+    </select>
+
+
+    <select id="appListPage" resultType="com.bit.module.cbo.vo.CommunityVO">
+        select DISTINCT t1.id,t1.community_name,t1.org_id,t2.address_id from t_cbo_community t1
+        LEFT JOIN (
+
+        SELECT * FROM t_cbo_resident_rel_location
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+        </where>
+        )t2
+        on t1.id = t2.community_id
+
+    </select>
+
+    <select id="getAllCommunity" resultMap="communityMap">
+        SELECT <include refid="Community_columns"/>
+        FROM t_cbo_community
+    </select>
+
+    <!-- 查询小区列表 -->
+    <select id="findAllSql" parameterType="com.bit.module.cbo.vo.CommunityVO"
+            resultType="com.bit.module.cbo.bean.Community">
+        SELECT
+            t.id,
+            t.community_name communityName,
+            t.org_id orgId,
+            t.pmc_company_id pmcCompanyId,
+            tc.company_name pmcCompanyName,
+            t.attachment_ids attachmentIds,
+            t.create_time createTime
+        FROM
+            t_cbo_community t
+        LEFT JOIN t_cbo_pmc_company tc ON t.pmc_company_id = tc.id
+        <where>
+            <if test="communityVO.communityName != null and communityVO.communityName != ''">
+                t.community_name LIKE CONCAT('%', #{communityVO.communityName},"%")
+            </if>
+            <if test="communityVO.orgId != null">
+                and t.org_id = #{communityVO.orgId}
+            </if>
+            <if test="communityVO.pmcCompanyId != null">
+                and t.pmc_company_id = #{communityVO.pmcCompanyId}
+            </if>
+        </where>
+        ORDER BY
+            t.create_time DESC
+    </select>
+
+    <!-- 查询该小区生成楼宇个数 -->
+    <select id="locationCountByCommunityIdSql" parameterType="java.lang.Long"
+            resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id) locationCount
+        FROM
+            t_cbo_location t
+        WHERE
+            t.community_id = #{id}
+    </select>
+
+    <!-- 修改小区信息 -->
+    <update id="modify" parameterType="com.bit.module.cbo.bean.Community">
+        update t_cbo_community
+            <set>
+                <if test="community.communityName != null and community.communityName != '' ">
+                    community_name = #{community.communityName},
+                </if>
+                <if test="community.orgId != null">
+                    org_id = #{community.orgId},
+                </if>
+                <if test="community.pmcCompanyId != null">
+                    pmc_company_id = #{community.pmcCompanyId},
+                </if>
+                <if test="community.attachmentIds != null">
+                    attachment_ids = #{community.attachmentIds},
+                </if>
+                <if test="community.updateTime != null">
+                    update_time = #{community.updateTime},
+                </if>
+                <if test="community.updateUserId != null">
+                    update_user_id = #{community.updateUserId}
+                </if>
+
+            </set>
+        where
+          id = #{community.id}
+    </update>
+
+    <select id="getCommunityByOrgId" resultMap="communityMap">
+        SELECT <include refid="Community_columns"/>
+        FROM t_cbo_community
+        <where>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <select id="getCommunityById" resultMap="communityMap">
+        SELECT <include refid="Community_columns"/>
+        FROM t_cbo_community
+        <where>
+            <if test="id!=null">and id = #{id,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <!-- 根据小区ID查询所属社区 -->
+    <select id="findOrgIdsByCommunityIdSql" parameterType="java.lang.Long"
+            resultType="com.bit.module.cbo.bean.PmcStaffRelCommunity">
+        SELECT
+            t.id communityId,
+            t.org_id orgId
+        FROM
+            t_cbo_community t
+        WHERE
+        t.id IN
+            <foreach collection="communityIds" item="id" separator="," open="(" close=")">
+                #{id,jdbcType=BIGINT}
+            </foreach>
+    </select>
+
+    <!-- 查询小区明细 -->
+    <select id="getCommunityDetailById" resultType="com.bit.module.cbo.bean.Community">
+        SELECT
+            t.id as id,
+			t.community_name as communityName,
+			t.org_id as orgId,
+			t.pmc_company_id as pmcCompanyId,
+			t.attachment_ids as attachmentIds,
+			t.create_time as createTime,
+			t.create_user_id as createUserId,
+			t.update_time as updateTime,
+			t.update_user_id as updateUserId,
+			tc.company_name pmcCompanyName
+        FROM
+          t_cbo_community t
+          LEFT JOIN t_cbo_pmc_company tc ON t.pmc_company_id = tc.id
+        WHERE
+           t.id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 根据物业公司获取所属小区 -->
+    <select id="getCommunityByCompanyId" parameterType="java.lang.Long"
+            resultType="com.bit.module.cbo.bean.Community">
+         SELECT
+            t.id as id,
+			t.community_name as communityName,
+			t.org_id as orgId,
+			t.pmc_company_id as pmcCompanyId,
+			t.attachment_ids as attachmentIds,
+			t.create_time as createTime,
+			t.create_user_id as createUserId,
+			t.update_time as updateTime,
+			t.update_user_id as updateUserId
+        FROM
+            t_cbo_community t
+        WHERE
+            t.pmc_company_id = #{companyId}
+    </select>
+
+    <!-- 小区名称去重 -->
+    <select id="countByNameSql" parameterType="java.lang.String"
+            resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id) COUNT
+        FROM
+            t_cbo_community t
+        WHERE
+            t.community_name = #{name}
+    </select>
+
+    <!-- 小区名称编辑去重 (编辑使用) -->
+    <select id="modifyCountByNameSql" resultType="java.lang.Integer">
+        SELECT
+            COUNT(t.id) COUNT
+        FROM
+            t_cbo_community t
+        WHERE
+            t.community_name = #{name}
+        and t.id != #{id}
+    </select>
+
+</mapper>

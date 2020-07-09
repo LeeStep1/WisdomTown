@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.ReportDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Report_columns">
+	    <![CDATA[
+
+        id as id,
+		inspect_id as inspect_id,
+		`no` as `no`,
+		abnormal as abnormal,
+		content as content,
+		pic_urls as pic_urls,
+		need_fix as need_fix,
+		fix_content as fix_content,
+		fix_pic_urls as fix_pic_urls,
+		reporter_id as reporter_id,
+		reporter_name as reporter_name,
+		lng as lng,
+		lat as lat,
+		create_at as create_at,
+		status as status,
+		version as version
+		]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.Report" id="reportMap">
+		<id column="id" property="id"/>
+	    <result column="inspect_id" property="inspectId"/>
+		<result column="abnormal" property="abnormal"/>
+		<result column="content" property="content"/>
+		<result column="pic_urls" property="picUrls"/>
+		<result column="need_fix" property="needFix"/>
+		<result column="fix_content" property="fixContent"/>
+		<result column="fix_pic_urls" property="fixPicUrls"/>
+		<result column="reporter_id" property="reporterId"/>
+		<result column="reporter_name" property="reporterName"/>
+		<result column="lng" property="lng"/>
+		<result column="lat" property="lat"/>
+	    <result column="create_at" property="createAt"/>
+		<result column="status" property="status"/>
+		<result column="version" property="version"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="reportMap" parameterType="com.bit.module.oa.vo.report.ReportVO">
+		select <include refid="Report_columns" /> from t_oa_inspect_report
+		<where>
+			<if test="reporterId != null">and reporter_id =#{reporterId}</if>
+			<if test="inspectId != null" >and inspect_id =#{inspectId}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="reportMap" parameterType="com.bit.module.oa.bean.Report">
+		select <include refid="Report_columns" />
+		from t_oa_inspect_report
+		where
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+	<select id="findLastReportByInspectId" resultType="string">
+		select `no`
+		from t_oa_inspect_report
+		where
+		inspect_id =#{inspectId,jdbcType=BIGINT}
+		ORDER BY id desc, create_at desc LIMIT 1
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Report">
+		<selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	insert INTO t_oa_inspect_report (
+		inspect_id,
+		`no`,
+		abnormal,
+		content,
+		pic_urls,
+		need_fix,
+		fix_content,
+		fix_pic_urls,
+		reporter_id,
+		reporter_name,
+		lng,
+		lat,
+		create_at,
+		status
+	) VALUES (
+		#{inspectId},
+		#{no},
+		#{abnormal},
+		#{content},
+		#{picUrls},
+		#{needFix},
+		#{fixContent},
+		#{fixPicUrls},
+		#{reporterId},
+		#{reporterName},
+		#{lng},
+		#{lat},
+		#{createAt},
+		#{status}
+	)
+	</insert>
+	<insert id="batchAdd">
+		insert into t_oa_inspect_report
+		(
+		inspect_id,
+		`no`,
+		abnormal,
+		content,
+		pic_urls,
+		need_fix,
+		fix_content,
+		fix_pic_urls,
+		reporter_id,
+		reporter_name,
+		lng,
+		lat,
+		create_at,
+		status
+		) values
+		<foreach collection="reports" item="report" separator=",">
+			(
+			#{report.inspectId},
+			#{report.no},
+			#{report.abnormal},
+			#{report.content},
+			#{report.picUrls},
+			#{report.needFix},
+			#{report.fixContent},
+			#{report.fixPicUrls},
+			#{report.reporterId},
+			#{report.reporterName},
+			#{report.lng},
+			#{report.lat},
+			#{report.createAt},
+			#{report.status}
+			)
+		</foreach>
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="updateConfirmStatus" parameterType="com.bit.module.oa.bean.Report">
+		update t_oa_inspect_report
+		<set>
+			<if test="status != null">
+				status =#{status},
+			</if>
+			version = #{version,jdbcType=INTEGER}  + 1
+		</set>
+		where
+		id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Report">
+		delete from t_oa_inspect_report
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_oa_inspect_report
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+</mapper>

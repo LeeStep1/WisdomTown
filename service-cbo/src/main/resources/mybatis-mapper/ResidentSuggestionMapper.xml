@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.SuggestDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Suggest_columns">
+        <![CDATA[
+			id as id,
+			title as title,
+			content as content,
+			status as status,
+			org_id as org_id,
+			org_name as org_name,
+			community_id as community_id,
+			community_name as community_name,
+			create_time as create_time,
+			create_resident_id as create_resident_id,
+			create_resident_name as create_resident_name,
+			resident_moblie as resident_moblie,
+			feedback_msg as feedback_msg,
+			feedback_user_id as feedback_user_id,
+			feedback_time as feedback_time,
+			version as version
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.cbo.bean.ResidentSuggestion" id="suggestMap">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="status" property="status"/>
+        <result column="org_id" property="orgId"/>
+        <result column="org_name" property="orgName"/>
+        <result column="community_id" property="communityId"/>
+        <result column="community_name" property="communityName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_resident_id" property="createResidentId"/>
+        <result column="create_resident_name" property="createResidentName"/>
+        <result column="community_name" property="communityName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_resident_id" property="createResidentId"/>
+        <result column="create_resident_name" property="createResidentName"/>
+        <result column="resident_moblie" property="residentMobile"/>
+        <result column="feedback_msg" property="feedBackMsg"/>
+        <result column="feedback_user_id" property="feedBackUserId"/>
+        <result column="feedback_time" property="feedBackTime"/>
+        <result column="version" property="version"/>
+    </resultMap>
+
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.ResidentSuggestion" keyProperty="id" useGeneratedKeys="true">
+        insert INTO t_cbo_resident_suggestion
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                title,
+            </if>
+            <if test="content!=null and content!=''">
+                content,
+            </if>
+            <if test="status!=null">
+                status,
+            </if>
+            <if test="orgId!=null">
+                org_id,
+            </if>
+            <if test="orgName!=null and orgName!=''">
+                org_name,
+            </if>
+            <if test="communityId!=null">
+                community_id,
+            </if>
+            <if test="communityName!=null and communityName!=''">
+                community_name,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="createResidentId!=null">
+                create_resident_id,
+            </if>
+            <if test="createResidentName!=null and createResidentName!=''">
+                create_resident_name,
+            </if>
+            <if test="residentMobile!=null and residentMobile!=''">
+                resident_moblie,
+            </if>
+            <if test="feedBackMsg!=null and feedBackMsg!=''">
+                feedback_msg,
+            </if>
+            <if test="feedBackUserId!=null">
+                feedback_user_id,
+            </if>
+            <if test="feedBackTime!=null">
+                feedback_time,
+            </if>
+            <if test="version!=null">
+                version,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content!=null and content!=''">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="status!=null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="orgId!=null">
+                #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="orgName!=null and orgName!=''">
+                #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="communityId!=null">
+                #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="communityName!=null and communityName!=''">
+                #{communityName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createResidentId!=null">
+                #{createResidentId,jdbcType=BIGINT},
+            </if>
+            <if test="createResidentName!=null and createResidentName!=''">
+                #{createResidentName,jdbcType=VARCHAR},
+            </if>
+            <if test="residentMobile!=null and residentMobile!=''">
+                #{residentMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="feedBackMsg!=null and feedBackMsg!=''">
+                #{feedBackMsg,jdbcType=VARCHAR},
+            </if>
+            <if test="feedBackUserId!=null">
+                #{feedBackUserId,jdbcType=BIGINT},
+            </if>
+            <if test="feedBackTime!=null">
+                #{feedBackTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="version!=null">
+                #{version,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="modify" parameterType="com.bit.module.cbo.bean.ResidentSuggestion">
+        update t_cbo_resident_suggestion
+        <trim prefix="set" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content!=null and content!=''">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="status!=null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="orgId!=null">
+                org_id = #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="orgName!=null and orgName!=''">
+                org_name = #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="communityId!=null">
+                community_id = #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="communityName!=null and communityName!=''">
+                community_name = #{communityName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime!=null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createResidentId!=null">
+                create_resident_id = #{createResidentId,jdbcType=BIGINT},
+            </if>
+            <if test="createResidentName!=null and createResidentName!=''">
+                create_resident_name = #{createResidentName,jdbcType=VARCHAR},
+            </if>
+            <if test="residentMobile!=null and residentMobile!=''">
+                resident_moblie = #{residentMobile,jdbcType=VARCHAR},
+            </if>
+            <if test="feedBackMsg!=null and feedBackMsg!=''">
+                feedback_msg = #{feedBackMsg,jdbcType=VARCHAR},
+            </if>
+            <if test="feedBackUserId!=null">
+                feedback_user_id = #{feedBackUserId,jdbcType=BIGINT},
+            </if>
+            <if test="feedBackTime!=null">
+                feedback_time = #{feedBackTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="version!=null">
+                version = #{version,jdbcType=INTEGER} + 1,
+            </if>
+        </trim>
+        where
+          id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+    </update>
+
+
+    <select id="webListPage" parameterType="com.bit.module.cbo.vo.ResidentSuggestionVO" resultMap="suggestMap">
+        SELECT <include refid="Suggest_columns"/>
+        FROM t_cbo_resident_suggestion
+        <where>
+            <if test="beginFeedBackTime!=null and beginFeedBackTime!='' and endFeedBackTime!=null and endFeedBackTime!=''">
+                and feedback_time BETWEEN #{beginFeedBackTime,jdbcType=VARCHAR} and #{endFeedBackTime,jdbcType=VARCHAR}
+            </if>
+            <if test="beginCreateTime!=null and beginCreateTime!='' and endCreateTime!=null and endCreateTime!=''">
+                and create_time BETWEEN #{beginCreateTime,jdbcType=VARCHAR} and #{endCreateTime,jdbcType=VARCHAR}
+            </if>
+            <if test="status!=null">
+                and status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="title!=null and title!=''">
+                and title like concat("%",#{title,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="communityIds!=null and communityIds.size()>0">
+                and community_id in
+                <foreach collection="communityIds" item="id" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="orgId!=null">
+                and org_id = #{orgId,jdbcType=BIGINT}
+            </if>
+            <if test="communityId!=null">
+                and community_id = #{communityId,jdbcType=BIGINT}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="getSuggestionById" parameterType="long" resultMap="suggestMap">
+        SELECT <include refid="Suggest_columns"/>
+        FROM t_cbo_resident_suggestion
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="appListPage" parameterType="com.bit.module.cbo.vo.ResidentSuggestionVO" resultMap="suggestMap">
+        SELECT <include refid="Suggest_columns"/>
+        FROM t_cbo_resident_suggestion
+        <where>
+
+            <if test="status!=null">
+                and status = #{status,jdbcType=INTEGER}
+            </if>
+
+            <if test="communityIds!=null and communityIds.size()>0">
+                and community_id in
+                <foreach collection="communityIds" item="id" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+
+            <if test="communityId!=null">
+                and community_id = #{communityId,jdbcType=BIGINT}
+            </if>
+            <if test="createResidentId!=null">
+                and create_resident_id = #{createResidentId,jdbcType=BIGINT}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+    <delete id="delById" parameterType="long">
+        DELETE FROM t_cbo_resident_suggestion
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+</mapper>

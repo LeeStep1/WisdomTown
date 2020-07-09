@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.UserRelOaOrgDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="UserRelOaOrg_columns">
+	    <![CDATA[
+			id as id,
+			user_id as user_id,
+			org_code as org_code
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.UserRelOaOrg" id="userRelOaOrgMap">
+		<id column="id" property="id"/>
+	    <result column="user_id" property="userId"/>
+	    <result column="org_code" property="orgCode"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="userRelOaOrgMap" parameterType="com.bit.module.system.vo.UserRelOaOrgVO">
+		select <include refid="UserRelOaOrg_columns" /> from t_sys_user_rel_oa_org
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="userId != null and userId != '' " >and user_id =#{userId,jdbcType=BIGINT}</if>
+			<if test="orgCode != null and orgCode != '' " >and org_code =#{orgCode,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="userRelOaOrgMap" parameterType="String">
+		select <include refid="UserRelOaOrg_columns" /> from t_sys_user_rel_oa_org
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="userRelOaOrgMap" parameterType="com.bit.module.system.bean.UserRelOaOrg">
+		select <include refid="UserRelOaOrg_columns" /> 
+		from t_sys_user_rel_oa_org
+		where 
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.UserRelOaOrg">
+	insert INTO t_sys_user_rel_oa_org (
+		user_id ,
+		org_code 
+	) VALUES (
+		#{userId,jdbcType=BIGINT},
+		#{orgCode,jdbcType=VARCHAR}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.system.bean.UserRelOaOrg">
+		update t_sys_user_rel_oa_org
+		<set>
+		<if test="userId != null">
+		 user_id =#{userId,jdbcType=BIGINT},
+		</if>
+		<if test="orgCode != null">
+		 org_code =#{orgCode,jdbcType=VARCHAR}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.UserRelOaOrg">
+		delete from t_sys_user_rel_oa_org 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_sys_user_rel_oa_org
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+</mapper>

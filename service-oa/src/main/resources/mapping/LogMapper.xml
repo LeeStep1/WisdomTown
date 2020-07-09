@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.LogDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="log_columns">
+		id as id,
+		operator_id as operator_id,
+		ref_id as ref_id,
+		operator_name as operator_name,
+		operate as operate,
+		content as content,
+		`type` as `type`,
+		create_at as create_at
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.Log" id="logMap">
+		<id column="id" property="id"/>
+	    <result column="operator_id" property="operatorId"/>
+		<result column="ref_id" property="refId"/>
+		<result column="operator_name" property="operatorName"/>
+		<result column="operate" property="operate"/>
+		<result column="content" property="content"/>
+	    <result column="type" property="type"/>
+	    <result column="create_at" property="createAt"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="logMap">
+		select <include refid="log_columns" /> from t_oa_operation_log
+		<where>
+			<if test="type != null" >and `type` =#{type,jdbcType=TINYINT}</if>
+			<if test="refId != null" >and `ref_id` =#{refId,jdbcType=BIGINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="logMap" parameterType="com.bit.module.oa.bean.Log">
+		select <include refid="log_columns" /> from t_oa_operation_log
+		where
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+    <select id="findByRefIdAndType" resultMap="logMap">
+		select <include refid="log_columns" /> from t_oa_operation_log
+		<where>
+			<if test="refId != null">
+				and ref_id = #{refId}
+			</if>
+			<if test="type != null">
+				and `type` = #{type}
+			</if>
+ 		</where>
+		order by create_at desc
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Log">
+	insert INTO t_oa_operation_log (
+		operator_id,
+		ref_id,
+		operator_name,
+		operate,
+		content,
+		`type`,
+		create_at
+	) VALUES (
+		#{operatorId,jdbcType=BIGINT},
+		#{refId,jdbcType=BIGINT},
+		#{operatorName,jdbcType=VARCHAR},
+		#{operate,jdbcType=VARCHAR},
+		#{content,jdbcType=VARCHAR},
+		#{type,jdbcType=TINYINT},
+		#{createAt}
+	)
+	</insert>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Log">
+		delete from t_oa_operation_log
+		where
+			id = #{id,jdbcType=BIGINT}
+	</delete>
+</mapper>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.RoleDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Role_columns">
+	    <![CDATA[
+			id as id,
+			role_name as role_name,
+			role_code as role_code,
+			already_set as already_set,
+			app_id as app_id,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			update_time as update_time,
+			update_user_id as update_user_id,
+			remark as remark
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.Role" id="roleMap">
+		<id column="id" property="id"/>
+	    <result column="role_name" property="roleName"/>
+	    <result column="role_code" property="roleCode"/>
+	    <result column="already_set" property="alreadySet"/>
+	    <result column="app_id" property="appId"/>
+	    <result column="create_time" property="createTime"/>
+	    <result column="create_user_id" property="createUserId"/>
+	    <result column="update_time" property="updateTime"/>
+	    <result column="update_user_id" property="updateUserId"/>
+	    <result column="remark" property="remark"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="roleMap" parameterType="com.bit.module.system.vo.RoleVO">
+		select <include refid="Role_columns" /> from t_sys_role
+		<where>
+			<if test="id != null  " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="roleName != null and roleName != '' " >and role_name like "%"#{roleName,jdbcType=VARCHAR}"%"</if>
+			<if test="roleCode != null and roleCode != '' " >and role_code like "%"#{roleCode,jdbcType=VARCHAR}"%"</if>
+			<if test="alreadySet != null" >and already_set =#{alreadySet,jdbcType=INTEGER}</if>
+			<if test="appId != null" >and app_id =#{appId,jdbcType=TINYINT}</if>
+			<if test="createUserId != null  " >and create_user_id =#{createUserId,jdbcType=BIGINT}</if>
+			<if test="updateUserId != null  " >and update_user_id =#{updateUserId,jdbcType=BIGINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="roleMap" parameterType="String">
+		select <include refid="Role_columns" /> from t_sys_role
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="roleMap" parameterType="com.bit.module.system.bean.Role">
+		select <include refid="Role_columns" /> from t_sys_role where id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 校验角色名字不能重复 -->
+	<select id="checkRoleName" resultType="java.lang.Integer">
+		select count(1) from t_sys_role where role_name=#{roleName}
+	</select>
+
+	<!-- 校验角色编码不能重复 -->
+	<select id="checkRoleCode" resultType="java.lang.Integer">
+		select count(1) from t_sys_role where role_code=#{roleCode} and app_id=#{appId}
+	</select>
+
+	<select id="selectLikeRoleCode" resultType="string" parameterType="com.bit.module.system.bean.Role">
+		select role_code from t_sys_role where role_code like #{roleCode} and app_id=#{appId}
+	</select>
+
+	<!-- 根据应用id 查询角色 -->
+    <select id="findRoleByApp" resultType="com.bit.module.system.bean.Role">
+		select <include refid="Role_columns" /> from t_sys_role where app_id=#{appId}
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.Role">
+		insert INTO t_sys_role (
+			role_name ,
+			app_id,
+			role_code,
+			already_set,
+			create_time ,
+			create_user_id ,
+			update_time ,
+			update_user_id,
+			remark
+		) VALUES (
+			#{roleName,jdbcType=VARCHAR},
+			#{appId,jdbcType=TINYINT},
+			#{roleCode,jdbcType=VARCHAR},
+			#{alreadySet,jdbcType=INTEGER},
+			#{createTime,jdbcType=TIMESTAMP},
+			#{createUserId,jdbcType=BIGINT},
+			#{updateTime,jdbcType=TIMESTAMP},
+			#{updateUserId,jdbcType=BIGINT},
+			#{remark,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.system.bean.Role">
+		update t_sys_role
+		<set>
+		<if test="roleName != null">
+		 role_name =#{roleName,jdbcType=VARCHAR},
+		</if>
+		<if test="roleCode != null">
+		 role_code =#{roleCode,jdbcType=VARCHAR},
+		</if>
+		<if test="appId !=null">
+		 app_id =#{appId,jdbcType=TINYINT},
+		</if>
+		<if test="alreadySet !=null">
+			already_set =#{alreadySet,jdbcType=INTEGER},
+		</if>
+		<if test="createTime != null">
+		 create_time =#{createTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="createUserId != null">
+		 create_user_id =#{createUserId,jdbcType=BIGINT},
+		</if>
+		<if test="updateTime != null">
+		 update_time =#{updateTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="updateUserId != null">
+		 update_user_id =#{updateUserId,jdbcType=BIGINT},
+		</if>
+		<if test="remark != null ">
+			remark =#{remark,jdbcType=VARCHAR},
+		</if>
+		</set>
+		where  id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.Role">
+		delete from t_sys_role where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<select id="findRoleIdByUserId" resultType="java.lang.Long">
+		SELECT DISTINCT  b.role_id  FROM t_sys_user_rel_identity a, t_sys_identity_rel_role b
+		WHERE  a.`identity_id` = b.identity_id and user_id=#{userId}
+	</select>
+</mapper>

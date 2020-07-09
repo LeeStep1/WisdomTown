@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.soft.configserver.dao.ConfigDao">
+
+	<!--增加设置-->
+    <insert id="insertPropertiesSql" parameterType="com.bit.soft.configserver.bean.ConfigProperties">
+        insert INTO properties (
+			`key`,
+			`value`,
+			`application`,
+			`profile`,
+			`label`
+		) VALUES (
+			#{configProperties.key,jdbcType=VARCHAR},
+			#{configProperties.value,jdbcType=VARCHAR},
+			#{configProperties.application,jdbcType=VARCHAR},
+			#{configProperties.profile,jdbcType=VARCHAR},
+			#{configProperties.label,jdbcType=VARCHAR}
+		)
+
+    </insert>
+
+	<!--根据ID删除设置-->
+	<delete id="delPropertiesSql" parameterType="java.lang.Integer">
+		DELETE
+		FROM
+			properties
+		WHERE
+			id = #{id}
+
+	</delete>
+
+	<!--修改属性-->
+	<update id="updatePropertiesSql" parameterType="com.bit.soft.configserver.bean.ConfigProperties">
+		UPDATE properties
+		<set>
+			<if test="configProperties.key!=null">
+				`key` = #{configProperties.key,jdbcType=VARCHAR},
+			</if>
+			<if test="configProperties.value!=null">
+				`value` = #{configProperties.value,jdbcType=VARCHAR},
+			</if>
+			<if test="configProperties.application!=null">
+				`application` = #{configProperties.application,jdbcType=VARCHAR},
+			</if>
+			<if test="configProperties.profile!=null">
+				`profile` = #{configProperties.profile,jdbcType=VARCHAR},
+			</if>
+			<if test="configProperties.label!=null">
+				`label` = #{configProperties.label,jdbcType=VARCHAR}
+			</if>
+		</set>
+		where id = #{configProperties.id,jdbcType=INTEGER}
+	</update>
+
+	<!--查看属性-->
+	<select id="selectPropertiesSql" resultType="com.bit.soft.configserver.bean.ConfigProperties">
+		SELECT
+			pro.id,
+			pro.key,
+			pro.value	,
+			pro.application,
+			pro.profile,
+			pro.label
+		FROM
+			properties pro
+
+	</select>
+
+
+
+</mapper>

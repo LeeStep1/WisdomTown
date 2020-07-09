@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.LawDao">
+    <resultMap id="BaseResultMap" type="com.bit.module.sv.bean.Law">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="current_version" property="currentVersion"/>
+        <result column="publish_unit" property="publishUnit"/>
+        <result column="create_at" property="createAt"/>
+        <result column="update_at" property="updateAt"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="ranges" property="ranges" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+            id,
+            `name`,
+            current_version,
+            publish_unit,
+            create_at,
+            update_at,
+            ranges,
+            cover_url
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_law
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from t_sv_law
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Law"
+            useGeneratedKeys="true">
+        insert into t_sv_law (`name`, current_version, publish_unit,
+        create_at, update_at, ranges, cover_url
+        )
+        values (#{name,jdbcType=VARCHAR}, #{currentVersion,jdbcType=VARCHAR}, #{publishUnit,jdbcType=VARCHAR},
+        #{createAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP},
+        #{ranges,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+        #{coverUrl,jdbcType=VARCHAR} )
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Law"
+            useGeneratedKeys="true">
+        insert into t_sv_law
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="currentVersion != null">
+                current_version,
+            </if>
+            <if test="publishUnit != null">
+                publish_unit,
+            </if>
+            <if test="createAt != null">
+                create_at,
+            </if>
+            <if test="updateAt != null">
+                update_at,
+            </if>
+            <if test="ranges != null">
+                ranges,
+            </if>
+            <if test="coverUrl != null and coverUrl != ''">
+                cover_url
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="currentVersion != null">
+                #{currentVersion,jdbcType=VARCHAR},
+            </if>
+            <if test="publishUnit != null">
+                #{publishUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="createAt != null">
+                #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="ranges != null">
+                #{ranges,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            </if>
+            <if test="coverUrl != null and coverUrl != ''">
+                #{coverUrl,jdbcType=VARCHAR}
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.bit.module.sv.bean.Law">
+        update t_sv_law
+        <set>
+            <if test="name != null">
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="currentVersion != null">
+                current_version = #{currentVersion,jdbcType=VARCHAR},
+            </if>
+            <if test="publishUnit != null">
+                publish_unit = #{publishUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="ranges != null">
+                ranges = #{ranges,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            </if>
+            <if test="coverUrl != null and coverUrl != ''">
+                cover_url = #{coverUrl,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.bit.module.sv.bean.Law">
+        update t_sv_law
+        set `name` = #{name,jdbcType=VARCHAR},
+        current_version = #{currentVersion,jdbcType=VARCHAR},
+        publish_unit = #{publishUnit,jdbcType=VARCHAR},
+        create_at = #{createAt,jdbcType=TIMESTAMP},
+        update_at = #{updateAt,jdbcType=TIMESTAMP},
+        ranges = #{ranges,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+        cover_url = #{coverUrl,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.bit.module.sv.bean.Law">
+        update t_sv_law
+        set `name` = #{name,jdbcType=VARCHAR},
+        current_version = #{currentVersion,jdbcType=VARCHAR},
+        publish_unit = #{publishUnit,jdbcType=VARCHAR},
+        create_at = #{createAt,jdbcType=TIMESTAMP},
+        update_at = #{updateAt,jdbcType=TIMESTAMP},
+        cover_url = #{coverUrl,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
+        insert into t_sv_law
+        (`name`, current_version, publish_unit, create_at, update_at, ranges, cover_url)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name,jdbcType=VARCHAR}, #{item.currentVersion,jdbcType=VARCHAR},
+            #{item.publishUnit,jdbcType=VARCHAR},
+            #{item.createAt,jdbcType=TIMESTAMP}, #{item.updateAt,jdbcType=TIMESTAMP},
+            #{item.ranges,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            #{item.coverUrl,jdbcType=VARCHAR} )
+        </foreach>
+    </insert>
+    <!--分页查询-->
+    <select id="findByCondition" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_law
+        <where>
+            <if test="name != null and name != ''">
+                name LIKE CONCAT('%', #{name, jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="range != null">
+                and JSON_CONTAINS(ranges->'$[*]', CONCAT('', #{range,jdbcType=INTEGER}), '$')
+            </if>
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+    <select id="findAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sv_law
+        <where>
+            <if test="range != null">
+                and JSON_CONTAINS(ranges->'$[*]', CONCAT('', #{range,jdbcType=INTEGER}), '$')
+            </if>
+        </where>
+    </select>
+    <update id="updateLawUpdateAtById">
+        update t_sv_law set update_at = NOW() where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

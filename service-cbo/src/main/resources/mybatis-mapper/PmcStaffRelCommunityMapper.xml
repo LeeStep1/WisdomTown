@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.PmcStaffRelCommunityDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PmcStaff_Rel_Community_columns">
+	    <![CDATA[
+			id as id,
+			staff_id as staff_id,
+			org_id as org_id,
+			community_id as community_id
+	    ]]>
+	</sql>
+
+    <!-- 新增物业员工和小区绑定 -->
+    <insert id="add" parameterType="com.bit.module.cbo.bean.PmcStaffRelCommunity">
+        INSERT INTO t_cbo_pmc_staff_rel_community(staff_id,org_id,community_id)
+        VALUES
+        <foreach collection="list" item="item"  separator="," index="index">
+            (
+                #{item.staffId},
+                #{item.orgId},
+                #{item.communityId}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 根据物业人员ID删除原有小区关系 -->
+    <delete id="deleteByPmcStaffId" parameterType="java.lang.Long">
+        DELETE FROM t_cbo_pmc_staff_rel_community
+        WHERE
+          staff_id = #{pmcStaffId}
+    </delete>
+
+
+    <!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.cbo.bean.PmcStaffRelCommunity" id="pmcStaffRelCommunityMap">
+		<id column="id" property="id"/>
+		<result column="staff_id" property="staffId"/>
+        <result column="org_id" property="orgId"/>
+        <result column="community_id" property="communityId"/>
+	</resultMap>
+
+
+    <select id="findByParam" resultType="com.bit.module.cbo.bean.PmcStaffRelCommunity" parameterType="com.bit.module.cbo.bean.PmcStaffRelCommunity">
+        SELECT <include refid="PmcStaff_Rel_Community_columns"/>
+        FROM t_cbo_pmc_staff_rel_community
+        <where>
+            <if test="staffId!=null">and staff_id = #{staffId,jdbcType=BIGINT}</if>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <!-- 根据物业员工ID批量查询所属小区 -->
+    <select id="findByStaffIds" parameterType="java.lang.Long"
+            resultType="com.bit.module.cbo.vo.PmcStaffRelCommunityVO">
+        SELECT
+            trc.staff_id staffId,
+            trc.org_id orgId,
+            GROUP_CONCAT(trc.community_id) communityids,
+            GROUP_CONCAT(tcc.community_name) communityName
+        FROM
+            t_cbo_pmc_staff_rel_community trc,
+            t_cbo_community tcc
+        WHERE
+            trc.community_id = tcc.id
+        AND trc.staff_id IN
+        <foreach collection="staffIds" item="ids" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+        GROUP BY trc.staff_id
+    </select>
+
+    <!-- 检测根据小区判断是否关联物业公司人员 -->
+    <select id="staffByCommunityCount" resultType="java.lang.Integer">
+        SELECT
+            count(t.id) count
+        FROM
+            t_cbo_pmc_staff_rel_community t
+        WHERE
+            t.community_id = #{communityId}
+    </select>
+
+    <select id="getStaffInfosByCommunityIds" parameterType="list" resultType="com.bit.module.cbo.bean.PmcStaff">
+        SELECT t2.`name`,t2.mobile,t3.community_name as communityName FROM `t_cbo_pmc_staff_rel_community` t1
+        INNER JOIN t_cbo_pmc_staff t2
+        on t1.staff_id = t2.id
+        INNER JOIN t_cbo_community t3
+        on t1.community_id = t3.id
+        <where>
+            <if test="communityIds!=null and communityIds.size()>0">
+                and t1.community_id IN
+                <foreach collection="communityIds" item="id" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="role!=null">
+                and t2.role = #{role,jdbcType=INTEGER}
+            </if>
+            and t2.id != #{staffId,jdbcType=BIGINT}
+        </where>
+    </select>
+
+    <delete id="delByIds" parameterType="list">
+        DELETE FROM t_cbo_pmc_staff_rel_community
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>
+</mapper>

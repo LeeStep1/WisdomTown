@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.IdentityRelRoleDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="IdentityRelRole_columns">
+	    <![CDATA[
+			id as id,
+			identity_id as identity_id,
+			role_id as role_id
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.IdentityRelRole" id="identityRelRoleMap">
+		<id column="id" property="id"/>
+	    <result column="identity_id" property="identityId"/>
+	    <result column="role_id" property="roleId"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="identityRelRoleMap" parameterType="com.bit.module.system.vo.IdentityRelRoleVO">
+		select <include refid="IdentityRelRole_columns" /> from t_sys_identity_rel_role
+		<where>
+			<if test="id != null " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="identityId != null  " >and identity_id =#{identityId,jdbcType=BIGINT}</if>
+			<if test="roleId != null  " >and role_id =#{roleId,jdbcType=BIGINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="identityRelRoleMap" parameterType="String">
+		select <include refid="IdentityRelRole_columns" /> from t_sys_identity_rel_role
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="identityRelRoleMap" parameterType="com.bit.module.system.bean.IdentityRelRole">
+		select <include refid="IdentityRelRole_columns" /> 
+		from t_sys_identity_rel_role
+		where id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 根据身份id查询中间表list -->
+	<select id="findByIdentityId" resultType="com.bit.module.system.bean.IdentityRelRole">
+		select <include refid="IdentityRelRole_columns" />
+		from t_sys_identity_rel_role
+		where identity_id =#{identityId,jdbcType=BIGINT}
+	</select>
+
+	<!-- 根据角色id查询统计 -->
+    <select id="findCountByRoleId" resultType="java.lang.Integer">
+		select count(1) from t_sys_identity_rel_role where role_id =#{roleId,jdbcType=BIGINT}
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.IdentityRelRole">
+		insert INTO t_sys_identity_rel_role (
+			identity_id ,
+			role_id
+		) VALUES (
+			#{identityId,jdbcType=BIGINT},
+			#{roleId,jdbcType=BIGINT}
+		)
+	</insert>
+
+	<!-- 批量添加 -->
+	<insert id="batchAdd"  parameterType="java.util.List">
+		insert INTO t_sys_identity_rel_role (
+			identity_id ,
+			role_id
+		) VALUES
+		<foreach collection="list" index="index" item="item" separator=",">
+			(#{item.identityId,jdbcType=BIGINT},
+			#{item.roleId,jdbcType=BIGINT}
+			)
+		</foreach>
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.system.bean.IdentityRelRole">
+		update t_sys_identity_rel_role
+		<set>
+		<if test="identityId != null">
+		 identity_id =#{identityId,jdbcType=BIGINT},
+		</if>
+		<if test="roleId != null">
+		 role_id =#{roleId,jdbcType=BIGINT}
+		</if>
+		</set>
+		where  id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.IdentityRelRole">
+		delete from t_sys_identity_rel_role 
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		delete from t_sys_identity_rel_role where id in
+		<foreach collection="ids" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 根据身份id删除 -->
+	<delete id="delByIndentityId">
+		delete from t_sys_identity_rel_role where identity_id =#{identityId,jdbcType=BIGINT}
+	</delete>
+
+</mapper>

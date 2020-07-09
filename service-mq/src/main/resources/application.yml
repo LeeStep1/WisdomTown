@@ -1,0 +1,29 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://200.200.3.38:8081/eureka/
+      #healthCheck:
+      #enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+server:
+  port: 8087
+spring:
+  application:
+    name: service-mq
+  rabbitmq:
+      host: 101.201.235.239
+      port: 5672
+      username: guest
+      password: guest
+      # 开启发送确认
+      publisher-confirms: true
+      # 开启发送失败退回
+      publisher-returns: true
+      # 开启ACK
+      listener.direct.acknowledge-mode: manual
+      listener.simple.acknowledge-mode: manual
+  data:
+    mongodb:
+      uri: mongodb://tester:1qaz2wsx@101.201.235.239:27017/test

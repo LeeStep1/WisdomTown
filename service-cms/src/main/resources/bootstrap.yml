@@ -1,0 +1,88 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8081/eureka/
+    #healthCheck:
+      #enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+server:
+  port: 8087
+spring:
+  application:
+    name: service-cms
+  cloud:
+    config:
+      discovery:
+        enabled: true # 通过服务发现的方式去找配置中心
+        serviceId: config_server # 配置中心的名字，直接配置名称可以在配置中心集群的时候实现负载均衡
+      profile: dev # 对应配置中心文件的${profile}部分
+    bus:
+      enabled: true
+  rabbitmq:
+      host: 101.201.235.239
+      port: 5672
+      username: guest
+      password: guest
+  datasource:
+    #name: test
+    #url: jdbc:mysql://dev.mysql1:3306/wt_pb?characterEncoding=utf-8
+    url: jdbc:mysql://101.201.235.239:3306/wt_cms?characterEncoding=utf-8
+    username: develop
+    #使用远程的配置中心的参数
+    #password: W5dAJxRr)A]p
+    password: bit2019!Q2w3e
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+  data:
+    mongodb:
+      uri: mongodb://tester:1qaz2wsx@101.201.235.239:27017/test
+hystrix:
+  threadpool:
+    default:
+      coreSize: 500  #并发执行的最大线程数，默认10
+  command:
+    paas-file:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 36000
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 8000  #命令执行超时时间，默认1000ms
+management:
+  security:
+    enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh
+
+fastdfs:
+  address: http://101.201.235.239:8888
+  maxFileSize: 20MB
+  maxRequestSize: 20MB
+
+ribbon:
+  ReadTimeout: 6000
+  ConnectTimeout: 6000
+  MaxAutoRetries: 1 #同一台实例最大重试次数,不包括首次调用
+  MaxAutoRetriesNextServer: 1 #重试负载均衡其他的实例最大重试次数,不包括首次调用
+  OkToRetryOnAllOperations: false  #是否所有操作都重试

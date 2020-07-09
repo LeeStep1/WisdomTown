@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.manager.dao.PortalOaLeaderDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PortalOaLeader_columns">
+	    <![CDATA[
+			id as id,
+			rank as rank,
+			duty_code as duty_code,
+			name as name,
+			duty_detail as duty_detail,
+		
+			individual_resume as individual_resume,
+			img_id as img_id,
+			img_url as img_url,
+			status as status,
+			category_id as category_id,
+		
+			operation_user_id as operation_user_id,
+			operation_user_name as operation_user_name
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.manager.bean.PortalOaLeader" id="portalOaLeaderMap">
+		<id column="id" property="id"/>
+	    <result column="rank" property="rank"/>
+	    <result column="duty_code" property="dutyCode"/>
+	    <result column="name" property="name"/>
+	    <result column="duty_detail" property="dutyDetail"/>
+	    <result column="individual_resume" property="individualResume"/>
+	    <result column="img_id" property="imgId"/>
+	    <result column="img_url" property="imgUrl"/>
+	    <result column="status" property="status"/>
+	    <result column="category_id" property="categoryId"/>
+	    <result column="operation_user_id" property="operationUserId"/>
+	    <result column="operation_user_name" property="operationUserName"/>
+	</resultMap>
+
+	<!-- 查询全部 -->
+	<select id="findAll" parameterType="java.lang.Integer"
+			resultType="com.bit.module.manager.bean.PortalOaLeader">
+		select
+			t.id as id,
+			t.rank as rank,
+			t.duty_code as dutyCode,
+			t.name as name,
+			t.img_id as img_id,
+			t.img_url as img_url,
+			t.status as status,
+			t.category_id as category_id
+		from
+			t_portal_oa_leader t
+		WHERE
+			t.del_status = #{delStatus}
+		order by ${sort}
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="portalOaLeaderMap" parameterType="com.bit.module.manager.bean.PortalOaLeader">
+		select <include refid="PortalOaLeader_columns" /> 
+			from t_portal_oa_leader
+		where 
+        	id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.manager.bean.PortalOaLeader"  keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+	insert INTO t_portal_oa_leader (
+		<if test="rank!=null">
+			rank ,
+		</if>
+		<if test="dutyCode!=null">
+			duty_code ,
+		</if>
+		<if test="name!=null and name!=''">
+			name ,
+		</if>
+		<if test="dutyDetail!=null and dutyDetail!=''">
+			duty_detail ,
+		</if>
+		<if test="individualResume!=null and individualResume!=''">
+			individual_resume ,
+		</if>
+		<if test="imgId!=null">
+			img_id ,
+		</if>
+		<if test="imgUrl!=null and imgUrl!=''">
+			img_url ,
+		</if>
+		<if test="status!=null">
+			status ,
+		</if>
+		<if test="categoryId!=null">
+			category_id ,
+		</if>
+		operation_user_id ,
+		operation_user_name 
+	) VALUES (
+		<if test="rank!=null">
+			#{rank,jdbcType=INTEGER},
+		</if>
+		<if test="dutyCode!=null">
+			#{dutyCode,jdbcType=INTEGER},
+		</if>
+		<if test="name!=null and name!=''">
+			#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="dutyDetail!=null and dutyDetail!=''">
+			#{dutyDetail,jdbcType=VARCHAR},
+		</if>
+		<if test="individualResume!=null and individualResume!=''">
+			#{individualResume,jdbcType=VARCHAR},
+		</if>
+		<if test="imgId!=null">
+			#{imgId,jdbcType=BIGINT},
+		</if>
+		<if test="imgUrl!=null and imgUrl!=''">
+			#{imgUrl,jdbcType=VARCHAR},
+		</if>
+		<if test="status!=null">
+			#{status,jdbcType=TINYINT},
+		</if>
+		<if test="categoryId!=null">
+			#{categoryId,jdbcType=BIGINT},
+		</if>
+		#{operationUserId,jdbcType=BIGINT},
+		#{operationUserName,jdbcType=VARCHAR}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.manager.bean.PortalOaLeader">
+		update t_portal_oa_leader
+		<set>
+		<if test="rank != null">
+		 rank =#{rank,jdbcType=INTEGER},
+		</if>
+		<if test="dutyCode != null">
+		 duty_code =#{dutyCode,jdbcType=INTEGER},
+		</if>
+		<if test="name != null">
+		 name =#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="dutyDetail != null">
+		 duty_detail =#{dutyDetail,jdbcType=VARCHAR},
+		</if>
+		<if test="individualResume != null">
+		 individual_resume =#{individualResume,jdbcType=VARCHAR},
+		</if>
+		<if test="imgId != null">
+		 img_id =#{imgId,jdbcType=BIGINT},
+		</if>
+		<if test="imgUrl != null">
+		 img_url =#{imgUrl,jdbcType=VARCHAR},
+		</if>
+		<if test="status != null">
+		 status =#{status,jdbcType=TINYINT},
+		</if>
+		<if test="categoryId != null">
+		 category_id =#{categoryId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserId != null">
+		 operation_user_id =#{operationUserId,jdbcType=BIGINT},
+		</if>
+		<if test="operationUserName != null">
+		 operation_user_name =#{operationUserName,jdbcType=VARCHAR}
+		</if>
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT}
+
+	</update>
+
+	<!-- 领导介绍排序 -->
+    <update id="batchUpdateRank" parameterType="com.bit.module.manager.bean.PortalOaLeader">
+		UPDATE t_portal_oa_leader
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="rank = case" suffix="end,">
+				<foreach collection="list" item="item" index="index" >
+					<if test="item.rank!=null">
+						WHEN id = #{item.id,jdbcType=BIGINT} then #{item.rank,jdbcType=INTEGER}
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		<where>
+			<foreach collection="list" item="item" index="index" separator=") or (" close=")" open="(">
+				id = #{item.id,jdbcType=BIGINT}
+			</foreach>
+
+		</where>
+	</update>
+
+    <!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.manager.bean.PortalOaLeader">
+		update t_portal_oa_leader set
+			del_status = #{portalOaLeader.delStatus,jdbcType=BIGINT}
+		where
+			id = #{portalOaLeader.id,jdbcType=BIGINT}
+	</delete>
+</mapper>

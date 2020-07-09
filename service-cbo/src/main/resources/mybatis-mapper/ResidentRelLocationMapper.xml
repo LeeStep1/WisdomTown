@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.ResidentRelLocationDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Resident_Rel_Location_columns">
+	    <![CDATA[
+			id as id,
+			resident_id as resident_id,
+			org_id as org_id,
+			community_id as community_id,
+			address_id as address_id,
+			identity_type as identity_type,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			update_user_id as update_user_id,
+			update_time as update_time
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.cbo.bean.ResidentRelLocation" id="residentRelLocationMap">
+		<id column="id" property="id"/>
+		<result column="resident_id" property="residentId"/>
+        <result column="org_id" property="orgId"/>
+        <result column="community_id" property="communityId"/>
+		<result column="address_id" property="addressId"/>
+        <result column="identity_type" property="identityType"/>
+        <result column="create_time" property="createTime"/>
+		<result column="create_user_id" property="createUserId"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_user_id" property="updateUserId"/>
+	</resultMap>
+
+
+    <select id="findByParam" resultType="com.bit.module.cbo.bean.ResidentRelLocation" parameterType="com.bit.module.cbo.bean.ResidentRelLocation">
+        SELECT <include refid="Resident_Rel_Location_columns"/>
+        FROM t_cbo_resident_rel_location
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="addressId!=null">and address_id = #{addressId,jdbcType=BIGINT}</if>
+            <if test="identityType!=null">and identity_type = #{identityType,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+    <select id="findByParamBatchOrgIds" resultType="com.bit.module.cbo.bean.ResidentRelLocation" parameterType="com.bit.module.cbo.vo.ResidentRelLocationVO">
+        SELECT <include refid="Resident_Rel_Location_columns"/>
+        FROM t_cbo_resident_rel_location
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="addressId!=null">and address_id = #{addressId,jdbcType=BIGINT}</if>
+            <if test="identityType!=null">and identity_type = #{identityType,jdbcType=INTEGER}</if>
+            <if test="orgIds!=null and orgIds.size()>0">
+                and org_id in
+                <foreach collection="orgIds" item="orgId" index="index" open="(" separator="," close=")">
+                    #{orgId,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="findByParamWithLocation" resultType="com.bit.module.cbo.vo.ResidentRelLocationVO" parameterType="com.bit.module.cbo.bean.ResidentRelLocation">
+        SELECT t1.*,t2.address_code,t3.community_name
+        FROM t_cbo_resident_rel_location t1
+        INNER JOIN t_cbo_location t2
+        on t1.address_id = t2.id
+        INNER JOIN t_cbo_community t3
+        on t1.community_id = t3.id
+        <where>
+            <if test="residentId!=null">and t1.resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="orgId!=null">and t1.org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and t1.community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="addressId!=null">and t1.address_id = #{addressId,jdbcType=BIGINT}</if>
+            <if test="identityType!=null">and t1.identity_type = #{identityType,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+
+    <insert id="add" parameterType="com.bit.module.cbo.bean.ResidentRelLocation" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO t_cbo_resident_rel_location
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="residentId!=null">
+                resident_id,
+            </if>
+            <if test="orgId!=null">
+                org_id,
+            </if>
+            <if test="communityId!=null">
+                community_id,
+            </if>
+            <if test="addressId!=null">
+                address_id,
+            </if>
+            <if test="identityType!=null">
+                identity_type,
+            </if>
+            <if test="createUserId!=null">
+                create_user_id,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="updateUserId!=null">
+                update_user_id,
+            </if>
+            <if test="updateTime!=null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="residentId!=null">
+                #{residentId,jdbcType=BIGINT},
+            </if>
+            <if test="orgId!=null">
+                #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="communityId!=null">
+                #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="addressId!=null">
+                #{addressId,jdbcType=BIGINT},
+            </if>
+            <if test="identityType!=null">
+                #{identityType,jdbcType=INTEGER},
+            </if>
+            <if test="createUserId!=null">
+                #{createUserId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId!=null">
+                #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="delByResidentIdAndOrgId">
+        DELETE FROM t_cbo_resident_rel_location
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+        </where>
+    </delete>
+
+    <insert id="batchAddResidentRelLocation" parameterType="com.bit.module.cbo.bean.ResidentRelLocation">
+        INSERT INTO t_cbo_resident_rel_location (
+          resident_id,
+          org_id,
+          community_id,
+          address_id,
+          identity_type,
+          create_user_id,
+          create_time,
+          update_user_id,
+          update_time
+        )
+        values
+        <foreach collection="residentRelLocations" index="index" item="item" separator=",">
+            (
+            #{item.residentId,jdbcType=BIGINT},
+            #{item.orgId,jdbcType=BIGINT},
+            #{item.communityId,jdbcType=BIGINT},
+            #{item.addressId,jdbcType=BIGINT},
+            #{item.identityType,jdbcType=INTEGER},
+            #{item.createUserId,jdbcType=BIGINT},
+            #{item.createTime,jdbcType=TIMESTAMP},
+            #{item.updateUserId,jdbcType=BIGINT},
+            #{item.updateTime,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+    
+    <delete id="delById" parameterType="long">
+        DELETE FROM t_cbo_resident_rel_location
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <select id="getResidentRelLocationById" parameterType="long" resultMap="residentRelLocationMap">
+        SELECT <include refid="Resident_Rel_Location_columns"/>
+        FROM t_cbo_resident_rel_location
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="batchSelectRecordByAddressId" parameterType="long" resultMap="residentRelLocationMap">
+        SELECT <include refid="Resident_Rel_Location_columns"/>
+        FROM t_cbo_resident_rel_location
+        WHERE address_id in
+        <foreach collection="roomIds" item="id" separator="," open="(" close=")" index="index">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="getResidentInfoByAddressId" parameterType="com.bit.module.cbo.vo.ResidentRelLocationVO" resultType="com.bit.module.cbo.vo.ResidentVO">
+        SELECT t2.real_name,
+        t2.sex,
+        t2.birthday,
+        t2.card_type,
+        t2.card_num,
+        t2.mobile,
+        t1.identity_type
+        FROM t_cbo_resident_rel_location t1
+        INNER JOIN t_cbo_resident t2
+        on t1.resident_id = t2.id
+        <where>
+            <if test="addressId!=null">and t1.address_id = #{addressId,jdbcType=BIGINT}</if>
+            <if test="identityType!=null">and t1.identity_type = #{identityType,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+    <select id="getAddressByResidentId" parameterType="long" resultType="com.bit.module.cbo.vo.ResidentRelLocationVO">
+        SELECT t1.*, t2.full_name as addressFullName FROM t_cbo_resident_rel_location t1
+        INNER JOIN t_cbo_location t2
+        on t1.address_id = t2.id
+        <where>
+            <if test="residentId!=null">and t1.resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and t1.community_id = #{communityId,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+</mapper>

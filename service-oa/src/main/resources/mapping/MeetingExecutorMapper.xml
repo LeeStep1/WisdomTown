@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.MeetingExecutorDao">
+    <resultMap id="BaseResultMap" type="com.bit.module.oa.bean.MeetingExecutor">
+        <id column="id" property="id"/>
+        <result column="meeting_id" property="meetingId"/>
+        <result column="participant_id" property="participantId"/>
+        <result column="participant_name" property="participantName"/>
+        <result column="dep_id" property="depId"/>
+        <result column="dep_name" property="depName"/>
+        <result column="check_in_at" property="checkInAt"/>
+        <result column="check_in_type" property="checkInType"/>
+        <result column="late" property="late"/>
+        <result column="create_at" property="createAt"/>
+    </resultMap>
+    <resultMap id="pageMap" type="com.bit.module.oa.vo.meeting.MeetingExecutorPageVO" extends="BaseResultMap">
+        <result column="meeting_title" property="meetingTitle"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, meeting_id, participant_id, participant_name, dep_id, dep_name, check_in_at,
+        check_in_type, late, create_at
+    </sql>
+
+    <select id="findByConditionPage" resultMap="pageMap">
+        select
+            e.id as id, e.meeting_id as meeting_id, m.title as meeting_title,
+            e.participant_id as participant_id, e.participant_name as participant_name, e.dep_id as dep_id,
+            e.dep_name as dep_name, e.check_in_at as check_in_at,
+            e.check_in_type as check_in_type, e.late as late, e.create_at as create_at,
+            m.start_time as start_time, m.end_time as end_time
+        from t_oa_meeting_executor e left join t_oa_meeting m on m.id = e.meeting_id
+        <where>
+            meeting_id = #{meetingId,jdbcType=BIGINT}
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_oa_meeting_executor
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from t_oa_meeting_executor
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.bit.module.oa.bean.MeetingExecutor">
+        insert into t_oa_meeting_executor (id, meeting_id, participant_id,
+        participant_name, dep_id, dep_name,
+        check_in_at, check_in_type,
+        late, create_at)
+        values (#{id,jdbcType=BIGINT}, #{meetingId,jdbcType=BIGINT}, #{participantId,jdbcType=BIGINT},
+        #{participantName,jdbcType=VARCHAR}, #{depId,jdbcType=BIGINT}, #{depName,jdbcType=VARCHAR},
+        #{checkInAt,jdbcType=TIMESTAMP}, #{checkInType,jdbcType=TINYINT},
+        #{late,jdbcType=BIT}, #{createAt,jdbcType=TIMESTAMP})
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.bit.module.oa.bean.MeetingExecutor">
+        update t_oa_meeting_executor
+        <set>
+            <if test="meetingId != null">
+                meeting_id = #{meetingId,jdbcType=BIGINT},
+            </if>
+            <if test="participantId != null">
+                participant_id = #{participantId,jdbcType=BIGINT},
+            </if>
+            <if test="participantName != null">
+                participant_name = #{participantName,jdbcType=VARCHAR},
+            </if>
+            <if test="depId != null">
+                dep_id = #{depId,jdbcType=BIGINT},
+            </if>
+            <if test="depName != null">
+                dep_name = #{depName,jdbcType=VARCHAR},
+            </if>
+            <if test="checkInAt != null">
+                check_in_at = #{checkInAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="checkInType != null">
+                check_in_type = #{checkInType,jdbcType=TINYINT},
+            </if>
+            <if test="late != null">
+                late = #{late,jdbcType=BIT},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.bit.module.oa.bean.MeetingExecutor">
+        update t_oa_meeting_executor
+        set meeting_id = #{meetingId,jdbcType=BIGINT},
+        participant_id = #{participantId,jdbcType=BIGINT},
+        participant_name = #{participantName,jdbcType=VARCHAR},
+        dep_id = #{depId,jdbcType=BIGINT},
+        dep_name = #{depName,jdbcType=VARCHAR},
+        check_in_at = #{checkInAt,jdbcType=TIMESTAMP},
+        check_in_type = #{checkInType,jdbcType=TINYINT},
+        late = #{late,jdbcType=BIT},
+        create_at = #{createAt,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <insert id="batchInsert" parameterType="map">
+        insert into t_oa_meeting_executor
+        (meeting_id, participant_id, participant_name, dep_id, dep_name, check_in_at,
+        check_in_type, create_at)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.meetingId,jdbcType=BIGINT}, #{item.participantId,jdbcType=BIGINT},
+            #{item.participantName,jdbcType=VARCHAR}, #{item.depId,jdbcType=BIGINT}, #{item.depName,jdbcType=VARCHAR},
+            #{item.checkInAt,jdbcType=TIMESTAMP}, #{item.checkInType,jdbcType=TINYINT},
+            #{item.createAt,jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+    <insert id="upsertMeetingExecutor" parameterType="com.bit.module.oa.bean.MeetingExecutor">
+        insert into t_oa_meeting_executor
+        (meeting_id, participant_id, participant_name, dep_id, dep_name, check_in_at,
+        check_in_type, late, create_at)
+        values
+        (#{meetingId,jdbcType=BIGINT}, #{participantId,jdbcType=BIGINT},
+        #{participantName,jdbcType=VARCHAR}, #{depId,jdbcType=BIGINT}, #{depName,jdbcType=VARCHAR},
+        #{checkInAt,jdbcType=TIMESTAMP}, #{checkInType,jdbcType=TINYINT},
+        #{late,jdbcType=BIT}, #{createAt,jdbcType=TIMESTAMP})
+        on duplicate key update
+        dep_id = #{depId,jdbcType=BIGINT},
+        dep_name = #{depName,jdbcType=VARCHAR},
+        check_in_at = #{checkInAt,jdbcType=TIMESTAMP},
+        check_in_type = #{checkInType,jdbcType=TINYINT},
+        late = #{late,jdbcType=BIT}
+    </insert>
+
+    <delete id="deleteByMeetingId">
+        delete from  t_oa_meeting_executor
+        where meeting_id=#{meetingId}
+    </delete>
+    <select id="findScheduleByCondition" resultMap="com.bit.module.oa.dao.MeetingDao.scheduleMap">
+        select m.id as id, m.title as title, m.start_time as start_time,
+                m.end_time as end_time, #{userId} as user_id, 1 as type
+        from t_oa_meeting_executor e left join t_oa_meeting m on e.meeting_id = m.id
+        <where>
+            e.participant_id = #{userId,jdbcType=BIGINT} and m.status in (3,4,6)
+            <if test="startTime != null and endTime != null">
+                and (start_time between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d
+                %T')
+                and end_time between DATE_FORMAT(#{startTime}, '%Y-%m-%d %T') and DATE_FORMAT(#{endTime}, '%Y-%m-%d %T'))
+            </if>
+        </where>
+    </select>
+    <select id="findCheckInExecutorByMeetingId" resultMap="pageMap">
+        select
+        e.id as id, e.meeting_id as meeting_id, m.title as meeting_title,
+        e.participant_id as participant_id, e.participant_name as participant_name, e.dep_id as dep_id,
+        e.dep_name as dep_name, e.check_in_at as check_in_at,
+        e.check_in_type as check_in_type, e.late as late, e.create_at as create_at,
+        m.start_time as start_time, m.end_time as end_time
+        from t_oa_meeting_executor e left join t_oa_meeting m on m.id = e.meeting_id
+        <where>
+            meeting_id = #{meetingId,jdbcType=BIGINT} and participant_id = #{userId,jdbcType=BIGINT}
+        </where>
+    </select>
+
+</mapper>

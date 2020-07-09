@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.ZoneDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Zone_columns">
+	    <![CDATA[
+			id as id,
+			`name` as name,
+			`principal_name` as principal_name,
+			`status` AS `status`
+	    ]]>
+	</sql>
+	<sql id="Zone_simple_columns">
+		id as id,
+		name as name
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.Zone" id="zoneMap">
+		<id column="id" property="id"/>
+	    <result column="name" property="name"/>
+		<result column="principal_name" property="principalName"/>
+	    <result column="status" property="status"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.vo.zone.SimpleZoneVO" id="zoneSimpleMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.vo.zone.ZoneSpotVO" id="zoneSpotMap">
+		<id column="id" property="id"/>
+		<result column="zoneName" property="zoneName"/>
+		<collection property="spots" column="{name=spotName,zoneId=id,status=status}" ofType="com.bit.module.oa.bean.Spot"
+					javaType="java.util.List" select="com.bit.module.oa.dao.SpotDao.findByNameAndZoneIdAndStatus" fetchType="eager"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="zoneMap" parameterType="com.bit.module.oa.vo.zone.ZoneVO">
+		select <include refid="Zone_columns" /> from t_oa_inspect_zone
+		<where>
+			<if test="name != null and name != '' " >and name like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="zoneSimpleMap" parameterType="String">
+		select <include refid="Zone_simple_columns" /> from t_oa_inspect_zone
+		where `status` = 1
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="zoneMap" parameterType="com.bit.module.oa.bean.Zone">
+		select <include refid="Zone_columns" />
+		from t_oa_inspect_zone
+		where
+        	id =#{id,jdbcType=BIGINT}
+
+	</select>
+	<select id="findZoneSpotVO" resultMap="zoneSpotMap">
+		select id as id, name as zoneName, IFNULL(#{name},'') as spotName, IFNULL(#{status},null) as status from t_oa_inspect_zone
+		<if test="status != null">
+			where status = #{status}
+		</if>
+	</select>
+    <select id="existAvailableZone" resultType="java.lang.Integer">
+		select count(id) from wt_oa.t_oa_inspect_zone
+		<where>
+			`status` = 1
+			<if test="id != null">
+			 and id = #{id, jdbcType=BIGINT}
+			</if>
+		</where>
+	</select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.oa.bean.Zone">
+	insert INTO t_oa_inspect_zone (
+		name ,
+		principal_name,
+		`status`
+	) VALUES (
+		#{name,jdbcType=VARCHAR},
+		#{principalName,jdbcType=VARCHAR},
+		#{status,jdbcType=TINYINT}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.Zone">
+		update t_oa_inspect_zone
+		<set>
+		<if test="name != null and name != ''">
+			name =#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="principalName != null and principalName != ''">
+			principal_name =#{principalName,jdbcType=VARCHAR},
+		</if>
+		<if test="status != null">
+			status =#{status,jdbcType=TINYINT}
+		</if>
+		</set>
+		where
+			 id = #{id,jdbcType=BIGINT}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.Zone">
+		delete from t_oa_inspect_zone
+		where
+			id = #{id,jdbcType=BIGINT}
+	</delete>
+	<update id="updateStatus">
+		update t_oa_inspect_zone set `status` = #{status,jdbcType=TINYINT} where id = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

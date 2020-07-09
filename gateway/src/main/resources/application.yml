@@ -1,0 +1,118 @@
+ribbon:
+  ReadTimeout: 3000
+  ConnectTimeout: 3000
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8081/eureka/
+    healthCheck:
+      enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+spring:
+  application:
+    name: gateway
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  cache:
+    type: redis
+    cache-names: permission
+    redis:
+      time-to-live: 300000
+      cache-null-values: true
+  datasource:
+    #name: test
+    url: jdbc:mysql://101.201.235.239:3306/wt_sys?characterEncoding=utf-8
+    #    url: jdbc:mysql://39.106.84.9:3306/wt_sys?characterEncoding=utf-8
+    username: develop
+    #    username: root
+    #使用远程的配置中心的参数
+    password: bit2019!Q2w3e
+    #    password: W5dAJxRr)A]p
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+server:
+  port: 8084
+feign:
+  hystrix:
+    enabled: true
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+zuul:
+  #ignored-services: microservice-provider-system          # 需要忽视的服务(配置后将不会被路由)
+  routes:
+    service1:                                              # 可以随便写，在zuul上面唯一即可；当这里的值 = service-id时，service-id可以不写。
+      path: /sys/**                                        # 想要映射到的路径
+      service-id: service-sys    # Eureka中的serviceId
+    service2:                                              # 可以随便写，在zuul上面唯一即可；当这里的值 = service-id时，service-id可以不写。
+      path: /pb/**                                   # 想要映射到的路径
+      service-id: service-pb    # Eureka中的serviceId
+    service3:                                              # 可以随便写，在zuul上面唯一即可；当这里的值 = service-id时，service-id可以不写。
+      path: /file/**                                   # 想要映射到的路径
+      service-id: service-file    # Eureka中的serviceId
+    service4:                                              # 可以随便写，在zuul上面唯一即可；当这里的值 = service-id时，service-id可以不写。
+      path: /oa/**                                   # 想要映射到的路径
+      service-id: service-oa    # Eureka中的serviceId
+    service5:                                              # 可以随便写，在zuul上面唯一即可；当这里的值 = service-id时，service-id可以不写。
+      path: /official/**                                   # 想要映射到的路径
+      service-id: service-official-doc
+    service6:                                              # 可以随便写，在zuul上面唯一即可；当这里的值 = service-id时，service-id可以不写。
+      path: /vol/**                                   # 想要映射到的路径
+      service-id: service-vol
+    service7:
+      path: /cms/**
+      service-id: service-cms
+    service8:
+      path: /sv/**
+      service-id: service-sv
+    service9:
+      path: /cbo/**
+      service-id: service-cbo
+    service10:
+        path: /ep/**
+        service-id: service-sv
+    service11:
+        path: /uc/**
+        service-id: service-sv
+  # Eureka中的serviceId
+redis:
+  hostName: 101.201.235.239
+  port: 6379
+  timeout: 30
+  maxIdle: 300
+  maxTotal: 1000
+  maxWaitMillis: 1000
+  minEvictableIdleTimeMillis: 300000
+  numTestsPerEvictionRun: 1024
+  timeBetweenEvictionRunsMillis: 30000
+  testOnBorrow: true
+  testWhileIdle: true
+  password: bit2019
+mybatis:
+  mapper-locations: classpath:mybatis-mapper/*.xml
+  config-location:  classpath:mybatis-config.xml

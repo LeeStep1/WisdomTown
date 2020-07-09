@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.sv.dao.ProjectDao">
+  <resultMap id="BaseResultMap" type="com.bit.module.sv.bean.Project">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="building_unit_id" jdbcType="BIGINT" property="buildingUnitId" />
+    <result column="building_unit" jdbcType="VARCHAR" property="buildingUnit" />
+    <result column="supervising_unit_id" jdbcType="BIGINT" property="supervisingUnitId" />
+    <result column="supervising_unit" jdbcType="VARCHAR" property="supervisingUnit" />
+    <result column="construction_unit_id" jdbcType="BIGINT" property="constructionUnitId" />
+    <result column="construction_unit" jdbcType="VARCHAR" property="constructionUnit" />
+    <result column="category" jdbcType="INTEGER" property="category" />
+    <result column="cost" jdbcType="DOUBLE" property="cost" />
+    <result column="area" jdbcType="DOUBLE" property="area" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="lng" jdbcType="DOUBLE" property="lng" />
+    <result column="lat" jdbcType="DOUBLE" property="lat" />
+    <result column="start_at" jdbcType="TIMESTAMP" property="startAt" />
+    <result column="end_at" jdbcType="TIMESTAMP" property="endAt" />
+    <result column="hazard" jdbcType="OTHER" property="hazard" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="attach" jdbcType="OTHER" property="attach" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+    <result column="source" jdbcType="INTEGER" property="source" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+
+    id, `name`, code, `status`, building_unit_id, supervising_unit_id, construction_unit_id,
+    category, cost, area, address, lng, lat, start_at, end_at, hazard, attach, `source`, 
+    create_at, update_at
+  </sql>
+
+  <sql id="Detail_Column_List">
+
+    p.id as id, p.`name` as name, p.code as code, p.`status` as status,
+    p.building_unit_id as building_unit_id, bu.name as building_unit,
+    p.supervising_unit_id as supervising_unit_id, su.name as supervising_unit,
+    p.construction_unit_id as construction_unit_id, cu.name as construction_unit,
+    p.category as category, p.cost as cost, p.area as area, p.address as address, p.lng as lng, p.lat as lat,
+    p.start_at as start_at, p.end_at as end_at, p.hazard as hazard, p.attach as attach, p.`source` as source,
+    p.create_at as create_at, p.update_at as update_at
+  </sql>
+  <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+    select 
+    <include refid="Base_Column_List" />
+    from t_sv_project
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteById" parameterType="java.lang.Long">
+
+    delete from t_sv_project
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Project" useGeneratedKeys="true">
+
+    insert into t_sv_project (`name`, code, `status`, 
+      building_unit_id, supervising_unit_id, construction_unit_id,
+      category, cost, area, 
+      address, lng, lat, start_at, 
+      end_at, hazard, attach, 
+      `source`, create_at, update_at
+      )
+    values (#{name,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{buildingUnitId,jdbcType=BIGINT}, #{supervisingUnitId,jdbcType=BIGINT}, #{constructionUnitId,jdbcType=BIGINT},
+      #{category,jdbcType=INTEGER}, #{cost,jdbcType=DOUBLE}, #{area,jdbcType=DOUBLE},
+      #{address,jdbcType=VARCHAR}, #{lng,jdbcType=DOUBLE}, #{lat,jdbcType=DOUBLE},
+      #{startAt,jdbcType=TIMESTAMP}, #{endAt,jdbcType=TIMESTAMP},
+      #{hazard,jdbcType=OTHER, typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{attach,jdbcType=OTHER, typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      #{source,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.bit.module.sv.bean.Project" useGeneratedKeys="true">
+    insert into t_sv_project
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="buildingUnitId != null">
+        building_unit_id,
+      </if>
+      <if test="supervisingUnitId != null">
+        supervising_unit_id,
+      </if>
+      <if test="constructionUnitId != null">
+        construction_unit_id,
+      </if>
+      <if test="category != null">
+        category,
+      </if>
+      <if test="cost != null">
+        cost,
+      </if>
+      <if test="area != null">
+        area,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="lng != null">
+        lng,
+      </if>
+      <if test="lat != null">
+        lat,
+      </if>
+      <if test="startAt != null">
+        start_at,
+      </if>
+      <if test="endAt != null">
+        end_at,
+      </if>
+      <if test="hazard != null">
+        hazard,
+      </if>
+      <if test="attach != null">
+        attach,
+      </if>
+      <if test="source != null">
+        `source`,
+      </if>
+      <if test="createAt != null">
+        create_at,
+      </if>
+      <if test="updateAt != null">
+        update_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="buildingUnitId != null">
+        #{buildingUnitId,jdbcType=BIGINT},
+      </if>
+      <if test="supervisingUnit != null">
+        #{supervisingUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="constructionUnitId != null">
+        #{constructionUnitId,jdbcType=BIGINT},
+      </if>
+      <if test="category != null">
+        #{category,jdbcType=INTEGER},
+      </if>
+      <if test="cost != null">
+        #{cost,jdbcType=DOUBLE},
+      </if>
+      <if test="area != null">
+        #{area,jdbcType=DOUBLE},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="lng != null">
+        #{lng,jdbcType=DOUBLE},
+      </if>
+      <if test="lat != null">
+        #{lat,jdbcType=DOUBLE},
+      </if>
+      <if test="startAt != null">
+        #{startAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endAt != null">
+        #{endAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="hazard != null">
+        #{hazard,jdbcType=OTHER, typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="attach != null">
+        #{attach,jdbcType=OTHER, typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=INTEGER},
+      </if>
+      <if test="createAt != null">
+        #{createAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateAt != null">
+        #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByIdSelective" parameterType="com.bit.module.sv.bean.Project">
+    update t_sv_project
+    <set>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="buildingUnitId != null">
+        building_unit_id = #{buildingUnitId,jdbcType=BIGINT},
+      </if>
+      <if test="supervisingUnitId != null">
+        supervising_unit_id = #{supervisingUnitId,jdbcType=BIGINT},
+      </if>
+      <if test="constructionUnitId != null">
+        construction_unit_id = #{constructionUnitId,jdbcType=BIGINT},
+      </if>
+      <if test="category != null">
+        category = #{category,jdbcType=INTEGER},
+      </if>
+      <if test="cost != null">
+        cost = #{cost,jdbcType=DOUBLE},
+      </if>
+      <if test="area != null">
+        area = #{area,jdbcType=DOUBLE},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="lng != null">
+        lng = #{lng,jdbcType=DOUBLE},
+      </if>
+      <if test="lat != null">
+        lat = #{lat,jdbcType=DOUBLE},
+      </if>
+      <if test="startAt != null">
+        start_at = #{startAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endAt != null">
+        end_at = #{endAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="hazard != null">
+        hazard = #{hazard,jdbcType=OTHER, typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="attach != null">
+        attach = #{attach,jdbcType=OTHER, typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      </if>
+      <if test="source != null">
+        `source` = #{source,jdbcType=INTEGER},
+      </if>
+      <if test="createAt != null">
+        create_at = #{createAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateAt != null">
+        update_at = #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateById" parameterType="com.bit.module.sv.bean.Project">
+    update t_sv_project
+    set `name` = #{name,jdbcType=VARCHAR},
+      code = #{code,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=INTEGER},
+      building_unit_id = #{buildingUnitId,jdbcType=BIGINT},
+      supervising_unit_id = #{supervisingUnitId,jdbcType=BIGINT},
+      construction_unit_id = #{constructionUnitId,jdbcType=BIGINT},
+      category = #{category,jdbcType=INTEGER},
+      cost = #{cost,jdbcType=DOUBLE},
+      area = #{area,jdbcType=DOUBLE},
+      address = #{address,jdbcType=VARCHAR},
+      lng = #{lng,jdbcType=DOUBLE},
+      lat = #{lat,jdbcType=DOUBLE},
+      start_at = #{startAt,jdbcType=TIMESTAMP},
+      end_at = #{endAt,jdbcType=TIMESTAMP},
+      hazard = #{hazard,jdbcType=OTHER, typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      attach = #{attach,jdbcType=OTHER, typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+      `source` = #{source,jdbcType=INTEGER},
+      create_at = #{createAt,jdbcType=TIMESTAMP},
+      update_at = #{updateAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <select id="selectByIdAndSource" resultMap="BaseResultMap">
+      select <include refid="Detail_Column_List"/>
+      from t_sv_project p
+        left join t_sv_unit bu on p.building_unit_id = bu.id
+        left join t_sv_unit su on p.supervising_unit_id = su.id
+        left join t_sv_unit cu on p.construction_unit_id = cu.id
+      where p.id = #{id,jdbcType=BIGINT} and p.source = #{source,jdbcType=INTEGER}
+    </select>
+
+    <select id="findByConditionPage" resultMap="BaseResultMap">
+      select <include refid="Detail_Column_List"/>
+      from t_sv_project p
+        left join t_sv_unit bu on p.building_unit_id = bu.id
+        left join t_sv_unit su on p.supervising_unit_id = su.id
+        left join t_sv_unit cu on p.construction_unit_id = cu.id
+      <where>
+        p.source = #{source,jdbcType=INTEGER}
+        <if test="name != null">
+          and p.name like CONCAT('%', #{name, jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="status != null">
+          and p.status = #{status, jdbcType=INTEGER}
+        </if>
+        <if test="category != null">
+          and p.category = #{category, jdbcType=INTEGER}
+        </if>
+        <if test="buildingUnitId != null">
+          and p.building_unit_id = #{buildingUnitId, jdbcType=BIGINT}
+        </if>
+      </where>
+      <if test="orderBy!=null and orderBy!=''">
+        ORDER BY p.${orderBy}
+      </if>
+      <if test="order!=null and order!=''">
+        ${order}
+      </if>
+    </select>
+  <select id="selectByStatusAndCategoryAndSource" resultMap="BaseResultMap">
+    select <include refid="Detail_Column_List"/>
+    from t_sv_project p
+      left join t_sv_unit bu on p.building_unit_id = bu.id
+      left join t_sv_unit su on p.supervising_unit_id = su.id
+      left join t_sv_unit cu on p.construction_unit_id = cu.id
+    where p.source = #{source,jdbcType=INTEGER}
+    <if test="category != null">
+      and p.category = #{category,jdbcType=INTEGER}
+    </if>
+    <if test="status != null">
+      and p.status = #{status,jdbcType=INTEGER}
+    </if>
+     ORDER BY p.id desc
+  </select>
+  <select id="countProjectsBySource" resultType="com.bit.module.sv.vo.StatisticsVO">
+    select status, count(1) num
+    from t_sv_project
+    where source = #{source,jdbcType=INTEGER}
+    GROUP BY `status`
+  </select>
+
+  <select id="selectByIdsAndSource" resultType="com.bit.module.sv.vo.ProjectExportVO">
+    select p.id as id, p.name as name, p.category as category, p.status as status,
+      p.start_at as startAt, p.end_at as endAt, p.update_at as updateAt, p.address as address,
+      u.name as buildingUnit
+    from t_sv_project p
+      left join t_sv_unit u on p.building_unit_id = u.id
+    where p.source = #{source,jdbcType=INTEGER}
+      and p.id in
+      <foreach collection="ids" item="id" open="(" separator="," close=")">
+        #{id, jdbcType=BIGINT}
+      </foreach>
+    order by p.id
+  </select>
+  <select id="incrementProjects" resultMap="BaseResultMap">
+    select <include refid="Detail_Column_List"/>
+    from t_sv_project p
+      left join t_sv_unit bu on p.building_unit_id = bu.id
+      left join t_sv_unit su on p.supervising_unit_id = su.id
+      left join t_sv_unit cu on p.construction_unit_id = cu.id
+    <where>
+      p.source = #{source,jdbcType=INTEGER}
+      <if test="status != null and status.size() > 0">
+        and p.`status` IN
+        <foreach collection="status" item="item" index="index" open="(" separator="," close=")">
+          #{item,jdbcType=INTEGER}
+        </foreach>
+      </if>
+      <if test="type != null">
+        and p.category = #{type,jdbcType=INTEGER}
+      </if>
+      <if test="direction == 0">
+        <if test="previous != null">
+          and p.id &lt; #{previous,jdbcType=BIGINT}
+        </if>
+        ORDER BY p.id DESC
+      </if>
+      <if test="direction == 1">
+        <if test="previous != null">
+          and p.id &gt; #{previous,jdbcType=BIGINT}
+        </if>
+        ORDER BY p.id asc
+      </if>
+      LIMIT #{limit,jdbcType=INTEGER}
+    </where>
+  </select>
+
+</mapper>

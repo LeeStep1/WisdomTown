@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.PbOrganizationDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PbOrganization_columns">
+	    <![CDATA[
+			id as id,
+			p_code as p_code,
+			`name` as `name`,
+			sort as sort,
+			is_approval_auz as is_approval_auz,
+		
+			status as status,
+			org_type as org_type,
+			org_desc as org_desc,
+			create_time as create_time
+	    ]]>
+	</sql>
+	<sql id="PbOrganization_dictApp_columns">
+	    <![CDATA[
+			a.id as id,
+			a.p_code as p_code,
+			a.name as name,
+			a.sort as sort,
+			a.is_approval_auz as is_approval_auz,
+
+			a.status as status,
+			a.org_type as org_type,
+			a.org_desc as org_desc,
+			b.dict_name as dictName,
+			create_time as create_time
+	    ]]>
+	</sql>
+	<!-- 用于查询组织代码所在的层级 -->
+	<sql id="Organization_level">
+		<![CDATA[
+			select
+				mysql.help_topic.help_topic_id + 1 as `level`
+			from
+				mysql.help_topic
+			where
+				mysql.help_topic.help_topic_id < 8
+				and ( #{id, jdbcType=BIGINT} << 8 * mysql.help_topic.help_topic_id + 1 ) != 0
+			order by
+				mysql.help_topic.help_topic_id desc
+			limit 1
+		]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.PbOrganization" id="pbOrganizationMap">
+		<id column="id" property="id"/>
+	    <result column="p_code" property="pcode"/>
+	    <result column="name" property="name"/>
+	    <result column="sort" property="sort"/>
+	    <result column="is_approval_auz" property="isApprovalAuz"/>
+	    <result column="status" property="status"/>
+	    <result column="org_type" property="orgType"/>
+	    <result column="org_desc" property="orgDesc"/>
+	    <result column="create_time" property="createTime"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="pbOrganizationMap" parameterType="com.bit.module.system.vo.PbOrganizationVO">
+		select <include refid="PbOrganization_columns" /> from t_pb_organization
+		<where>
+			<if test="id != null  " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="pcode != null and pcode != '' " >and p_code like "%"#{pcode,jdbcType=VARCHAR}"%"</if>
+			<if test="name != null and name != '' " >and `name` like "%"#{name,jdbcType=VARCHAR}"%"</if>
+			<if test="sort != null" >and sort =#{sort,jdbcType=TINYINT}</if>
+			<if test="isApprovalAuz != null" >and is_approval_auz =#{isApprovalAuz,jdbcType=TINYINT}</if>
+			<if test="status != null  " >and status =#{status,jdbcType=TINYINT}</if>
+			<if test="orgType != null  " >and org_type =#{orgType,jdbcType=TINYINT}</if>
+			<if test="orgDesc != null and orgDesc != '' " >and org_desc =#{orgDesc,jdbcType=VARCHAR}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="pbOrganizationMap" parameterType="String">
+		select <include refid="PbOrganization_columns" /> from t_pb_organization
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="pbOrganizationMap" parameterType="com.bit.module.system.bean.PbOrganization">
+		select <include refid="PbOrganization_columns" /> from t_pb_organization where 	id =#{id,jdbcType=BIGINT}
+	</select>
+
+
+	<!-- 根据用户id查询 -->
+	<select id="findByUserId" resultType="com.bit.module.system.bean.PbOrganization">
+		select <include refid="PbOrganization_columns" /> from t_pb_organization
+		where id in (select pborg_id from  t_sys_user_rel_pb_org where user_id=#{userId})
+	</select>
+
+	<!--根据id查询子集统计-->
+	<select id="findCountChildListByPid" resultType="java.lang.Integer">
+			SELECT
+			count(1)
+			FROM
+			t_pb_organization a,
+		<![CDATA[
+			(
+			SELECT
+			mysql.help_topic.help_topic_id + 2 AS `level`
+			FROM
+			mysql.help_topic
+			WHERE
+				mysql.help_topic.help_topic_id < 8
+				AND ( #{id} << 8 * ( mysql.help_topic.help_topic_id + 1 ) ) != 0
+				ORDER BY
+				mysql.help_topic.help_topic_id DESC
+				LIMIT 1
+				) b
+			WHERE
+
+				a.id < ( ( #{id} >> ( 64 - b.`level` * 8 )
+				) + 1
+				) << ( 64 - b.`level` * 8 )
+				AND a.id > #{id};
+		]]>
+	</select>
+
+	<!--根据参数查询-->
+	<select id="findAllByParam" resultType="com.bit.module.system.bean.PbOrganization">
+		select <include refid="PbOrganization_columns" /> from t_pb_organization
+		<where>
+			<if test="pcode != null and pcode != '' " >and p_code like "%"#{pcode,jdbcType=VARCHAR}"%"</if>
+			<if test="name != null and name != '' " >and name like "%"#{name,jdbcType=VARCHAR}"%"</if>
+			<if test="sort != null" >and sort =#{sort,jdbcType=TINYINT}</if>
+			<if test="isApprovalAuz != null" >and is_approval_auz =#{isApprovalAuz,jdbcType=BIT}</if>
+			<if test="status != null  " >and status =#{status,jdbcType=BIT}</if>
+			<if test="orgType != null  " >and org_type =#{orgType,jdbcType=TINYINT}</if>
+			<if test="orgDesc != null and orgDesc != '' " >and org_desc =#{orgDesc,jdbcType=VARCHAR}</if>
+		</where>
+	</select>
+
+	<!--根据id查询子集集合-->
+	<select id="findChildListByPid" resultType="com.bit.module.system.bean.PbOrganization">
+		SELECT
+			a.*
+			FROM
+			t_pb_organization a,
+		<![CDATA[
+			SELECT
+				mysql.help_topic.help_topic_id + 1 AS `level`
+			FROM
+				mysql.help_topic
+			WHERE
+				mysql.help_topic.help_topic_id < 8
+				AND ( @parent_id << 8 *  mysql.help_topic.help_topic_id ) != 0
+			ORDER BY
+				mysql.help_topic.help_topic_id DESC
+				LIMIT 1
+				) b
+			WHERE
+				a.id < ( ( @parent_id >> ( 64 - b.`level` * 8 )
+				) + 1
+				) << ( 64 - b.`level` * 8 )
+				AND a.id > @parent_id
+				AND a.id << ( b.`level` + 1 ) * 8 = 0
+				AND a.id << b.`level` * 8 != 0
+				AND a.id << ( b.`level` + 2 ) * 8 = 0;
+		]]>
+		order by a.id
+	</select>
+
+	<!--根据id查询孙子集合-->
+	<select id="findGrandsonListByPid" resultType="com.bit.module.system.bean.PbOrganization">
+		SELECT
+		a.*
+		FROM
+		t_pb_organization a,
+		<![CDATA[
+			(
+			SELECT
+			mysql.help_topic.help_topic_id + 1 AS `level`
+			FROM
+			mysql.help_topic
+			WHERE
+			mysql.help_topic.help_topic_id < 8
+			AND ( @parent_id << 8 * mysql.help_topic.help_topic_id) != 0
+			ORDER BY
+			mysql.help_topic.help_topic_id DESC
+			LIMIT 1
+			) b
+			WHERE
+			a.id < ( ( @parent_id >> ( 64 - b.`level` * 8 )
+			) + 1
+			) << ( 64 - b.`level` * 8 )
+			AND a.id > @parent_id;
+		]]>
+		order by a.id
+	</select>
+
+	<!-- 查询根级集合 -->
+    <select  id="findRootPbOrgList" resultType="com.bit.module.system.bean.PbOrganization">
+          SELECT <include refid="PbOrganization_columns" /> FROM t_pb_organization WHERE
+          <![CDATA[
+             id & 0x00FFFFFFFFFFFFFF = 0
+          ]]>
+    </select>
+
+    <!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.PbOrganization">
+		insert INTO t_pb_organization (
+		    id,
+			p_code ,
+			name ,
+			sort ,
+			is_approval_auz ,
+			status ,
+			org_type ,
+			org_desc ,
+			create_time
+		) VALUES (
+		    #{id,jdbcType=BIGINT},
+			#{pcode,jdbcType=VARCHAR},
+			#{name,jdbcType=VARCHAR},
+			#{sort,jdbcType=TINYINT},
+			#{isApprovalAuz,jdbcType=BIT},
+			#{status,jdbcType=BIT},
+			#{orgType,jdbcType=TINYINT},
+			#{orgDesc,jdbcType=VARCHAR},
+			#{createTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+	<!--保存子节点-->
+	<insert id="addRootNode" parameterType="com.bit.module.system.bean.PbOrganization">
+		INSERT INTO t_pb_organization (
+			id,
+			p_code ,
+			name ,
+			sort ,
+			is_approval_auz ,
+			status ,
+			org_type ,
+			org_desc,
+			create_time
+		) SELECT
+		 <![CDATA[
+			( a.id >> 56 ) + 1 << 56,
+			#{pcode,jdbcType=VARCHAR},
+			#{name,jdbcType=VARCHAR},
+			#{sort,jdbcType=TINYINT},
+			#{isApprovalAuz,jdbcType=BIT},
+			#{status,jdbcType=BIT},
+			#{orgType,jdbcType=TINYINT},
+			#{orgDesc,jdbcType=VARCHAR},
+			#{createTime,jdbcType=TIMESTAMP}
+			FROM
+			t_pb_organization a
+			WHERE
+			a.id & 0x00FFFFFFFFFFFFFF = 0
+			ORDER BY a.id DESC
+			LIMIT 1
+		 ]]>
+	</insert>
+
+	<!--保存孩子节点-->
+	<insert id="addChildNode"  parameterType="com.bit.module.system.bean.PbOrganization" useGeneratedKeys="true" keyProperty="id" >
+			insert into t_pb_organization (
+				id,
+				p_code ,
+				name ,
+				sort ,
+				is_approval_auz ,
+				status ,
+				org_type ,
+				org_desc ,
+				create_time)
+			select
+			<![CDATA[
+				( a.id >> ( 64 - 8 * ( b.`level` + 1 ) ) ) + 1 << ( 64 - 8 * ( b.`level` + 1 ) ),
+				#{pcode,jdbcType=VARCHAR},
+				#{name,jdbcType=VARCHAR},
+				#{sort,jdbcType=TINYINT},
+				#{isApprovalAuz,jdbcType=BIT},
+				#{status,jdbcType=BIT},
+				#{orgType,jdbcType=TINYINT},
+				#{orgDesc,jdbcType=VARCHAR},
+				#{createTime,jdbcType=TIMESTAMP}
+			]]>
+			from
+			t_pb_organization a,
+			( <include refid="PbOrganization_level" /> ) b
+			where
+			<![CDATA[
+				a.id < ( (#{pid, jdbcType=BIGINT} >> ( 64 - b.`level` * 8 ) ) + 1 ) << ( 64 - b.`level` * 8 )
+				and a.id >= #{pid, jdbcType=BIGINT}
+				and a.id << ( b.`level` + 1 ) * 8 = 0
+			]]>
+			order by
+			a.id desc
+			limit 1
+	</insert>
+
+	<!--用于查询组织代码所在的层级-->
+	<sql id="PbOrganization_level">
+		<![CDATA[
+			select
+				mysql.help_topic.help_topic_id + 1 as `level`
+			from
+				mysql.help_topic
+			where
+				mysql.help_topic.help_topic_id < 8
+				and ( #{pid, jdbcType=BIGINT} << 8 * mysql.help_topic.help_topic_id + 1 ) != 0
+			order by
+				mysql.help_topic.help_topic_id desc
+			limit 1
+		]]>
+	</sql>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.system.bean.PbOrganization">
+		update t_pb_organization
+		<set>
+		<if test="pcode != null">
+		 p_code =#{pcode,jdbcType=VARCHAR},
+		</if>
+		<if test="name != null">
+		 name =#{name,jdbcType=VARCHAR},
+		</if>
+		<if test="sort != null">
+		 sort =#{sort,jdbcType=TINYINT},
+		</if>
+		<if test="isApprovalAuz != null">
+		 is_approval_auz =#{isApprovalAuz,jdbcType=BIT},
+		</if>
+		<if test="status != null">
+		 status =#{status,jdbcType=BIT},
+		</if>
+		<if test="orgType != null">
+		 org_type =#{orgType,jdbcType=TINYINT},
+		</if>
+		<if test="orgDesc != null">
+		 org_desc =#{orgDesc,jdbcType=VARCHAR}
+		</if>
+		<if test="createTime != null">
+			create_time =#{createTime,jdbcType=TIMESTAMP}
+		</if>
+		</set>
+		where   id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.PbOrganization">
+		delete from t_pb_organization where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		delete from t_pb_organization where id in
+		<foreach collection="ids" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<!-- 根据id查询直属上级对象 -->
+	<select id="findSubObjById" resultType="com.bit.module.system.bean.PbOrganization">
+		SELECT
+		b.*
+		FROM
+		(
+		<![CDATA[
+		SELECT
+			#{id}>> ( 8 * ( mysql.help_topic.help_topic_id + 1 ) ) << ( 8 * ( mysql.help_topic.help_topic_id + 1 ) ) AS parent_id
+			FROM
+			mysql.help_topic
+			WHERE
+			mysql.help_topic.help_topic_id < 8
+			) a,
+			t_pb_organization b
+			WHERE
+			b.id = a.parent_id
+			AND a.parent_id != #{id}
+			AND a.parent_id != 0
+			LIMIT 1
+		]]>
+	</select>
+
+	<!--查询父亲id-->
+	<select id="findPIdById" resultType="com.bit.module.system.bean.PbOrganization">
+		SELECT
+		a.parent_id
+		FROM
+		(
+		<![CDATA[
+			SELECT
+			#{id} >> ( 8 * ( mysql.help_topic.help_topic_id + 1 ) ) << ( 8 * ( mysql.help_topic.help_topic_id + 1 ) ) AS parent_id
+			FROM
+			mysql.help_topic
+			WHERE
+			mysql.help_topic.help_topic_id < 8
+			) a
+			WHERE
+			a.parent_id !=#{id}
+			AND a.parent_id != 0
+			LIMIT 1
+		]]>
+	</select>
+
+	<!--根据pcode统计查询-->
+	<select id="findCountByPcode" resultType="java.lang.Integer">
+		select count(1) FROM t_pb_organization where  p_code =#{pcode,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 根据id查询组织的下级 -->
+	<select id="findLowerLevelById" resultType="java.lang.Integer" >
+		select count(1)
+		from
+		t_pb_organization a,
+		( <include refid="Organization_level" /> ) b
+		where
+		<![CDATA[ a.id < ( ( #{id, jdbcType=BIGINT} >> ( 64 - b.`level` * 8 )) + 1) << ( 64 - b.`level` * 8 ) ]]>
+		and
+		<if test="includeItself" >
+			a.id >= #{id, jdbcType=BIGINT}
+		</if>
+		<if test="includeItself == null or !includeItself" >
+			a.id > #{id, jdbcType=BIGINT}
+		</if>
+	</select>
+
+
+	<select id="findAllActive" resultMap="pbOrganizationMap" parameterType="long">
+		select t1.* from t_pb_organization t1
+		INNER JOIN t_sys_user_rel_pb_org t2
+		on t1.id = t2.pborg_id
+		WHERE t1.`status` !=0 and t2.user_id = #{userId,jdbcType=BIGINT}
+	</select>
+
+
+	<!--根据组织ID批量查询userId-->
+	<select id="getAllUserIdsByPbOrgIdsSql" parameterType="java.lang.Long"
+			resultType="java.lang.Long">
+		SELECT
+			t.user_id userId
+		FROM
+			t_sys_user_rel_pb_org t
+		where
+			t.pborg_id in
+		<foreach collection="targetIdList" item="ids" separator="," open="(" close=")">
+			#{ids}
+		</foreach>
+
+	</select>
+
+    <!--批量查询指定组织指定方式注册用户-->
+    <select id="getUserIdsByOrgIdsSql" parameterType="com.bit.module.system.bean.MessageTemplate"
+            resultType="java.lang.Long">
+        SELECT
+            t.user_id userId
+        FROM
+            t_sys_user_rel_pb_org t,t_sys_user tu
+        where
+            tu.id = t.user_id
+        and
+            t.pborg_id in
+        <foreach collection="messageTemplate.orgIds" item="ids" separator="," open="(" close=")">
+            #{ids}
+        </foreach>
+        and tu.create_type = #{messageTemplate.userType}
+
+    </select>
+
+	<!--获取党建组织下所有用户-->
+	<select id="getAllUserIdsForPbOrgSql" parameterType="com.bit.module.system.bean.User"
+			resultType="java.lang.Long">
+		SELECT DISTINCT
+			t.user_id userId
+		FROM
+			t_sys_user_rel_pb_org t,
+			t_sys_user tu
+		WHERE
+			tu.id = t.user_id
+		AND tu.status = #{user.status}
+	</select>
+</mapper>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.IdentityDao">
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Identity_columns">
+	    <![CDATA[
+			id as id,
+			name as name,
+			remark as remark,
+			acquiesce as acquiesce,
+			app_id as app_id
+	    ]]>
+	</sql>
+
+	<sql id="Identity_App_columns">
+	    <![CDATA[
+			 a.id,
+			 a.name,
+			 a.remark,
+			 a.acquiesce,
+			 a.app_id
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.Identity" id="identityMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="remark" property="remark"/>
+		<result column="acquiesce" property="acquiesce"/>
+		<result column="app_id" property="appId"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="identityMap" parameterType="com.bit.module.system.vo.IdentityVO">
+		select <include refid="Identity_columns" /> from t_sys_identity
+		<where>
+			<if test="id != null " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="name != null and name != '' " >and name like "%"#{name,jdbcType=VARCHAR}"%"</if>
+			<if test="remark != null and remark != '' " >and remark =#{remark,jdbcType=VARCHAR}</if>
+			<if test="acquiesce != null  " >and acquiesce =#{acquiesce,jdbcType=TINYINT}</if>
+			<if test="appId != null " >and app_id =#{appId,jdbcType=TINYINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+
+	<!-- 业务分页 根据条件查询Identity   -->
+	<select id="findRealPage" resultMap="identityMap" parameterType="com.bit.module.system.vo.IdentityVO">
+		select <include refid="Identity_App_columns" />,group_concat(d.role_name) as roleNames
+		from t_sys_identity a
+		LEFT JOIN t_sys_identity_rel_role c on a.id = c.identity_id
+		LEFT JOIN t_sys_role d on c.role_id = d.id
+		<where>
+			<if test="id != null " >and a.id =#{id,jdbcType=BIGINT}</if>
+			<if test="name != null and name != '' " >and a.name like "%"#{name,jdbcType=VARCHAR}"%"</if>
+			<if test="acquiesce != null  " >and a.acquiesce =#{acquiesce,jdbcType=TINYINT}</if>
+			<if test="appId != null " >and a.app_id =#{appId,jdbcType=TINYINT}</if>
+		</where>
+		GROUP BY  a.id,a.name,a.remark,a.app_id
+		<if test="roleNames != null " >
+			HAVING roleNames  like "%"#{roleNames}"%"
+		</if>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="identityMap" parameterType="String">
+		select <include refid="Identity_columns" /> from t_sys_identity
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="identityMap" parameterType="com.bit.module.system.bean.Identity">
+		select <include refid="Identity_columns" />
+		from t_sys_identity
+		where  id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 查询集合 业务根据用户id-->
+	<select id="findByUserId" resultType="com.bit.module.system.bean.Identity">
+		select <include refid="Identity_columns" />
+		from t_sys_identity
+		where id in (select identity_id from t_sys_user_rel_identity where user_id=#{userId})
+	</select>
+
+	<!--根据appID查询identityList-->
+	<select id="findIdentListByAppId" resultType="com.bit.module.system.bean.Identity">
+		select <include refid="Identity_columns" /> from t_sys_identity
+		<where>
+			<if test="appId != null " >
+			    and  app_id=#{appId}
+			</if>
+			<if test="acquiesce != null " >
+				and  acquiesce=#{acquiesce}
+			</if>
+		</where>
+	</select>
+
+	<!--根据条件查询所有-->
+	<select id="findAllByParam" resultType="com.bit.module.system.bean.Identity">
+		select <include refid="Identity_columns" /> from t_sys_identity
+		<where>
+			<if test="id != null " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="name != null and name != '' " >and name like "%"#{name,jdbcType=VARCHAR}"%"</if>
+			<if test="remark != null and remark != '' " >and remark =#{remark,jdbcType=VARCHAR}</if>
+			<if test="acquiesce != null  " >and acquiesce =#{acquiesce,jdbcType=TINYINT}</if>
+			<if test="appId != null " >and app_id =#{appId,jdbcType=TINYINT}</if>
+		</where>
+	</select>
+
+	<!--根据应用id和默认身份校验 统计查询 实现一个应用下只能有一个默认身份-->
+	<select id="findByAppIdAndAcqu" resultType="java.lang.Integer">
+		select count(1) from t_sys_identity where acquiesce =#{acquiesce,jdbcType=TINYINT} and app_id =#{appId,jdbcType=TINYINT}
+	</select>
+
+	<!--根据应用id和名称查询-->
+	<select id="findByAppIdAndName" resultType="java.lang.Integer">
+		select count(1) from t_sys_identity where name =#{name,jdbcType=VARCHAR} and app_id =#{appId,jdbcType=TINYINT}
+	</select>
+
+	<!--根据应用id查询统计-->
+	<select id="findCountbyAppId" resultType="java.lang.Integer">
+		select count(1) from t_sys_identity where  app_id =#{appId,jdbcType=TINYINT}
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="add" parameterType="com.bit.module.system.bean.Identity" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+		insert INTO t_sys_identity (
+			name,remark,acquiesce,app_id
+		) VALUES (
+			#{name,jdbcType=VARCHAR},
+			#{remark,jdbcType=VARCHAR},
+			#{acquiesce,jdbcType=TINYINT},
+			#{appId,jdbcType=TINYINT}
+		)
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.system.bean.Identity">
+		update t_sys_identity
+		<set>
+			<if test="name != null">
+				name =#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				remark =#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="acquiesce != null">
+				acquiesce =#{acquiesce,jdbcType=TINYINT},
+			</if>
+			<if test="appId != null">
+				app_id =#{appId,jdbcType=TINYINT}
+			</if>
+		</set>
+		where  id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.system.bean.Identity">
+		delete from t_sys_identity  where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="list">
+		delete from t_sys_identity where id in
+		<foreach collection="ids" open="(" close=")" item="id" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!--根据默认身份字段和应用id查询-->
+	<select id="findByAppIdAndAcquiesce" resultType="com.bit.module.system.bean.Identity">
+		select <include refid="Identity_columns" /> from t_sys_identity where acquiesce =#{acquiesce,jdbcType=TINYINT} and app_id =#{appId,jdbcType=TINYINT}
+	</select>
+
+
+    <select id="getDefaultIdentityByAppIdSql" resultType="com.bit.module.system.bean.Identity">
+		select
+			<include refid="Identity_columns" />
+		from
+			t_sys_identity
+		where
+			app_id=#{appId}
+		and acquiesce = #{acquiesce}
+	</select>
+</mapper>
+

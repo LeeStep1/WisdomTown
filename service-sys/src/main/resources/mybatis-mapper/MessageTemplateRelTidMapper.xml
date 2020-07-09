@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bit.module.system.dao.MessageTemplateRelTidDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.bit.module.system.bean.MessageTemplateRelTid" id="messageTemplateRelTidMap">
+        <result property="id" column="id"/>
+        <result property="templateId" column="template_id"/>
+        <result property="tid" column="tid"/>
+        <result property="appid" column="appid"/>
+        <result property="store" column="store"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        template_id,
+        tid,
+        appid,
+        store
+    </sql>
+
+
+    <!-- 根据主键查询数据 -->
+    <select id="getMessageTemplateRelTidById" parameterType="Long" resultMap="messageTemplateRelTidMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sys_message_template_rel_tid
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 多参数查询数据 -->
+    <select id="findByParam" parameterType="com.bit.module.system.bean.MessageTemplateRelTid" resultMap="messageTemplateRelTidMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sys_message_template_rel_tid
+        <where>
+            <if test="templateId!=null">
+                and template_id = #{templateId,jdbcType=BIGINT}
+            </if>
+            <if test="tid!=null and tid!=''">
+                and tid = #{tid,jdbcType=VARCHAR}
+            </if>
+            <if test="appid!=null and appid!=''">
+                and appid = #{appid,jdbcType=VARCHAR}
+            </if>
+            <if test="store!=null">
+                and store = #{store,jdbcType=INTEGER}
+            </if>
+
+        </where>
+    </select>
+
+
+    <!-- 新增数据 -->
+    <insert id="addMessageTemplateRelTid" parameterType="com.bit.module.system.bean.MessageTemplateRelTid"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        insert into t_sys_message_template_rel_tid
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="templateId!=null">
+                template_id,
+            </if>
+            <if test="tid!=null and tid!=''">
+                tid,
+            </if>
+            <if test="appid!=null and appid!=''">
+                appid,
+            </if>
+            <if test="store!=null">
+                store,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="templateId!=null">
+                #{templateId,jdbcType=BIGINT},
+            </if>
+            <if test="tid!=null and tid!=''">
+                #{tid,jdbcType=VARCHAR},
+            </if>
+            <if test="appid!=null and appid!=''">
+                #{appid,jdbcType=VARCHAR},
+            </if>
+            <if test="store!=null">
+                #{store,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+
+    <!-- 编辑数据 -->
+    <update id="updateMessageTemplateRelTid" parameterType="com.bit.module.system.bean.MessageTemplateRelTid">
+        update t_sys_message_template_rel_tid
+        <trim prefix="set" suffixOverrides=",">
+            <if test="templateId!=null">
+                template_id = #{templateId,jdbcType=BIGINT},
+            </if>
+            <if test="tid!=null and tid!=''">
+                tid = #{tid,jdbcType=VARCHAR},
+            </if>
+            <if test="appid!=null and appid!=''">
+                appid = #{appid,jdbcType=VARCHAR},
+            </if>
+            <if test="store!=null">
+                store = #{store,jdbcType=INTEGER},
+            </if>
+        </trim>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="delMessageTemplateRelTidByTemplateId" parameterType="long">
+        DELETE FROM t_sys_message_template_rel_tid
+        WHERE template_id = #{templateId,jdbcType=BIGINT}
+    </delete>
+
+
+    <!-- 删除数据 -->
+    <delete id="delMessageTemplateRelTidById" parameterType="Long">
+        delete from t_sys_message_template_rel_tid
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+
+    <delete id="delByTemplateId" parameterType="long">
+        delete from t_sys_message_template_rel_tid
+        where template_id = #{templateId,jdbcType=BIGINT}
+    </delete>
+
+    <!-- 分页查询数据 -->
+    <select id="listPage" parameterType="com.bit.module.system.vo.MessageTemplateRelTidPageVO" resultType="com.bit.module.system.vo.MessageTemplateRelTidVO">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sys_message_template_rel_tid
+        <where>
+            <if test="templateId!=null">
+                and template_id = #{templateId,jdbcType=BIGINT}
+            </if>
+            <if test="tid!=null and tid!=''">
+                and tid = #{tid,jdbcType=VARCHAR}
+            </if>
+            <if test="appid!=null and appid!=''">
+                and appid = #{appid,jdbcType=VARCHAR}
+            </if>
+            <if test="store!=null">
+                and store = #{store,jdbcType=INTEGER}
+            </if>
+        </where>
+    </select>
+
+    <insert id="batchAdd" parameterType="com.bit.module.system.bean.MessageTemplateRelTid">
+        insert into t_sys_message_template_rel_tid(
+        template_id,
+        tid,
+        appid,
+        store
+        )VALUES
+        <foreach collection="messageTemplateRelTids" item="item" index="index"  separator=",">
+            ( #{item.templateId,jdbcType=BIGINT},
+            #{item.tid,jdbcType=VARCHAR},
+            #{item.appid,jdbcType=VARCHAR},
+            #{item.store,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.manager.dao.PortalUserDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="User_columns">
+	    <![CDATA[
+			id as id,
+			username as username,
+			real_name as real_name,
+			mobile as mobile,
+			email as email,
+
+			password as password,
+			salt as salt,
+			insert_time as insert_time,
+			update_time as update_time,
+			status as status,
+			idcard as idcard
+	    ]]>
+	</sql>
+
+	<sql id="User_Dict_columns">
+	    <![CDATA[
+			a.id as id,
+			a.username as username,
+			a.real_name as real_name,
+			a.mobile as mobile,
+			a.email as email,
+
+			a.insert_time as insert_time,
+			a.update_time as update_time,
+			a.status as status,
+			a.create_type as create_type,
+			a.idcard as idcard
+	    ]]>
+	</sql>
+
+	<sql id="User_Template_columns">
+	    <![CDATA[
+			a.username as username,
+			a.real_name as real_name,
+			a.mobile as mobile,
+
+			a.status as status,
+			a.create_type as create_type,
+			a.idcard as idcard
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.manager.bean.PortalUser" id="userMap">
+		<id column="id" property="id"/>
+		<result column="username" property="username"/>
+		<result column="real_name" property="realName"/>
+		<result column="mobile" property="mobile"/>
+		<result column="email" property="email"/>
+		<result column="password" property="password"/>
+		<result column="salt" property="salt"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="status" property="status"/>
+		<result column="create_type" property="createType"/>
+		<result column="idcard" property="idcard"/>
+	</resultMap>
+
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="userMap" parameterType="com.bit.module.manager.bean.PortalUser">
+		select <include refid="User_Dict_columns" />
+		from t_protal_user a left join t_sys_user_rel_app b on a.id= b.user_id
+		<where>
+			<if test="id != null and id != '' " >and a.id =#{id,jdbcType=BIGINT}</if>
+			<if test="username != null and username != '' " >and a.username like "%"#{username,jdbcType=VARCHAR}"%"</if>
+			<if test="realName != null and realName != '' " >and a.real_name like "%"#{realName,jdbcType=VARCHAR}"%"</if>
+			<if test="mobile != null and mobile != '' " >and a.mobile like "%"#{mobile,jdbcType=VARCHAR}"%"</if>
+			<if test="email != null and email != '' " >and a.email =#{email,jdbcType=VARCHAR}</if>
+			<if test="password != null and password != '' " >and a.password =#{password,jdbcType=VARCHAR}</if>
+			<if test="status != null  " >and a.status =#{status,jdbcType=TINYINT}</if>
+			<if test="createType != null  " >and a.create_type =#{createType,jdbcType=TINYINT}</if>
+			<if test="idcard != null and idcard != '' " >and a.idcard like "%"#{idcard,jdbcType=TINYINT}"%"</if>
+			<if test="appId != null " >and b.app_id = #{appId,jdbcType=TINYINT}</if>
+		</where>
+		<if test="appId == null " >
+		GROUP BY a.id
+		</if>
+		ORDER BY a.insert_time desc
+	</select>
+
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="userMap">
+		select <include refid="User_columns" /> from t_protal_user
+			ORDER BY insert_time DESC
+	</select>
+
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="userMap" parameterType="com.bit.module.manager.bean.PortalUser">
+		select <include refid="User_columns" />
+		from t_protal_user
+		where
+		id =#{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 根据用户名查询 -->
+	<select id="findByUsername" parameterType="java.lang.String" resultMap="userMap">
+		select <include refid="User_columns" />
+		from t_protal_user
+		where username = #{username,jdbcType=VARCHAR}
+	</select>
+
+	<!--根据用户名统计查询-->
+	<!--<select id="findCountByUsername" resultType="java.lang.Integer">-->
+		<!--select count(1)-->
+		<!--from t_protal_user-->
+		<!--where username = #{username,jdbcType=VARCHAR}-->
+	<!--</select>-->
+
+
+	<!-- 添加一条记录 -->
+	<insert id="addNew" parameterType="com.bit.module.manager.bean.PortalUser" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+		insert INTO t_protal_user (
+			username ,
+			real_name ,
+			mobile ,
+			email ,
+			password ,
+			salt ,
+			insert_time,
+			update_time ,
+			status,
+			idcard
+		) VALUES (
+			#{username,jdbcType=VARCHAR},
+			#{realName,jdbcType=VARCHAR},
+			#{mobile,jdbcType=VARCHAR},
+			#{email,jdbcType=VARCHAR},
+			#{password,jdbcType=VARCHAR},
+			#{salt,jdbcType=VARCHAR},
+			#{insertTime,jdbcType=TINYINT},
+			#{updateTime,jdbcType=TIMESTAMP},
+			#{status,jdbcType=TINYINT},
+			#{idcard,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.manager.bean.PortalUser">
+		update t_protal_user
+		<set>
+			<if test="username != null">
+				username =#{username,jdbcType=VARCHAR},
+			</if>
+			<if test="realName != null">
+				real_name =#{realName,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				mobile =#{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				email =#{email,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password =#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="salt != null">
+				salt =#{salt,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null">
+				update_time =#{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="status != null">
+				status =#{status,jdbcType=TINYINT},
+			</if>
+			<if test="idcard != null">
+				idcard =#{idcard,jdbcType=VARCHAR}
+			</if>
+		</set>
+		where  id = #{id,jdbcType=BIGINT}
+	</update>
+
+
+	<!--重置密码 密码盐-->
+	<!--<update id="resetPassword">-->
+		<!--update t_protal_user set password=#{password} ,salt=#{salt} where id = #{id,jdbcType=BIGINT}-->
+	<!--</update>-->
+
+
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.manager.bean.PortalUser">
+		delete from t_protal_user where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+
+	<!--<select id="batchFindByAppIdAndIds" parameterType="map" resultMap="userMap">-->
+		<!--select <include refid="User_Dict_columns" />-->
+		<!--from t_protal_user a left join t_sys_user_rel_app b on  a.id= b.user_id-->
+		<!--<where>-->
+			<!--<if test="ids != null and ids.size != 0">-->
+				<!--and a.id in-->
+				<!--<foreach collection="ids" item="ids" separator="," open="(" close=")">-->
+					<!--#{ids}-->
+				<!--</foreach>-->
+			<!--</if>-->
+			<!--and b.app_id = #{appId,jdbcType=TINYINT}-->
+		<!--</where>-->
+	<!--</select>-->
+
+	<!--<insert id="batchAdd" parameterType="map">-->
+		<!--insert INTO t_protal_user (-->
+			<!--username ,-->
+			<!--real_name ,-->
+			<!--mobile ,-->
+			<!--email ,-->
+			<!--password ,-->
+			<!--salt ,-->
+			<!--insert_time ,-->
+			<!--update_time ,-->
+			<!--status,-->
+			<!--create_type,-->
+			<!--idcard-->
+		<!--) VALUES-->
+		<!--<foreach collection="params.userList" item="user" separator=",">-->
+			<!--(#{user.username,jdbcType=VARCHAR},-->
+			<!--#{user.realName,jdbcType=VARCHAR},-->
+			<!--#{user.mobile,jdbcType=VARCHAR},-->
+			<!--#{user.email,jdbcType=VARCHAR},-->
+			<!--#{user.password,jdbcType=VARCHAR},-->
+			<!--#{user.salt,jdbcType=VARCHAR},-->
+			<!--#{user.insertTime,jdbcType=TIMESTAMP},-->
+			<!--#{user.updateTime,jdbcType=TIMESTAMP},-->
+			<!--#{user.status,jdbcType=TINYINT},-->
+			<!--#{user.createType,jdbcType=TINYINT},-->
+			<!--#{user.idcard,jdbcType=VARCHAR})-->
+		<!--</foreach>-->
+	<!--</insert>-->
+
+	<!--增加用户设备绑定信息-->
+	<!--<insert id="insertPushBindingSql" parameterType="com.bit.module.manager.bean.PortalUser">-->
+		<!--insert INTO t_sys_push_binding (-->
+			<!--user_id ,-->
+			<!--terminal_id ,-->
+			<!--registration_id-->
+		<!--) VALUES(-->
+			<!--#{user.id,jdbcType=TINYINT},-->
+			<!--#{user.terminalId,jdbcType=TINYINT},-->
+			<!--#{user.registrationId,jdbcType=VARCHAR}-->
+		<!--)-->
+
+	<!--</insert>-->
+
+	<!--根据手机号修改密码-->
+	<!--<update id="updateUserForVolSql" parameterType="com.bit.module.manager.bean.PortalUser">-->
+		<!--UPDATE t_protal_user t-->
+		<!--SET t.password = #{user.password},-->
+		 	<!--salt = #{user.salt}-->
+		<!--WHERE-->
+			<!--t.mobile = #{user.mobile}-->
+	<!--</update>-->
+
+	<!--&lt;!&ndash; 根据传入的参数查询User对象 &ndash;&gt;-->
+	<!--<select id="findByParam" parameterType="com.bit.module.manager.bean.PortalUser" resultType="com.bit.module.manager.bean.PortalUser">-->
+		<!--select <include refid="User_columns" /> from t_protal_user-->
+		<!--<where>-->
+			<!--<if test="username != null and username != ''">-->
+				<!--and username =#{username,jdbcType=VARCHAR}-->
+			<!--</if>-->
+			<!--<if test="realName != null and realName != ''">-->
+				<!--and real_name =#{realName,jdbcType=VARCHAR}-->
+			<!--</if>-->
+			<!--<if test="mobile != null and mobile != ''">-->
+				<!--and mobile =#{mobile,jdbcType=VARCHAR}-->
+			<!--</if>-->
+			<!--<if test="email != null and email != ''">-->
+				<!--and email =#{email,jdbcType=VARCHAR}-->
+			<!--</if>-->
+			<!--<if test="salt != null and salt != ''">-->
+				<!--and salt =#{salt,jdbcType=VARCHAR}-->
+			<!--</if>-->
+			<!--<if test="idcard != null and idcard != ''">-->
+				<!--and idcard =#{idcard,jdbcType=VARCHAR}-->
+			<!--</if>-->
+		<!--</where>-->
+	<!--</select>-->
+
+    <!-- 查询全部 -->
+    <!--<select id="findAllByExcel" resultMap="userTemplateMap" parameterType="com.bit.module.manager.bean.PortalUser">-->
+        <!--select <include refid="User_Template_columns" />,group_concat(b.app_id) as dictIds-->
+        <!--from t_protal_user a left join t_sys_user_rel_app b on  a.id= b.user_id-->
+        <!--<where>-->
+            <!--<if test="username != null and username != '' " >and a.username =#{username,jdbcType=VARCHAR}</if>-->
+            <!--<if test="realName != null and realName != '' " >and a.real_name like "%"#{realName,jdbcType=VARCHAR}"%"</if>-->
+            <!--<if test="mobile != null and mobile != '' " >and a.mobile like "%"#{mobile,jdbcType=VARCHAR}"%"</if>-->
+            <!--<if test="status != null  " >and a.status =#{status,jdbcType=TINYINT}</if>-->
+            <!--<if test="createType != null  " >and a.create_type =#{createType,jdbcType=TINYINT}</if>-->
+            <!--<if test="idcard != null and idcard != '' " >and a.idcard like "%"#{idcard,jdbcType=TINYINT}"%"</if>-->
+        <!--</where>-->
+        <!--GROUP BY  a.id , a.username , a.real_name , a.mobile , a.email, a.password , a.salt, a.insert_time , a.update_time , a.status, a.create_type , a.idcard-->
+        <!--<if test="dictIds != null " >-->
+            <!--HAVING dictIds like "%"#{dictIds}"%"-->
+        <!--</if>-->
+        <!--ORDER BY a.insert_time-->
+    <!--</select>-->
+
+	<!--<select id="batchSelect" parameterType="list" resultMap="userMap">-->
+		<!--SELECT <include refid="User_columns"/>-->
+		<!--FROM t_protal_user-->
+		<!--WHERE id in-->
+		<!--<foreach collection="ids" open="(" close=")" item="id" separator=",">-->
+			<!--#{id,jdbcType=BIGINT}-->
+		<!--</foreach>-->
+	<!--</select>-->
+
+	<!-- 校验手机号唯一性 -->
+	<!--<select id="checkMobile" parameterType="com.bit.module.manager.bean.PortalUser" resultType="java.lang.Integer">-->
+		<!--select count(1) from t_protal_user where mobile = #{mobile}-->
+	<!--</select>-->
+
+	<!-- 校验身份证号唯一性 -->
+	<!--<select id="checkIdCard" parameterType="com.bit.module.manager.bean.PortalUser" resultType="java.lang.Integer">-->
+		<!--select count(1) from t_protal_user where idcard = #{idcard}-->
+	<!--</select>-->
+
+	<!-- 根据传入的参数查询User对象 -->
+	<!--<select id="findByUserLoginVO" parameterType="com.bit.module.manager.bean.PortalUser" resultType="com.bit.module.manager.bean.PortalUser">-->
+		<!--select <include refid="User_columns" /> from t_protal_user-->
+		<!--<where>-->
+			<!--<if test="username != null and username != ''">-->
+				<!--and username =#{username,jdbcType=VARCHAR}-->
+			<!--</if>-->
+			<!--<if test="mobile != null and mobile != ''">-->
+				<!--and mobile =#{mobile,jdbcType=VARCHAR}-->
+			<!--</if>-->
+			<!--<if test="idcard != null and idcard != ''">-->
+				<!--and idcard =#{idcard,jdbcType=VARCHAR}-->
+			<!--</if>-->
+		<!--</where>-->
+	<!--</select>-->
+
+	<!-- 校验身份证号唯一性 -->
+	<!--<select id="checkUsername" parameterType="com.bit.module.manager.bean.PortalUser" resultType="java.lang.Integer">-->
+		<!--select count(1) from t_protal_user where username = #{username}-->
+	<!--</select>-->
+
+
+	<!--<select id="findByIdCard" parameterType="string" resultMap="userMap">-->
+		<!--SELECT <include refid="User_columns"/>-->
+		<!--FROM t_protal_user-->
+		<!--WHERE idcard = #{idcard,jdbcType=VARCHAR}-->
+	<!--</select>-->
+
+	<!--<select id="batchSelectByCardId" parameterType="string" resultType="long">-->
+		<!--SELECT id FROM t_protal_user-->
+		<!--WHERE idcard IN-->
+		<!--<foreach collection="idlist" item="cardId" separator="," open="(" close=")" index="index">-->
+			<!--#{cardId,jdbcType=VARCHAR}-->
+		<!--</foreach>-->
+	<!--</select>-->
+</mapper>

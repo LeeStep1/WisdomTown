@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.file.dao.FileInfoDao">
+
+
+    <insert id="insert" parameterType="com.bit.file.model.FileInfo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_sys_file_info
+        ( path,suffix, file_size,file_name)
+        VALUES
+            (
+            #{path},
+            #{suffix},
+            #{fileSize},
+            #{fileName}
+            )
+    </insert>
+
+    <select id="query" resultType="com.bit.file.model.FileInfo">
+
+        SELECT  * FROM  t_sys_file_info WHERE  1=1
+
+        <if  test="fileId!=null and fileId!=''">
+
+            and  id=#{fileId}
+
+        </if>
+    </select>
+
+    <delete id="delete" >
+
+        DELETE  FROM t_sys_file_info where 1=1
+            <if test="fileId!=null and fileId!=''">
+                and id= #{fileId}
+            </if>
+
+    </delete>
+
+    <select id="findById" resultType="com.bit.file.model.FileInfo">
+        select * from t_sys_file_info where id = #{id}
+    </select>
+
+    <select id="batchSelect" parameterType="list" resultType="com.bit.file.model.FileInfo">
+        SELECT * FROM t_sys_file_info
+        WHERE id in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="findByParam" parameterType="com.bit.file.model.FileInfoVO" resultType="com.bit.file.model.FileInfo">
+        SELECT
+            id,
+            path,
+            suffix,
+            file_name,
+            file_size
+        FROM
+            t_sys_file_info
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="fileName != null and fileName != ''">
+                and file_name = #{fileName}
+            </if>
+            <if test="suffix != null and suffix != ''">
+                and suffix = #{suffix}
+            </if>
+            <if test="path != null and path != ''">
+                and path = #{path}
+            </if>
+            <if test="fileSize != null">
+                and file_size = #{fileSize}
+            </if>
+        </where>
+    </select>
+
+    <!--查询文件列表-->
+    <select id="findFileListSql" parameterType="com.bit.file.model.FileInfo"
+            resultType="com.bit.file.model.FileInfo">
+        SELECT
+            tf.id,
+            tf.path,
+            tf.suffix,
+            tf.file_name fileName,
+            tf.file_size fileSize
+        FROM
+            t_sys_file_info tf
+        <where>
+            <if test="fileInfo.fileName != null and fileInfo.fileName != '' ">
+                tf.file_name LIKE CONCAT('%',#{fileInfo.fileName},'%')
+            </if>
+            <if test="fileInfo.suffix != null and fileInfo.suffix != '' ">
+                and tf.suffix = #{fileInfo.suffix}
+            </if>
+        </where>
+
+    </select>
+
+    <!--查询文件类型集合-->
+    <select id="findFileTypeSql" parameterType="java.lang.String"
+            resultType="java.lang.String">
+        SELECT
+          td.dict_name
+        FROM
+          t_sys_dict td
+        WHERE
+          td.module = #{module}
+    </select>
+
+    <delete id="batchDelete" parameterType="long">
+        DELETE FROM t_sys_file_info
+        WHERE id IN
+        <foreach collection="ids" item="id" index="index" separator="," open="(" close=")">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>
+
+
+    <update id="update" parameterType="com.bit.file.model.FileInfo">
+        UPDATE t_sys_file_info
+        <set>
+            <if test="fileName != null and fileName != ''">
+                 file_name = #{fileName},
+            </if>
+            <if test="suffix != null and suffix != ''">
+                 suffix = #{suffix},
+            </if>
+            <if test="path != null and path != ''">
+                 path = #{path},
+            </if>
+            <if test="fileSize != null">
+                 file_size = #{fileSize}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insertHashCode" parameterType="com.bit.file.model.FileInfo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_sys_file_info
+        ( path,suffix, file_size,file_name,hash_code)
+        VALUES
+        (
+        #{path},
+        #{suffix},
+        #{fileSize},
+        #{fileName},
+        #{hashCode}
+        )
+    </insert>
+
+    <select id="findByHashCode" parameterType="string" resultType="com.bit.file.model.FileInfo">
+        SELECT
+            id,
+            path,
+            suffix,
+            file_name,
+            file_size,
+            hash_code
+        FROM
+            t_sys_file_info
+        WHERE hash_code = #{hashCode}
+    </select>
+
+    <select id="findByParamHashCode" parameterType="com.bit.file.model.FileInfoVO" resultType="com.bit.file.model.FileInfo">
+        SELECT
+        id,
+        path,
+        suffix,
+        file_name,
+        file_size,
+        hash_code
+        FROM
+        t_sys_file_info
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="fileName != null and fileName != ''">
+                and file_name = #{fileName}
+            </if>
+            <if test="suffix != null and suffix != ''">
+                and suffix = #{suffix}
+            </if>
+            <if test="path != null and path != ''">
+                and path = #{path}
+            </if>
+            <if test="fileSize != null">
+                and file_size = #{fileSize}
+            </if>
+            <if test="hashCode != null and hashCode!=''">
+                and hash_code = #{hashCode}
+            </if>
+        </where>
+    </select>
+</mapper>

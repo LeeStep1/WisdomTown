@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.cbo.dao.LocationApplyDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="LocationApply_columns">
+	    <![CDATA[
+			id as id,
+			resident_id as resident_id,
+			community_id as community_id,
+			community_name as community_name,
+            org_id as org_id,
+            org_name as org_name,
+			address_id as address_id,
+			address_structure as address_structure,
+			create_time as create_time,
+			update_time as update_time,
+			update_user_id as update_user_id,
+			identity_type as identity_type,
+			apply_status as apply_status,
+			enable as enable,
+			version as version,
+			comment as comment,
+			card_type as card_type,
+			card_num as card_num,
+			credentials_photo_ids as credentials_photo_ids,
+			resident_name as resident_name,
+			apply_type as apply_type
+	    ]]>
+	</sql>
+
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.cbo.bean.LocationApply" id="locationApplyMap">
+		<id column="id" property="id"/>
+		<result column="resident_id" property="residentId"/>
+        <result column="community_id" property="communityId"/>
+        <result column="community_name" property="communityName"/>
+        <result column="org_id" property="orgId"/>
+        <result column="org_name" property="orgName"/>
+		<result column="address_id" property="addressId"/>
+        <result column="address_structure" property="addressStructure"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_user_id" property="updateUserId"/>
+        <result column="identity_type" property="identityType"/>
+        <result column="apply_status" property="applyStatus"/>
+        <result column="enable" property="enable"/>
+        <result column="version" property="version"/>
+        <result column="comment" property="comment"/>
+        <result column="card_type" property="cardType"/>
+        <result column="card_num" property="cardNum"/>
+        <result column="credentials_photo_ids" property="credentialsPhotoIds"/>
+        <result column="resident_name" property="residentName"/>
+        <result column="apply_type" property="applyType"/>
+    </resultMap>
+
+
+    <select id="findByParam" resultType="com.bit.module.cbo.bean.LocationApply" parameterType="com.bit.module.cbo.vo.LocationApplyVO">
+        SELECT <include refid="LocationApply_columns"/>
+        FROM t_cbo_location_apply
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="communityId!=null">and community_id = #{communityId,jdbcType=BIGINT}</if>
+            <if test="addressId!=null">and address_id = #{addressId,jdbcType=BIGINT}</if>
+            <if test="identityType!=null">and identity_type = #{identityType,jdbcType=INTEGER}</if>
+            <if test="applyStatus!=null">and apply_status = #{applyStatus,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+    <select id="getRecordByResidentId" parameterType="long" resultMap="locationApplyMap">
+        SELECT <include refid="LocationApply_columns"/>
+        FROM t_cbo_location_apply
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+        </where>
+        order by create_time asc
+    </select>
+
+    <insert id="addRecord" parameterType="com.bit.module.cbo.bean.LocationApply" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_cbo_location_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="residentId!=null">
+                resident_id,
+            </if>
+            <if test="communityId!=null">
+                community_id,
+            </if>
+            <if test="communityName!=null and communityName!=''">
+                community_name,
+            </if>
+            <if test="orgId!=null">
+                org_id,
+            </if>
+            <if test="orgName!=null and orgName!=''">
+                org_name,
+            </if>
+            <if test="addressId!=null">
+                address_id,
+            </if>
+            <if test="addressStructure!=null">
+                address_structure,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="updateTime!=null">
+                update_time,
+            </if>
+            <if test="updateUserId!=null">
+                update_user_id,
+            </if>
+            <if test="identityType!=null">
+                identity_type,
+            </if>
+            <if test="applyStatus!=null">
+                apply_status,
+            </if>
+            <if test="enable!=null">
+                enable,
+            </if>
+            <if test="version!=null">
+                version,
+            </if>
+            <if test="comment!=null">
+                comment,
+            </if>
+            <if test="cardType!=null">
+                card_type,
+            </if>
+            <if test="cardNum!=null">
+                card_num,
+            </if>
+            <if test="credentialsPhotoIds!=null">
+                credentials_photo_ids,
+            </if>
+            <if test="residentName!=null">
+                resident_name,
+            </if>
+            <if test="applyType!=null">
+                apply_type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="residentId!=null">
+                #{residentId,jdbcType=BIGINT},
+            </if>
+            <if test="communityId!=null">
+                #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="communityName!=null and communityName!=''">
+                #{communityName,jdbcType=VARCHAR},
+            </if>
+            <if test="orgId!=null">
+                #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="orgName!=null and orgName!=''">
+                #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="addressId!=null">
+                #{addressId,jdbcType=BIGINT},
+            </if>
+            <if test="addressStructure!=null ">
+                #{addressStructure,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId!=null">
+                #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="identityType!=null">
+                #{identityType,jdbcType=INTEGER},
+            </if>
+            <if test="applyStatus!=null">
+                #{applyStatus,jdbcType=INTEGER},
+            </if>
+            <if test="enable!=null">
+                #{enable,jdbcType=INTEGER},
+            </if>
+            <if test="version!=null">
+                #{version,jdbcType=INTEGER},
+            </if>
+            <if test="comment!=null">
+                #{comment,jdbcType=INTEGER},
+            </if>
+            <if test="cardType!=null">
+                #{cardType,jdbcType=INTEGER},
+            </if>
+            <if test="cardNum!=null and cardNum!=''">
+                #{cardNum,jdbcType=VARCHAR},
+            </if>
+            <if test="credentialsPhotoIds!=null">
+                #{credentialsPhotoIds,jdbcType=VARCHAR},
+            </if>
+            <if test="residentName!=null and residentName!=''">
+                #{residentName,jdbcType=VARCHAR},
+            </if>
+            <if test="applyType!=null">
+                #{applyType,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateLocationApply" parameterType="com.bit.module.cbo.vo.LocationApplyVO">
+        UPDATE t_cbo_location_apply
+        <trim prefix="set" suffixOverrides=",">
+            <if test="residentId!=null">
+                resident_id = #{residentId,jdbcType=BIGINT},
+            </if>
+            <if test="communityId!=null">
+                community_id = #{communityId,jdbcType=BIGINT},
+            </if>
+            <if test="communityName!=null and communityName!=''">
+                community_name = #{communityName,jdbcType=VARCHAR},
+            </if>
+            <if test="orgId!=null">
+                org_id = #{orgId,jdbcType=BIGINT},
+            </if>
+            <if test="orgName!=null and orgName!=''">
+                org_name = #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="addressId!=null">
+                address_id = #{addressId,jdbcType=BIGINT},
+            </if>
+            <if test="addressStructure!=null and addressStructure!=''">
+                address_structure = #{addressStructure,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime!=null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime!=null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId!=null">
+                update_user_id = #{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="identityType!=null">
+                identity_type = #{identityType,jdbcType=INTEGER},
+            </if>
+            <if test="applyStatus!=null">
+                apply_status = #{applyStatus,jdbcType=INTEGER},
+            </if>
+            <if test="enable!=null">
+                enable = #{enable,jdbcType=INTEGER},
+            </if>
+            <if test="version!=null">
+                version = #{version,jdbcType=INTEGER} + 1,
+            </if>
+            <if test="comment!=null">
+                comment = #{comment,jdbcType=INTEGER},
+            </if>
+            <if test="cardType!=null">
+                #{cardType,jdbcType=INTEGER},
+            </if>
+            <if test="cardNum!=null and cardNum!=''">
+                #{cardNum,jdbcType=VARCHAR},
+            </if>
+            <if test="credentialsPhotoIds!=null">
+                #{credentialsPhotoIds,jdbcType=VARCHAR},
+            </if>
+            <if test="residentName!=null and residentName!=''">
+                #{residentName,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        where id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+    </update>
+
+
+    <select id="listPage" parameterType="com.bit.module.cbo.vo.LocationApplyPageVO" resultType="com.bit.module.cbo.vo.LocationApplyVO">
+        SELECT
+        t1.resident_id,
+        t1.resident_name as realName,
+        t2.mobile,
+        t1.card_type,
+        t1.card_num,
+        t1.address_structure,
+        t1.identity_type,
+        t1.create_time,
+        t1.apply_status,
+        t1.id,
+        t1.version
+        FROM
+        (
+        SELECT * from t_cbo_location_apply
+        <where>
+            apply_type = #{applyType,jdbcType=INTEGER}
+            <if test="identityType!=null">and identity_type = #{identityType,jdbcType=INTEGER}</if>
+            <if test="addressStructure!=null and addressStructure!=''">and address_structure like
+                concat("%",#{addressStructure,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+        </where>
+        ) t1
+        INNER JOIN t_cbo_resident t2
+        on t1.resident_id = t2.id
+        <where>
+            <if test="realName!=null">and t2.real_name like concat("%",#{realName,jdbcType=VARCHAR},"%")</if>
+            <if test="cardNum!=null">and t2.card_num like concat("%",#{cardNum,jdbcType=VARCHAR},"%") </if>
+            <if test="mobile!=null">and t2.mobile like concat("%",#{mobile,jdbcType=VARCHAR},"%") </if>
+            <if test="identityType!=null">and t1.identity_type = #{identityType,jdbcType=INTEGER} </if>
+            <if test="applyStatus!=null">and t1.apply_status = #{applyStatus,jdbcType=INTEGER} </if>
+        </where>
+        order by  t1.create_time desc
+    </select>
+
+    <select id="getRecordById" parameterType="long" resultMap="locationApplyMap">
+        SELECT <include refid="LocationApply_columns"/>
+        FROM t_cbo_location_apply
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+
+    <select id="appApplyListPage" resultType="com.bit.module.cbo.vo.LocationApplyVO" parameterType="com.bit.module.cbo.vo.LocationApplyPageVO">
+        SELECT t1.resident_name as realName,t1.identity_type,t2.id as residentId,t2.mobile,t1.id,t1.create_time,t1.enable,t1.address_structure from t_cbo_location_apply t1
+        INNER JOIN t_cbo_resident t2
+        on t1.resident_id = t2.id
+        <where>
+            <if test="residentId!=null">and t1.resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="identityType!=null">and t1.identity_type = #{identityType,jdbcType=INTEGER}</if>
+            <if test="communityId!=null">and t1.community_id = #{communityId,jdbcType=BIGINT}</if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <select id="getRecordResidentInfoById" parameterType="long" resultType="com.bit.module.cbo.vo.LocationApplyVO">
+        SELECT t1.id,t2.real_name,t2.mobile,t2.card_type,t2.card_num,t1.identity_type,t1.create_time,t2.credentials_photo_ids,t1.address_structure,t1.community_name,t1.version from t_cbo_location_apply t1
+        INNER JOIN t_cbo_resident t2
+        on t1.resident_id = t2.id
+        <where>
+            <if test="id!=null">and t1.id = #{id,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <select id="appOrgListPage" resultType="com.bit.module.cbo.vo.LocationApplyVO" parameterType="com.bit.module.cbo.vo.LocationApplyPageVO">
+        SELECT t1.resident_name as realName,t2.id as residentId,t2.mobile,t1.id,t1.identity_type,t1.create_time,t1.enable,t1.address_structure,t1.version from t_cbo_location_apply t1
+        INNER JOIN t_cbo_resident t2
+        on t1.resident_id = t2.id
+        <where>
+            <if test="residentId!=null">and t1.resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="identityType!=null">and t1.identity_type = #{identityType,jdbcType=INTEGER}</if>
+            <if test="orgId!=null">and t1.org_id = #{orgId,jdbcType=BIGINT}</if>
+            <if test="enable!=null">and t1.enable = #{enable,jdbcType=BIGINT}</if>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <select id="appOrggetRecordResidentInfoById" resultType="com.bit.module.cbo.vo.LocationApplyVO" parameterType="com.bit.module.cbo.vo.LocationApplyPageVO">
+        SELECT t1.id,t2.real_name,t2.mobile,t2.card_type,t2.card_num,t1.identity_type,t1.create_time,t2.credentials_photo_ids,t1.address_structure,t1.community_name from t_cbo_location_apply t1
+        INNER JOIN t_cbo_resident t2
+        on t1.resident_id = t2.id
+        <where>
+            <if test="id!=null">and t1.id = #{id,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+    <insert id="batchAddLocationApplyRecords" parameterType="list">
+        INSERT INTO t_cbo_location_apply(
+            resident_id,
+            community_id,
+            community_name,
+            org_id,
+            org_name,
+            address_id,
+            address_structure,
+            create_time,
+            update_time,
+            update_user_id,
+            identity_type,
+            apply_status,
+            enable,
+            version,
+            comment,
+            card_type,
+            card_num,
+            credentials_photo_ids,
+            resident_name,
+            apply_type
+        ) VALUES
+        <foreach collection="locationApplyList" item="item" index="index"  separator=",">
+            (
+                #{item.residentId,jdbcType=BIGINT},
+                #{item.communityId,jdbcType=BIGINT},
+                #{item.communityName,jdbcType=VARCHAR},
+                #{item.orgId,jdbcType=BIGINT},
+                #{item.orgName,jdbcType=VARCHAR},
+                #{item.addressId,jdbcType=BIGINT},
+                #{item.addressStructure,jdbcType=VARCHAR},
+                #{item.createTime,jdbcType=TIMESTAMP},
+                #{item.updateTime,jdbcType=TIMESTAMP},
+                #{item.updateUserId,jdbcType=BIGINT},
+                #{item.identityType,jdbcType=INTEGER},
+                #{item.applyStatus,jdbcType=INTEGER},
+                #{item.enable,jdbcType=INTEGER},
+                #{item.version,jdbcType=INTEGER},
+                #{item.comment,jdbcType=INTEGER},
+                #{item.cardType,jdbcType=INTEGER},
+                #{item.cardNum,jdbcType=VARCHAR},
+                #{item.credentialsPhotoIds,jdbcType=VARCHAR},
+                #{item.residentName,jdbcType=VARCHAR},
+                #{item.applyType,jdbcType=INTEGER}
+            )
+        </foreach>
+
+    </insert>
+
+    <delete id="delByResidentIdAndOrgId">
+        DELETE FROM t_cbo_location_apply
+        <where>
+            <if test="residentId!=null">and resident_id = #{residentId,jdbcType=BIGINT}</if>
+            <if test="orgId!=null">and org_id = #{orgId,jdbcType=BIGINT}</if>
+        </where>
+    </delete>
+
+    <update id="batchUpdateRecords" parameterType="list">
+        UPDATE t_cbo_location_apply
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="apply_status = case" suffix="end,">
+                <foreach collection="updateApplyList" item="upd" index="index" >
+                    <if test="upd.applyStatus!=null">
+                        WHEN id = #{upd.id,jdbcType=BIGINT} then #{upd.applyStatus,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="enable = case" suffix="end,">
+                <foreach collection="updateApplyList" item="upd" index="index" >
+                    <if test="upd.enable!=null">
+                        WHEN id = #{upd.id,jdbcType=BIGINT} then #{upd.enable,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="updateApplyList" item="upd" index="index" separator=") or (" close=")" open="(">
+                id = #{upd.id,jdbcType=BIGINT}
+            </foreach>
+
+        </where>
+    </update>
+</mapper>

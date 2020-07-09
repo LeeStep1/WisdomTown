@@ -1,0 +1,15 @@
+#读取nacos配置
+spring:
+  application:
+    name: service-pb
+  cloud:
+    nacos:
+      config:
+        server-addr: 39.106.84.9:8848
+        file-extension: yml
+        group: wt_dev
+        prefix: service-pb
+        ext-config[0]:
+          data-id: redis.yml
+          group: wt_dev
+          file-extension: yml

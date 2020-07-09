@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.system.dao.UserRelCboDepDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="UserRelCboDep_columns">
+	    <![CDATA[
+			id as id,
+			user_id as user_id,
+			dep_id as dep_id
+	    ]]>
+	</sql>
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="OaDepartment_columns">
+		<![CDATA[
+			id as id,
+			name as name,
+			sort as sort,
+			dept_code as dept_code,
+			dept_describe as dept_describe,
+			create_time as create_time
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.system.bean.UserRelCboDep" id="userRelCboDepMap">
+		<id column="id" property="id"/>
+		<result column="user_id" property="userId"/>
+		<result column="dep_id" property="depId"/>
+	</resultMap>
+
+
+
+
+
+	<!-- 批量添加 -->
+	<insert id="batchAdd"  parameterType="java.util.List">
+		insert INTO t_sys_user_rel_cbo_dep (
+		user_id ,
+		dep_id
+		) VALUES
+		<foreach collection="list" index="index" item="item" separator=",">
+			(#{item.userId,jdbcType=BIGINT},
+			#{item.depId,jdbcType=BIGINT}
+			)
+		</foreach>
+	</insert>
+
+
+
+	<!--根据用户id 删除-->
+	<delete id="delByUserId">
+		delete from t_sys_user_rel_cbo_dep where user_id = #{userId,jdbcType=BIGINT}
+	</delete>
+
+	<select id="findByUserId" resultType="com.bit.module.system.bean.OaDepartment">
+		select <include refid="OaDepartment_columns"/> from t_oa_department where id in (select dep_id from  t_sys_user_rel_cbo_dep where user_id=#{userId})
+	</select>
+
+
+	<select id="getUserByCboDep" parameterType="long" resultType="com.bit.module.system.bean.User">
+		SELECT t2.* FROM `t_sys_user_rel_cbo_dep` t1
+		INNER JOIN t_sys_user t2
+		on t1.user_id = t2.id
+
+		<where>
+			<if test="orgId!=null">
+				and t1.dep_id = #{orgId,jdbcType=BIGINT}
+			</if>
+
+		</where>
+		and t2.`status`=1
+	</select>
+
+	<select id="findByParam" parameterType="com.bit.module.system.bean.UserRelCboDep" resultMap="userRelCboDepMap">
+		SELECT <include refid="UserRelCboDep_columns"/>
+		FROM t_sys_user_rel_cbo_dep
+		<where>
+			<if test="depId!=null">
+				and dep_id = #{depId,jdbcType=BIGINT}
+			</if>
+			<if test="userId!=null">
+				and user_id = #{userId,jdbcType=BIGINT}
+			</if>
+		</where>
+	</select>
+
+
+	<select id="getUserByCboDeps" parameterType="List" resultType="java.lang.Long">
+		select t1.id  from t_sys_user_rel_cbo_dep t1
+		INNER JOIN t_sys_user t2
+		on t1.user_id=t2.id
+		<where>
+			<if test="orgIds!=null">and t1.dep_id in
+				<foreach collection="orgIds" item="orgId" open="(" close=")" separator=",">
+					#{orgId,jdbcType=BIGINT}
+				</foreach>
+			</if>
+
+		</where>
+
+	</select>
+</mapper>

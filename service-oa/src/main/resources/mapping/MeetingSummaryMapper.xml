@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.MeetingSummaryDao">
+    <resultMap id="BaseResultMap" type="com.bit.module.oa.bean.MeetingSummary">
+
+        <id column="id" property="id"/>
+        <result column="meeting_id" property="meetingId"/>
+        <result column="meeting_title" property="meetingTitle"/>
+        <result column="reporter_id" property="reporterId"/>
+        <result column="reporter_name" property="reporterName"/>
+        <result column="attact_ids" property="attactIds"/>
+        <result column="content" property="content"/>
+        <result column="create_at" property="createAt"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+
+      id, meeting_id, meeting_title, reporter_id, reporter_name, attact_ids, content, create_at
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+        select
+        <include refid="Base_Column_List"/>
+        from t_oa_meeting_summary
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+
+    delete from t_oa_meeting_summary
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.bit.module.oa.bean.MeetingSummary">
+
+    insert into t_oa_meeting_summary (meeting_id, meeting_title,
+      reporter_id, reporter_name, attact_ids, 
+      create_at, content)
+    values (#{meetingId,jdbcType=BIGINT}, #{meetingTitle,jdbcType=VARCHAR},
+      #{reporterId,jdbcType=BIGINT}, #{reporterName,jdbcType=VARCHAR}, #{attactIds,jdbcType=VARCHAR}, 
+      #{createAt,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.bit.module.oa.bean.MeetingSummary">
+    update t_oa_meeting_summary
+    <set>
+        <if test="attactIds != null">
+            attact_ids = #{attactIds,jdbcType=VARCHAR},
+        </if>
+        <if test="content != null">
+            content = #{content,jdbcType=VARCHAR}
+        </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <select id="selectByMeetingId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_oa_meeting_summary
+        where meeting_id=#{meetingId}
+    </select>
+</mapper>

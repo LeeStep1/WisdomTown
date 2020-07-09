@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.pb.dao.StudyRelFileInfoDao">
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="StudyRelFileInfo_columns">
+        <![CDATA[
+			id as id,
+			study_id as study_id,
+			file_id as file_id,
+			type as type
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.pb.bean.StudyRelFileInfo" id="studyRelFileInfoMap">
+        <id column="id" property="id"/>
+        <result column="study_id" property="studyId"/>
+        <result column="file_id" property="fileId"/>
+        <result column="type" property="type"/>
+    </resultMap>
+
+
+    <insert id="add" parameterType="com.bit.module.pb.bean.StudyRelFileInfo">
+        INSERT into t_pb_study_rel_file_info(study_id,file_id,type)
+        VALUES (
+          #{studyId,jdbcType=BIGINT},
+          #{fileId,jdbcType=BIGINT},
+          #{type,jdbcType=INTEGER}
+        )
+
+    </insert>
+
+    <update id="update" parameterType="com.bit.module.pb.bean.StudyRelFileInfo">
+        UPDATE t_pb_study_rel_file_info
+        <set>
+            <if test="studyId !=null ">
+                study_id = #{studyId,jdbcType=BIGINT},
+            </if>
+            <if test="fileId !=null ">
+                file_id = #{fileId,jdbcType=BIGINT}
+            </if>
+            <if test="type !=null ">
+                type = #{type,jdbcType=INTEGER}
+            </if>
+        </set>
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM t_pb_study_rel_file_info
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <insert id="batchAdd" parameterType="list">
+        INSERT into t_pb_study_rel_file_info(study_id,file_id,`type`)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (
+            #{item.studyId,jdbcType=BIGINT},
+            #{item.fileId,jdbcType=BIGINT},
+            #{item.type,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="batchDel" parameterType="list">
+        DELETE FROM t_pb_study_rel_file_info
+        WHERE id in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>
+
+    <select id="findByid" parameterType="long" resultMap="studyRelFileInfoMap">
+        SELECT <include refid="StudyRelFileInfo_columns"/>
+        FROM t_pb_study_rel_file_info
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="findByParam" parameterType="com.bit.module.pb.bean.StudyRelFileInfo" resultMap="studyRelFileInfoMap">
+        SELECT <include refid="StudyRelFileInfo_columns"/>
+        FROM t_pb_study_rel_file_info
+        <where>
+
+            <if test="studyId != null " >and study_id =#{studyId,jdbcType=BIGINT}</if>
+            <if test="fileId != null " >and file_id =#{fileId,jdbcType=BIGINT}</if>
+            <if test="type != null " >and type =#{type,jdbcType=BIGINT}</if>
+        </where>
+    </select>
+
+
+    <select id="findFileInfoByStudyId" parameterType="com.bit.module.pb.bean.StudyRelFileInfo" resultType="com.bit.module.pb.bean.FileInfo">
+        SELECT * FROM t_pb_study_rel_file_info
+        <where>
+            <if test="fileId">and file_id =#{fileId,jdbcType=BIGINT} </if>
+        </where>
+    </select>
+
+
+
+
+
+
+</mapper>

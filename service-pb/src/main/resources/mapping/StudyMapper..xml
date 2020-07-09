@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bit.module.pb.dao.StudyDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Study_columns">
+        <![CDATA[
+			id as id,
+			theme as theme,
+			content as content,
+			create_time as create_time,
+			create_user_id as create_user_id,
+			update_time as update_time,
+			update_user_id as update_user_id,
+			is_release as is_release,
+			pborg_id as pborg_id,
+			release_time as release_time,
+			create_user_name as create_user_name,
+			create_real_name as create_real_name,
+			update_user_name as update_user_name,
+			update_real_name as update_real_name,
+			version as version,
+			absolute_person as absolute_person
+	    ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.pb.bean.Study" id="StudyMap">
+        <id column="id" property="id"/>
+        <result column="theme" property="theme"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_user_id" property="updateUserId"/>
+        <result column="is_release" property="isRelease"/>
+        <result column="pborg_id" property="pborgId"/>
+        <result column="release_time" property="releaseTime"/>
+        <result column="create_user_name" property="createUserName"/>
+        <result column="create_real_name" property="createRealName"/>
+        <result column="update_user_name" property="updateUserName"/>
+        <result column="update_real_name" property="updateRealName"/>
+        <result column="version" property="version"/>
+        <result column="absolute_person" property="absolutePerson"/>
+    </resultMap>
+
+    <!-- 用于查询组织代码所在的层级 -->
+    <sql id="Organization">
+        <![CDATA[
+			select id as id
+		from
+			t_pb_organization a,
+			( select
+				mysql.help_topic.help_topic_id + 1 as `level`
+			from
+				mysql.help_topic
+			where
+				mysql.help_topic.help_topic_id < 8
+				and ( #{pborgId, jdbcType=BIGINT} << 8 * mysql.help_topic.help_topic_id + 1 ) != 0
+			order by
+				mysql.help_topic.help_topic_id desc
+			limit 1 ) b
+		where
+			a.id < ( ( #{pborgId, jdbcType=BIGINT} >> ( 64 - b.`level` * 8 )) + 1) << ( 64 - b.`level` * 8 )
+			and a.id >= #{pborgId, jdbcType=BIGINT}
+
+		]]>
+    </sql>
+
+    <sql id="LevelThree">
+        <![CDATA[
+        SELECT
+            a.*
+        FROM
+            t_pb_organization a,
+            (
+                SELECT
+                    #{pborgId, jdbcType=BIGINT} >> ( 8 * ( mysql.help_topic.help_topic_id + 1 ) ) << ( 8 * ( mysql.help_topic.help_topic_id + 1 ) ) as parent_id
+                FROM
+                    mysql.help_topic
+                WHERE
+                    mysql.help_topic.help_topic_id < 8
+            ) b
+        WHERE
+            a.id = b.parent_id
+        AND b.parent_id != #{pborgId, jdbcType=BIGINT}
+        AND b.parent_id != 0
+        LIMIT 1
+        ]]>
+    </sql>
+
+
+    <insert id="add" parameterType="com.bit.module.pb.bean.Study" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into t_pb_study(
+           theme,
+           content,
+           create_time,
+           create_user_id,
+           update_time,
+           update_user_id,
+           is_release,
+           pborg_id,
+           release_time,
+           create_user_name,
+           create_real_name,
+           update_user_name,
+           update_real_name,
+           version,
+           absolute_person
+        )VALUES (
+           #{theme,jdbcType=VARCHAR},
+           #{content,jdbcType=VARCHAR},
+           #{createTime,jdbcType=TIMESTAMP},
+           #{createUserId,jdbcType=BIGINT},
+           #{updateTime,jdbcType=TIMESTAMP},
+           #{updateUserId,jdbcType=BIGINT},
+           #{isRelease,jdbcType=TINYINT},
+           #{pborgId,jdbcType=TINYINT},
+           #{releaseTime,jdbcType=TIMESTAMP},
+           #{createUserName,jdbcType=VARCHAR},
+           #{createRealName,jdbcType=VARCHAR},
+           #{updateUserName,jdbcType=VARCHAR},
+           #{updateRealName,jdbcType=VARCHAR},
+           #{version,jdbcType=INTEGER},
+           #{absolutePerson,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.bit.module.pb.bean.Study">
+        update t_pb_study
+        <set>
+            <if test="theme !=null and theme !=''">
+                theme =#{theme,jdbcType=VARCHAR},
+            </if>
+            <if test="content !=null and content !=''">
+                content =#{content,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime !=null">
+                update_time =#{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserId !=null">
+                update_user_id =#{updateUserId,jdbcType=BIGINT},
+            </if>
+            <if test="isRelease !=null">
+                is_release =#{isRelease,jdbcType=TINYINT},
+            </if>
+            <if test="pborgId !=null">
+                pborg_id =#{pborgId,jdbcType=TINYINT},
+            </if>
+            <if test="releaseTime !=null">
+                release_time =#{releaseTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserName !=null">
+                create_user_name =#{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createRealName !=null">
+                create_real_name =#{createRealName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName !=null">
+                update_user_name =#{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateRealName !=null">
+                update_real_name =#{updateRealName,jdbcType=VARCHAR},
+            </if>
+            <if test="version !=null">
+                version =#{version,jdbcType=INTEGER} + 1,
+            </if>
+            <if test="absolutePerson !=null">
+                absolute_person =#{absolutePerson,jdbcType=VARCHAR}
+            </if>
+        </set>
+        <where>
+            <if test="id !=null">
+                and id =#{id,jdbcType=BIGINT}
+            </if>
+            <if test="version !=null">
+                and version =#{version,jdbcType=INTEGER}
+            </if>
+        </where>
+    </update>
+
+    <delete id="delete" parameterType="long">
+        delete from t_pb_study
+        where id =#{id,jdbcType=BIGINT}
+    </delete>
+
+    <select id="queryById" parameterType="long" resultType="com.bit.module.pb.bean.Study">
+        select <include refid="Study_columns"/>
+        from t_pb_study
+        where id =#{id,jdbcType=BIGINT}
+    </select>
+    <!--三级机构-->
+    <select id="listPage" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.vo.StudyVO">
+        <!--select DISTINCT t1.*,t2.`name` as pborgName-->
+        <!--from t_pb_study t1-->
+        <!--INNER join t_pb_organization t2 on t1.pborg_id = t2.id-->
+        <!--<where>-->
+            <!--<if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>-->
+            <!--<if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">-->
+                <!--and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}-->
+            <!--</if>-->
+            <!--<if test="idList!=null and idList.size()>0 ">and t1.pborg_id in-->
+                <!--<foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">-->
+                    <!--#{id,jdbcType=BIGINT}-->
+                <!--</foreach>-->
+            <!--</if>-->
+            <!--<if test="pborgId!=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>-->
+            <!--<if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>-->
+        <!--</where>-->
+
+        <!--order by t1.is_release asc,t1.create_time desc, t1.release_time desc-->
+
+        SELECT DISTINCT * FROM (
+        select DISTINCT t1.*,t2.`name` as pborgName
+        from t_pb_study t1
+        INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+        <where>
+            and t1.is_release = 0
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pborg_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="pborgId!=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>
+            <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+        </where>
+        <if test="noidList!=null and noidList.size()>0 ">
+            union
+            select DISTINCT t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release = 1
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                    and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+                <if test="noidList!=null and noidList.size()>0 ">and t1.pborg_id in
+                    <foreach collection="noidList" item="id" index="index" open="(" close=")" separator=",">
+                        #{id,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+                <if test="pborgId!=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>
+                <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+            </where>
+        </if>
+        )t
+        order by t.is_release asc,t.create_time desc, t.release_time desc
+    </select>
+    <!--一级机构-->
+    <select id="listPageForTown" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.vo.StudyVO">
+        select DISTINCT t1.*,t2.`name` as pborgName
+        from t_pb_study t1
+        INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+        <where>
+            and t1.is_release = 1
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pborg_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+        </where>
+
+        order by t1.release_time desc
+    </select>
+
+    <!--二级机构-->
+    <select id="listPageForTwo" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.vo.StudyVO">
+        <if test="pbId!=null ">
+            select DISTINCT t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                <if test="pbId!=null ">
+                    <if test="isMeFlag!=null and isMeFlag == 1">
+                        and t1.pborg_id = #{pbId,jdbcType=BIGINT} and t1.is_release >=0
+                    </if>
+                    <if test="isMeFlag!=null and isMeFlag == 0">
+                        and t1.pborg_id = #{pbId,jdbcType=BIGINT} and t1.is_release = 1
+                    </if>
+                </if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                    and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+
+                <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+            </where>
+            order by t1.is_release asc , t1.create_time desc, t1.release_time desc
+        </if>
+        <if test="pbId==null">
+            SELECT DISTINCT * from(
+            select t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release >= 0
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                    and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+                <if test="idList!=null and idList.size()>0 ">and t1.pborg_id in
+                    <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                        #{id,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+                <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+            </where>
+            <if test="noidList!=null and noidList.size()>0 ">
+            union
+            select t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release > 0
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                    and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+                <if test="noidList!=null and noidList.size()>0 ">and t1.pborg_id in
+                    <foreach collection="noidList" item="id" index="index" open="(" close=")" separator=",">
+                        #{id,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+                <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+            </where>
+            </if>
+            ) t order by t.is_release asc , t.release_time desc
+        </if>
+
+    </select>
+    <!--镇党委-->
+    <!--isMeFlag 是不是自己 0-不是 1-是-->
+    <select id="townStudyListPage" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.vo.StudyVO">
+        <if test="isMeFlag!=null and isMeFlag == 1">
+            SELECT DISTINCT * FROM (
+            SELECT * FROM (
+            SELECT t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release = 0
+                <if test="pborgId !=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>
+                <if test="isRelease !=null">and t1.is_release =#{isRelease,jdbcType=TINYINT}</if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR} and t1.is_release = 1</if>
+            </where>
+            order by t1.create_time desc
+            )a
+
+            union
+
+            SELECT * FROM (
+            SELECT t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release = 1
+                <if test="pborgId !=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>
+                <if test="isRelease !=null">and t1.is_release =#{isRelease,jdbcType=TINYINT}</if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            </where>
+            order by t1.release_time desc
+            )b
+            ) t
+            order by t.is_release asc, t.release_time desc
+        </if>
+
+
+        <if test="isMeFlag!=null and isMeFlag == 0">
+            SELECT DISTINCT t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release = 1
+                <if test="pborgId !=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>
+                <if test="isRelease !=null">and t1.is_release =#{isRelease,jdbcType=TINYINT}</if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            </where>
+            order by t1.release_time desc
+        </if>
+
+    </select>
+
+
+    <select id="querydetailListPage" parameterType="com.bit.module.pb.vo.StudyMemberDetailVO" resultType="com.bit.module.pb.bean.StudyMemberDetail">
+        SELECT t2.*,t3.`name`,t3.id as memberId FROM
+        t_pb_study_record t2
+        INNER JOIN t_pb_party_member t3
+        on t2.user_id = t3.id
+        <where>
+            <if test="id!=null">and t2.study_id = #{id,jdbcType=BIGINT}</if>
+            <if test="userType!=null">and t2.user_type = #{userType,jdbcType=INTEGER}</if>
+            <if test="name!=null">and t3.name like concat("%",#{name,jdbcType=INTEGER},"%")</if>
+            <if test="userIds!=null and userIds.size()>0">
+                and t3.id in
+                <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+                    #{userId,jdbcType=BIGINT}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="querydetail" parameterType="com.bit.module.pb.bean.StudyMemberDetail" resultType="com.bit.module.pb.bean.StudyMemberDetail">
+        SELECT t2.*,t3.`name`,t3.id as memberId FROM
+        t_pb_study_record t2
+        INNER JOIN t_pb_party_member t3
+        on t2.user_id = t3.id
+        <where>
+            <if test="id!=null">and t2.study_id = #{id,jdbcType=BIGINT}</if>
+            <if test="userType!=null">and t2.user_type = #{userType,jdbcType=INTEGER}</if>
+            <if test="name!=null">and t3.name = #{name,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+    <select id="queryAll" resultType="com.bit.module.pb.bean.Study">
+        select t1.*,t2.`name` as pborgName
+        from t_pb_study t1
+        INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+        ORDER BY t1.release_time desc
+    </select>
+
+    <!--一级机构-->
+    <select id="listPageForTownExcel" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.bean.StudyExcelParam">
+
+        select DISTINCT t1.*,t2.`name` as pborgName
+        from t_pb_study t1
+        INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+        <where>
+            and t1.is_release = 1
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pborg_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+        </where>
+
+        order by t1.release_time desc
+    </select>
+    <!--三级机构-->
+    <select id="listPageForExcel" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.bean.StudyExcelParam">
+        select DISTINCT t1.*,t2.`name` as pborgName
+        from t_pb_study t1
+        INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+        <where>
+            <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+            </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pborg_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="pborgId!=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>
+            <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+        </where>
+
+        order by t1.is_release asc,t1.create_time desc, t1.release_time desc
+
+        <!--select DISTINCT t1.*,t2.`name` as pborgName-->
+        <!--from t_pb_study t1-->
+        <!--INNER join t_pb_organization t2 on t1.pborg_id = t2.id-->
+        <!--<where>-->
+            <!--<if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>-->
+            <!--<if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">-->
+                <!--and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}-->
+            <!--</if>-->
+            <!--<if test="idList!=null and idList.size()>0 ">and t1.pborg_id in-->
+                <!--<foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">-->
+                    <!--#{id,jdbcType=BIGINT}-->
+                <!--</foreach>-->
+            <!--</if>-->
+            <!--<if test="pborgId!=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>-->
+            <!--<if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>-->
+        <!--</where>-->
+
+        <!--order by t1.release_time desc-->
+    </select>
+    <!--二级机构-->
+    <select id="listPageForTwoExcel" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.bean.StudyExcelParam">
+
+        <if test="pbId!=null ">
+            select DISTINCT t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                <if test="pbId!=null ">
+                    <if test="isMeFlag!=null and isMeFlag == 1">
+                        and t1.pborg_id = #{pbId,jdbcType=BIGINT} and t1.is_release >=0
+                    </if>
+                    <if test="isMeFlag!=null and isMeFlag == 0">
+                        and t1.pborg_id = #{pbId,jdbcType=BIGINT} and t1.is_release = 1
+                    </if>
+                </if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                    and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+
+                <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+            </where>
+            order by t1.is_release asc , t1.create_time desc, t1.release_time desc
+        </if>
+        <if test="pbId==null">
+            SELECT DISTINCT * from(
+            select t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release >= 0
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                    and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+                <if test="idList!=null and idList.size()>0 ">and t1.pborg_id in
+                    <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                        #{id,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+                <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+            </where>
+            union
+            select t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release > 0
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                    and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}
+                </if>
+                <if test="noidList!=null and noidList.size()>0 ">and t1.pborg_id in
+                    <foreach collection="noidList" item="id" index="index" open="(" close=")" separator=",">
+                        #{id,jdbcType=BIGINT}
+                    </foreach>
+                </if>
+                <if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>
+            </where>
+
+            ) t order by t.is_release asc , t.create_time desc, t.release_time desc
+        </if>
+
+
+
+
+        <!--<if test="pbId!=null ">-->
+            <!--select DISTINCT t1.*,t2.`name` as pborgName-->
+            <!--from t_pb_study t1-->
+            <!--INNER join t_pb_organization t2 on t1.pborg_id = t2.id-->
+            <!--<where>-->
+                <!--and t1.is_release = 1-->
+                <!--<if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>-->
+                <!--<if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">-->
+                    <!--and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}-->
+                <!--</if>-->
+                <!--<if test="idList!=null and idList.size()>0 ">and t1.pborg_id in-->
+                    <!--<foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">-->
+                        <!--#{id,jdbcType=BIGINT}-->
+                    <!--</foreach>-->
+                <!--</if>-->
+                <!--<if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>-->
+            <!--</where>-->
+            <!--order by t1.release_time desc-->
+        <!--</if>-->
+        <!--<if test="pbId==null">-->
+            <!--SELECT DISTINCT * from(-->
+            <!--select t1.*,t2.`name` as pborgName-->
+            <!--from t_pb_study t1-->
+            <!--INNER join t_pb_organization t2 on t1.pborg_id = t2.id-->
+            <!--<where>-->
+                <!--and t1.is_release >= 0-->
+                <!--<if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>-->
+                <!--<if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">-->
+                    <!--and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}-->
+                <!--</if>-->
+                <!--<if test="idList!=null and idList.size()>0 ">and t1.pborg_id in-->
+                    <!--<foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">-->
+                        <!--#{id,jdbcType=BIGINT}-->
+                    <!--</foreach>-->
+                <!--</if>-->
+                <!--<if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>-->
+            <!--</where>-->
+            <!--union-->
+            <!--select t1.*,t2.`name` as pborgName-->
+            <!--from t_pb_study t1-->
+            <!--INNER join t_pb_organization t2 on t1.pborg_id = t2.id-->
+            <!--<where>-->
+                <!--and t1.is_release > 0-->
+                <!--<if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>-->
+                <!--<if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">-->
+                    <!--and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}-->
+                <!--</if>-->
+                <!--<if test="noidList!=null and noidList.size()>0 ">and t1.pborg_id in-->
+                    <!--<foreach collection="noidList" item="id" index="index" open="(" close=")" separator=",">-->
+                        <!--#{id,jdbcType=BIGINT}-->
+                    <!--</foreach>-->
+                <!--</if>-->
+                <!--<if test="isRelease!=null">and t1.is_release = #{isRelease,jdbcType=INTEGER}</if>-->
+            <!--</where>-->
+
+            <!--) t order by t.release_time desc-->
+        <!--</if>-->
+
+    </select>
+    <!--镇党委-->
+    <select id="townStudyListPageForExcel" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.bean.StudyExcelParam">
+        <if test="isMeFlag!=null and isMeFlag == 1">
+            SELECT DISTINCT * FROM (
+            SELECT * FROM (
+            SELECT t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release = 0
+                <if test="pborgId !=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>
+                <if test="isRelease !=null">and t1.is_release =#{isRelease,jdbcType=TINYINT}</if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            </where>
+            order by t1.create_time desc
+            )a
+
+            union
+
+            SELECT * FROM (
+            SELECT t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release = 1
+                <if test="pborgId !=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>
+                <if test="isRelease !=null">and t1.is_release =#{isRelease,jdbcType=TINYINT}</if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            </where>
+            order by t1.release_time desc
+            )b
+            ) t
+            order by t.is_release asc,t.create_time desc, t.release_time desc
+        </if>
+
+
+        <if test="isMeFlag!=null and isMeFlag == 0">
+            SELECT DISTINCT t1.*,t2.`name` as pborgName
+            from t_pb_study t1
+            INNER join t_pb_organization t2 on t1.pborg_id = t2.id
+            <where>
+                and t1.is_release = 1
+                <if test="pborgId !=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>
+                <if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>
+                <if test="isRelease !=null">and t1.is_release =#{isRelease,jdbcType=TINYINT}</if>
+                <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            </where>
+            order by t1.release_time desc
+        </if>
+
+        <!--SELECT DISTINCT t1.*,t2.`name` as pborgName-->
+        <!--from t_pb_study t1-->
+        <!--INNER join t_pb_organization t2 on t1.pborg_id = t2.id-->
+        <!--<where>-->
+            <!--<if test="isMeFlag!=null and isMeFlag == 1">-->
+                <!--<![CDATA[ and t1.is_release >= 0 ]]>-->
+            <!--</if>-->
+            <!--<if test="isMeFlag!=null and isMeFlag == 0">-->
+                <!--<![CDATA[ and t1.is_release = 1 ]]>-->
+            <!--</if>-->
+            <!--<if test="pborgId !=null ">and t1.pborg_id = #{pborgId,jdbcType=BIGINT}</if>-->
+            <!--<if test="theme !=null and theme !=''">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%")</if>-->
+            <!--<if test="isRelease !=null">and t1.is_release =#{isRelease,jdbcType=TINYINT}</if>-->
+            <!--<if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>-->
+        <!--</where>-->
+        <!--order by t1.release_time desc-->
+    </select>
+
+    <select id="appMyStudyPlanListPage" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.vo.StudyVO">
+        SELECT t2.*,t1.study_situation,t3.`name` as pborgName
+        FROM t_pb_study_record t1 INNER JOIN t_pb_study t2
+        on t1.study_id = t2.id
+        INNER JOIN t_pb_organization t3 on t2.pborg_id = t3.id
+        <where>
+            and t2.is_release = 1
+            and t1.study_situation = 0
+            <if test="theme!=null and theme!='' ">and t2.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="userId!=null">and t1.user_id=#{userId,jdbcType=BIGINT}</if>
+            <!--<if test="pborgId!=null">and t2.pborg_id=#{pborgId,jdbcType=BIGINT}</if>-->
+            <if test="idList!=null and idList.size()>0 ">and t2.pborg_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t2.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+        </where>
+        order by t2.release_time desc
+    </select>
+
+    <select id="appStudyPlanListPage" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.vo.StudyVO">
+        SELECT DISTINCT t1.*,t2.study_situation,t3.`name` as pborgName
+        FROM t_pb_study t1 LEFT JOIN
+        (
+        SELECT * FROM t_pb_study_record
+        <where>
+            <if test="userId!=null ">and user_id = #{userId,jdbcType=BIGINT}</if>
+        </where>
+        ) t2
+        on t1.id = t2.study_id
+        INNER JOIN t_pb_organization t3 on t1.pborg_id = t3.id
+        <where>
+            <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            <if test="theme!=null and theme!='' ">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pborg_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            and t1.is_release = 1
+        </where>
+        order by t1.release_time desc
+    </select>
+
+    <select id="appStudyPlanAdminListPage" resultType="com.bit.module.pb.bean.Study" parameterType="com.bit.module.pb.vo.StudyVO">
+        SELECT DISTINCT t1.*,t2.`name` as pborgName
+        FROM t_pb_study t1
+        INNER JOIN t_pb_organization t2 on t1.pborg_id = t2.id
+        <where>
+            <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">and t1.release_time between #{startTime,jdbcType=VARCHAR} and #{endTime,jdbcType=VARCHAR}</if>
+            <if test="theme!=null and theme!='' ">and t1.theme like concat("%",#{theme,jdbcType=VARCHAR},"%") </if>
+            <if test="idList!=null and idList.size()>0 ">and t1.pborg_id in
+                <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+                    #{id,jdbcType=BIGINT}
+                </foreach>
+            </if>
+            and t1.is_release = 1
+        </where>
+        order by t1.release_time desc
+    </select>
+</mapper>

@@ -1,0 +1,35 @@
+
+
+
+#指定开发环境
+#spring.profiles.active=dev
+#服务器地址
+#spring.cloud.nacos.config.server-addr=127.0.01:8848
+#默认为Public命名空间,可以省略不写
+#spring.cloud.nacos.config.namespace=Public
+#指定配置群组 --如果是Public命名空间 则可以省略群组配置
+#spring.cloud.nacos.config.group=DEFAULT_GROUP
+#文件名 -- 如果没有配置则默认为 ${spring.appliction.name}
+#spring.cloud.nacos.config.prefix=member
+#指定文件后缀
+#spring.cloud.nacos.config.file-extension=yaml
+#
+#Data ID = ${spring.cloud.nacos.config.prefix}.${spring.profiles.active}.${spring.cloud.nacos.config.file-extension} 最终拼接出来的就是：member-dev.yaml  （一定要注意约定！）
+#Group = ${spring.cloud.nacos.config.group}
+
+
+#测试环境
+spring:
+  application:
+    name: service-sv
+  cloud:
+    nacos:
+      config:
+        server-addr: 39.106.84.9:8848
+        file-extension: yml
+        group: localtest
+        #group: wt_devtest
+        prefix: service-sv
+
+
+

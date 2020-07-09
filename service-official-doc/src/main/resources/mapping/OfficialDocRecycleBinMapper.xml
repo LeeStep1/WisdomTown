@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.officialdoc.dao.OfficialDocRecycleBinDao">
+
+    <!-- 用于select查询分页抽取的列 -->
+    <sql id="officialDocRecycleBin_page_columns">
+        <![CDATA[
+			id as id,
+			doc_id as doc_id,
+			doc_title as doc_title,
+			doc_text_number as doc_text_number,
+
+			doc_sender_id as doc_sender_id,
+			doc_sender_name as doc_sender_name,
+			doc_receivers as doc_receivers,
+			doc_create_at as doc_create_at,
+			`read` as `read`,
+			is_attach as is_attach
+        ]]>
+    </sql>
+
+    <!-- 用于select查询详细抽取的列 -->
+    <sql id="officialDocRecycleBin_columns">
+        <![CDATA[
+			id as id,
+			doc_id as doc_id,
+			doc_title as doc_title,
+			doc_text_number as doc_text_number,
+
+            doc_sender_id as doc_sender_id,
+			doc_sender_name as doc_sender_name,
+
+            doc_receivers as doc_receivers,
+            `read` as `read`,
+            doc_create_at as doc_create_at
+        ]]>
+    </sql>
+
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.officialdoc.vo.SimpleDoc" id="officialDocRecycleBinPageMap">
+        <id column="id" property="id"/>
+        <result column="doc_id" property="docId"/>
+        <result column="doc_title" property="docTitle"/>
+        <result column="doc_text_number" property="docTextNumber"/>
+
+        <result column="doc_sender_id" property="docSenderId"/>
+        <result column="doc_sender_name" property="docSenderName"/>
+        <result column="doc_receivers" property="receivers" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="doc_create_at" property="docCreateAt"/>
+        <result column="read" property="read"/>
+        <result column="is_attach" property="isAttach"/>
+    </resultMap>
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.officialdoc.vo.FullDoc" id="officialDocRecycleBinMap">
+        <id column="id" property="id"/>
+        <result column="doc_id" property="docId"/>
+        <result column="doc_title" property="docTitle"/>
+        <result column="doc_text_number" property="docTextNumber"/>
+        <result column="doc_sender_id" property="docSenderId"/>
+        <result column="doc_sender_name" property="docSenderName"/>
+        <result column="doc_receivers" property="receivers" typeHandler="com.bit.support.mybatis.type.JsonTypeHandler"/>
+        <result column="read" property="read"/>
+        <result column="doc_create_at" property="docCreateAt"/>
+    </resultMap>
+
+    <!-- 翻页查询 -->
+    <select id="query" resultMap="officialDocRecycleBinPageMap" parameterType="com.bit.officialdoc.vo.DocQuery">
+        select
+        <include refid="officialDocRecycleBin_page_columns"/>
+        from t_official_doc_recycle_bin
+        <where>
+            <if test="owner != null">AND owner_id = #{owner,jdbcType=BIGINT}</if>
+            <if test="begin != null">and DATE_FORMAT(delete_at,'%Y-%m-%d') &gt;= DATE_FORMAT(#{begin,jdbcType=TIMESTAMP},'%Y-%m-%d')</if>
+            <if test="end != null">and DATE_FORMAT(delete_at,'%Y-%m-%d') &lt;= DATE_FORMAT(#{end,jdbcType=TIMESTAMP},'%Y-%m-%d')</if>
+            <if test="title != null and title != '' ">and doc_title LIKE CONCAT(#{title,jdbcType=VARCHAR}"%")</if>
+            <if test="textNumber != null and textNumber != '' ">and text_number LIKE CONCAT(#{textNumber,jdbcType=VARCHAR}"%")</if>
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+
+    <!-- 查询多条记录 -->
+    <select id="findByIds2" resultMap="officialDocRecycleBinMap">
+        SELECT <include refid="officialDocRecycleBin_columns"/>
+        FROM t_official_doc_recycle_bin
+        WHERE id IN
+        <foreach collection="array" item="ids" index="index" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </select>
+
+    <!-- 查询多个 -->
+    <select id="findByIds" resultType="com.bit.officialdoc.entity.OfficialDocRecycleBin">
+        SELECT
+          id as id,
+          owner_id as ownerId,
+          source as source,
+          ref_id as referenceId
+        FROM t_official_doc_recycle_bin
+        WHERE id IN
+        <foreach collection="array" item="ids" index="index" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </select>
+
+    <!-- 获取公文ID和读取状态-->
+    <select id="findDocIdAndReadById" resultType="com.bit.officialdoc.entity.OfficialDocRecycleBin" parameterType="com.bit.officialdoc.entity.OfficialDocRecycleBin">
+        SELECT
+          id as id,
+          doc_id as docId,
+          `read` as `read`
+        FROM t_official_doc_recycle_bin
+        WHERE id=#{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 新增回收公文 -->
+    <insert id="batchCreate" parameterType="java.util.List">
+        <![CDATA[
+        insert INTO t_official_doc_recycle_bin (
+            owner_id,
+            source,
+            ref_id,
+            delete_at,
+            doc_id,
+            doc_title,
+            doc_text_number,
+            doc_sender_id,
+            doc_sender_name,
+            doc_receivers,
+            doc_create_at,
+            `read`,
+            is_attach
+         ]]>
+        ) VALUES
+        <foreach collection="list" item="recycle" index="index" separator=","> (
+            #{recycle.ownerId,jdbcType=BIGINT},
+            #{recycle.source,jdbcType=TINYINT},
+            #{recycle.referenceId,jdbcType=BIGINT},
+            #{recycle.deleteAt,jdbcType=TIMESTAMP},
+            #{recycle.docId,jdbcType=BIGINT},
+            #{recycle.docTitle,jdbcType=VARCHAR},
+            #{recycle.docTextNumber,jdbcType=VARCHAR},
+            #{recycle.docSenderId,jdbcType=BIGINT},
+            #{recycle.docSenderName,jdbcType=VARCHAR},
+            #{recycle.docReceivers,jdbcType=OTHER,typeHandler=com.bit.support.mybatis.type.JsonTypeHandler},
+            #{recycle.docCreateAt,jdbcType=TIMESTAMP},
+            #{recycle.read,jdbcType=TINYINT},
+            #{recycle.isAttach,jdbcType=TINYINT}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 彻底删除 -->
+    <update id="undoDelete">
+        DELETE FROM t_official_doc_recycle_bin WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 标记已读 -->
+    <update id="markRead">
+        UPDATE t_official_doc_recycle_bin SET `read` = TRUE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND `read`=FALSE
+    </update>
+
+    <!-- 标记未读 -->
+    <update id="markUnRead">
+        UPDATE t_official_doc_recycle_bin SET `read` = FALSE WHERE id IN
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND `read`=TRUE
+    </update>
+
+    <!-- 获取未读数量 -->
+    <select id="countUnRead" parameterType="com.bit.officialdoc.entity.OfficialDocRecycleBin" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM t_official_doc_recycle_bin WHERE owner_id=#{ownerId,jdbcType=BIGINT} AND `read`=FALSE
+    </select>
+
+</mapper>

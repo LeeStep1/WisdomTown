@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.VehicleApplicationDao">
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="VehicleApplication_columns">
+	    <![CDATA[
+			id as id,
+			apply_no as apply_no,
+			user_id as user_id,
+			org_id as org_id,
+			org_name as org_name,
+		
+			nature as nature,
+			`usage` as `usage`,
+			passenger_num as passenger_num,
+			origin as origin,
+			terminal as terminal,
+		
+			plan_start_time as plan_start_time,
+			plan_end_time as plan_end_time,
+			apply_reason as apply_reason,
+			apply_time as apply_time,
+			assigner_id as assigner_id,
+		
+			dispatch_time as dispatch_time,
+			start_time as start_time,
+			end_time as end_time,
+			company_id as company_id,
+			plate_nos as plate_nos,
+		
+			drivers as drivers,
+			remark as remark,
+			reject_reason as reject_reason,
+			status as status
+	    ]]>
+	</sql>
+	<sql id="VehicleApplication_detail_columns">
+	    <![CDATA[
+			vehicleApp.id as id,
+			vehicleApp.apply_no as apply_no,
+			vehicleApp.user_id as user_id,
+			vehicleApp.org_id as org_id,
+			vehicleApp.org_name as org_name,
+
+			vehicleApp.nature as nature,
+			vehicleApp.`usage` as `usage`,
+			vehicleApp.passenger_num as passenger_num,
+			vehicleApp.origin as origin,
+			vehicleApp.terminal as terminal,
+
+			vehicleApp.plan_start_time as plan_start_time,
+			vehicleApp.plan_end_time as plan_end_time,
+			vehicleApp.apply_reason as apply_reason,
+			vehicleApp.apply_time as apply_time,
+			vehicleApp.assigner_id as assigner_id,
+
+			vehicleApp.dispatch_time as dispatch_time,
+			vehicleApp.start_time as start_time,
+			vehicleApp.end_time as end_time,
+			vehicleApp.company_id as company_id,
+			company.name as company_name,
+			vehicleApp.plate_nos as plate_nos,
+
+			vehicleApp.drivers as drivers,
+			vehicleApp.remark as remark,
+			vehicleApp.reject_reason as reject_reason,
+			vehicleApp.status as status,
+			vehicleApp.version as version
+	    ]]>
+	</sql>
+	<sql id="MyVehicleApplication_columns">
+	    <![CDATA[
+			id as id,
+			apply_no as apply_no,
+			user_id as user_id,
+			nature as nature,
+			`usage` as `usage`,
+			plate_nos as plate_nos,
+
+			origin as origin,
+			terminal as terminal,
+
+			passenger_num as passenger_num,
+			plan_start_time as plan_start_time,
+			plan_end_time as plan_end_time,
+			apply_time as apply_time,
+			status as status
+	    ]]>
+	</sql>
+	<sql id="manager_vehicleApplication_columns">
+	    <![CDATA[
+			id as id,
+			plate_nos as plate_nos,
+			apply_no as apply_no,
+			user_id as user_id,
+			nature as nature,
+			`usage` as `usage`,
+			drivers as drivers,
+			passenger_num as passenger_num,
+			plan_start_time as plan_start_time,
+			plan_end_time as plan_end_time,
+			start_time as start_time,
+			end_time as end_time,
+			apply_time as apply_time,
+			origin as origin,
+			terminal as terminal,
+			status as status
+	    ]]>
+	</sql>
+	<!-- 字段与属性映射 -->
+	<resultMap type="com.bit.module.oa.bean.VehicleApplication" id="vehicleApplicationMap">
+		<id column="id" property="id"/>
+	    <result column="apply_no" property="applyNo"/>
+	    <result column="user_id" property="userId"/>
+	    <result column="org_id" property="orgId"/>
+	    <result column="org_name" property="orgName"/>
+	    <result column="nature" property="nature"/>
+	    <result column="usage" property="usage"/>
+	    <result column="passenger_num" property="passengerNum"/>
+	    <result column="origin" property="origin"/>
+	    <result column="terminal" property="terminal"/>
+	    <result column="plan_start_time" property="planStartTime"/>
+	    <result column="plan_end_time" property="planEndTime"/>
+	    <result column="apply_reason" property="applyReason"/>
+	    <result column="apply_time" property="applyTime"/>
+	    <result column="assigner_id" property="assignerId"/>
+	    <result column="dispatch_time" property="dispatchTime"/>
+	    <result column="start_time" property="startTime"/>
+	    <result column="end_time" property="endTime"/>
+	    <result column="company_id" property="companyId"/>
+	    <result column="plate_nos" property="plateNos"/>
+	    <result column="drivers" property="drivers"/>
+	    <result column="remark" property="remark"/>
+	    <result column="reject_reason" property="rejectReason"/>
+	    <result column="status" property="status"/>
+	</resultMap>
+	<resultMap type="com.bit.module.oa.vo.vehicleApplication.VehicleApplicationDetail" id="vehicleApplicationDetailMap">
+		<id column="id" property="id"/>
+	    <result column="apply_no" property="applyNo"/>
+	    <result column="user_id" property="userId"/>
+	    <result column="user_name" property="userName"/>
+	    <result column="org_id" property="orgId"/>
+	    <result column="org_name" property="orgName"/>
+	    <result column="nature" property="nature"/>
+	    <result column="usage" property="usage"/>
+	    <result column="passenger_num" property="passengerNum"/>
+	    <result column="origin" property="origin"/>
+	    <result column="terminal" property="terminal"/>
+	    <result column="plan_start_time" property="planStartTime"/>
+	    <result column="plan_end_time" property="planEndTime"/>
+	    <result column="apply_reason" property="applyReason"/>
+	    <result column="apply_time" property="applyTime"/>
+	    <result column="assigner_id" property="assignerId"/>
+	    <result column="dispatch_time" property="dispatchTime"/>
+	    <result column="start_time" property="startTime"/>
+	    <result column="end_time" property="endTime"/>
+	    <result column="company_id" property="companyId"/>
+		<result column="company_name" property="companyName"/>
+	    <result column="plate_nos" property="plateNos"/>
+	    <result column="drivers" property="drivers"/>
+	    <result column="remark" property="remark"/>
+	    <result column="reject_reason" property="rejectReason"/>
+	    <result column="status" property="status"/>
+		<result column="version" property="version"/>
+	</resultMap>
+	<resultMap id="myVehicleApplication" type="com.bit.module.oa.vo.vehicleApplication.MyVehicleApplication">
+		<id column="id" property="id"/>
+		<result column="apply_no" property="applyNo"/>
+		<result column="user_id" property="userId"/>
+		<result column="plate_nos" property="plateNos"/>
+		<result column="nature" property="nature"/>
+		<result column="usage" property="usage"/>
+		<result column="passenger_num" property="passengerNum"/>
+		<result column="plan_start_time" property="planStartTime"/>
+		<result column="plan_end_time" property="planEndTime"/>
+		<result column="apply_time" property="applyTime"/>
+		<result column="origin" property="origin"/>
+		<result column="terminal" property="terminal"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	<resultMap id="managerVehicleApplication" type="com.bit.module.oa.vo.vehicleApplication.ManagerVehicleApplicationVO">
+		<id column="id" property="id"/>
+		<result column="apply_no" property="applyNo"/>
+		<result column="plate_nos" property="plateNos"/>
+		<result column="user_id" property="userId"/>
+		<result column="nature" property="nature"/>
+		<result column="usage" property="usage"/>
+		<result column="drivers" property="drivers"/>
+		<result column="passenger_num" property="passengerNum"/>
+		<result column="start_time" property="startTime"/>
+		<result column="end_time" property="endTime"/>
+		<result column="plan_start_time" property="planStartTime"/>
+		<result column="plan_end_time" property="planEndTime"/>
+		<result column="apply_time" property="applyTime"/>
+		<result column="origin" property="origin"/>
+		<result column="terminal" property="terminal"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	<!-- 翻页查询 -->
+	<select id="findByConditionPage" resultMap="vehicleApplicationMap" parameterType="com.bit.module.oa.vo.vehicleApplication.VehicleApplicationVO">
+		select <include refid="VehicleApplication_columns" /> from t_oa_vehicle_application
+		<where>
+			<if test="id != null and id != '' " >and id =#{id,jdbcType=BIGINT}</if>
+			<if test="applyNo != null and applyNo != '' " >and apply_no =#{applyNo,jdbcType=VARCHAR}</if>
+			<if test="userId != null" >and user_id =#{userId,jdbcType=BIGINT}</if>
+			<if test="orgId != null and orgId != '' " >and org_id =#{orgId,jdbcType=BIGINT}</if>
+			<if test="orgName != null and orgName != '' " >and org_name =#{orgName,jdbcType=VARCHAR}</if>
+			<if test="nature != null" >and nature =#{nature,jdbcType=TINYINT}</if>
+			<if test="usage != null" >and `usage` =#{usage,jdbcType=TINYINT}</if>
+			<if test="passengerNum != null and passengerNum != '' " >and passenger_num =#{passengerNum,jdbcType=TINYINT}</if>
+			<if test="origin != null and origin != '' " >and origin =#{origin,jdbcType=VARCHAR}</if>
+			<if test="terminal != null and terminal != '' " >and terminal =#{terminal,jdbcType=VARCHAR}</if>
+			<if test="applyReason != null and applyReason != '' " >and apply_reason =#{applyReason,jdbcType=VARCHAR}</if>
+			<if test="assignerId != null and assignerId != '' " >and assigner_id =#{assignerId,jdbcType=BIGINT}</if>
+			<if test="companyId != null and companyId != '' " >and company_id =#{companyId,jdbcType=BIGINT}</if>
+			<if test="plateNos != null and plateNos != '' " >and plate_nos =#{plateNos,jdbcType=VARCHAR}</if>
+			<if test="drivers != null and drivers != '' " >and drivers =#{drivers,jdbcType=VARCHAR}</if>
+			<if test="remark != null and remark != '' " >and remark =#{remark,jdbcType=VARCHAR}</if>
+			<if test="rejectReason != null and rejectReason != '' " >and reject_reason =#{rejectReason,jdbcType=VARCHAR}</if>
+			<if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+		ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+		${order}
+		</if>
+	</select>
+	<!-- 我的用车 -->
+	<select id="findMyVehicleApplication" resultMap="myVehicleApplication">
+		select <include refid="MyVehicleApplication_columns" /> from t_oa_vehicle_application
+		<where>
+			<if test="userId != null and userId != '' " >and user_id =#{userId,jdbcType=BIGINT}</if>
+			<if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+			<include refid="queryCondition"/>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+	<!-- 用车台账 -->
+	<select id="findLedgerVehicleApplication" resultMap="managerVehicleApplication">
+		select <include refid="manager_vehicleApplication_columns" /> from t_oa_vehicle_application
+		<where>
+			status in (1, 2)
+			<if test="userId != null" >and user_id =#{userId,jdbcType=BIGINT}</if>
+			<include refid="queryCondition"/>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+	<select id="findHandleVehicleApplication" resultMap="managerVehicleApplication">
+		select <include refid="manager_vehicleApplication_columns" /> from t_oa_vehicle_application
+		<where>
+			<if test="status != null" >and status =#{status,jdbcType=TINYINT}</if>
+			<include refid="queryCondition"/>
+		</where>
+		<if test="orderBy!=null and orderBy!=''">
+			ORDER BY ${orderBy}
+		</if>
+		<if test="order!=null and order!=''">
+			${order}
+		</if>
+	</select>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="vehicleApplicationMap" parameterType="String">
+		select <include refid="VehicleApplication_columns" /> from t_oa_vehicle_application
+		<if test="sorter!=null and sorter!=''">
+			ORDER BY ${sorter}
+		</if>
+	</select>
+	<!-- 查询单条记录 -->
+	<select id="findById" resultMap="vehicleApplicationDetailMap" parameterType="com.bit.module.oa.bean.VehicleApplication">
+		select <include refid="VehicleApplication_detail_columns" />
+		from t_oa_vehicle_application vehicleApp left join t_oa_company company on vehicleApp.company_id = company.id
+		where
+			vehicleApp.id =#{id,jdbcType=BIGINT}
+	</select>
+	<!-- 获取今天最新的用车单 -->
+    <select id="findByApplyNo" resultType="java.lang.String">
+		select apply_no FROM t_oa_vehicle_application
+
+		WHERE apply_no LIKE CONCAT('%', #{prefix}, '%') and DATEDIFF(NOW(), apply_time) = 0
+		ORDER BY id desc, apply_time desc LIMIT 1
+	</select>
+
+	<select id="findExportDataByCondition" resultMap="vehicleApplicationDetailMap">
+		select <include refid="VehicleApplication_detail_columns" />
+		from t_oa_vehicle_application vehicleApp left join t_oa_company company on vehicleApp.company_id = company.id
+		<where>
+			<if test="applyNo != null and applyNo != '' " >and vehicleApp.apply_no like concat('%', #{applyNo,jdbcType=VARCHAR}, '%')</if>
+			<if test="userId != null" >and vehicleApp.user_id =#{userId,jdbcType=BIGINT}</if>
+			<if test="status != null" >and vehicleApp.status =#{status,jdbcType=TINYINT}</if>
+			<if test="nature != null" >and vehicleApp.nature =#{nature,jdbcType=TINYINT}</if>
+			<if test="usage != null" >and vehicleApp.`usage` =#{usage,jdbcType=TINYINT}</if>
+			<if test="planStartTime != null">and vehicleApp.plan_start_time >= DATE_FORMAT(#{planStartTime}, '%Y-%m-%d %T') </if>
+			<if test="planEndTime != null"><![CDATA[and vehicleApp.plan_end_time <= DATE_FORMAT(#{planEndTime}, '%Y-%m-%d %T')]]> </if>
+			<if test="minApplyTime != null">and vehicleApp.apply_time >= DATE_FORMAT(#{minApplyTime}, '%Y-%m-%d %T')</if>
+			<if test="maxApplyTime != null"><![CDATA[and vehicleApp.apply_time <= DATE_FORMAT(#{maxApplyTime}, '%Y-%m-%d %T')]]> </if>
+		</where>
+	</select>
+	<select id="findLedgerExportDataByCondition" resultMap="vehicleApplicationDetailMap">
+		select <include refid="VehicleApplication_detail_columns" />
+		from t_oa_vehicle_application vehicleApp left join t_oa_company company on vehicleApp.company_id = company.id
+		<where>
+			vehicleApp.status in (1, 2)
+			<if test="userId != null" >and vehicleApp.user_id =#{userId,jdbcType=BIGINT}</if>
+			<if test="nature != null" >and vehicleApp.nature =#{nature,jdbcType=TINYINT}</if>
+			<if test="usage != null" >and vehicleApp.`usage` =#{usage,jdbcType=TINYINT}</if>
+			<if test="planStartTime != null">and vehicleApp.plan_start_time >= DATE_FORMAT(#{planStartTime}, '%Y-%m-%d %T') </if>
+			<if test="planEndTime != null"><![CDATA[and vehicleApp.plan_end_time <= DATE_FORMAT(#{planEndTime}, '%Y-%m-%d %T')]]> </if>
+			<if test="minApplyTime != null">and vehicleApp.apply_time >= DATE_FORMAT(#{minApplyTime}, '%Y-%m-%d %T')</if>
+			<if test="maxApplyTime != null"><![CDATA[and vehicleApp.apply_time <= DATE_FORMAT(#{maxApplyTime}, '%Y-%m-%d %T')]]> </if>
+		</where>
+	</select>
+
+	<!-- 添加一条记录 -->
+	<insert id="apply" parameterType="com.bit.module.oa.bean.VehicleApplication">
+		<selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	insert INTO t_oa_vehicle_application (
+		apply_no ,
+		user_id ,
+		org_id ,
+		org_name ,
+		nature ,
+		`usage` ,
+		passenger_num ,
+		origin ,
+		terminal ,
+		plan_start_time ,
+		plan_end_time ,
+		apply_reason ,
+		apply_time ,
+		status
+	) VALUES (
+		#{applyNo,jdbcType=VARCHAR},
+		#{userId,jdbcType=BIGINT},
+		#{orgId,jdbcType=BIGINT},
+		#{orgName,jdbcType=VARCHAR},
+		#{nature,jdbcType=TINYINT},
+		#{usage,jdbcType=TINYINT},
+		#{passengerNum,jdbcType=TINYINT},
+		#{origin,jdbcType=VARCHAR},
+		#{terminal,jdbcType=VARCHAR},
+		#{planStartTime,jdbcType=TIMESTAMP},
+		#{planEndTime,jdbcType=TIMESTAMP},
+		#{applyReason,jdbcType=VARCHAR},
+		#{applyTime,jdbcType=TIMESTAMP},
+		#{status,jdbcType=TINYINT}
+	)
+	</insert>
+	<!-- 修改一条记录 -->
+	<update id="update" parameterType="com.bit.module.oa.bean.VehicleApplication">
+		update t_oa_vehicle_application
+		<set>
+		<if test="applyNo != null">
+		 apply_no =#{applyNo,jdbcType=VARCHAR},
+		</if>
+		<if test="userId != null">
+		 user_id =#{userId,jdbcType=BIGINT},
+		</if>
+		<if test="orgId != null">
+		 org_id =#{orgId,jdbcType=BIGINT},
+		</if>
+		<if test="orgName != null">
+		 org_name =#{orgName,jdbcType=VARCHAR},
+		</if>
+		<if test="nature != null">
+		 nature =#{nature,jdbcType=TINYINT},
+		</if>
+		<if test="usage != null">
+		 `usage` =#{usage,jdbcType=TINYINT},
+		</if>
+		<if test="passengerNum != null">
+		 passenger_num =#{passengerNum,jdbcType=TINYINT},
+		</if>
+		<if test="origin != null and origin != ''">
+		 origin =#{origin,jdbcType=VARCHAR},
+		</if>
+		<if test="terminal != null and terminal != ''">
+		 terminal =#{terminal,jdbcType=VARCHAR},
+		</if>
+		<if test="planStartTime != null">
+		 plan_start_time =#{planStartTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="planEndTime != null">
+		 plan_end_time =#{planEndTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="applyReason != null and applyReason != ''">
+		 apply_reason =#{applyReason,jdbcType=VARCHAR},
+		</if>
+		<if test="applyTime != null">
+		 apply_time =#{applyTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="assignerId != null">
+		 assigner_id =#{assignerId,jdbcType=BIGINT},
+		</if>
+		<if test="dispatchTime != null">
+		 dispatch_time =#{dispatchTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="startTime != null">
+		 start_time =#{startTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="endTime != null">
+		 end_time =#{endTime,jdbcType=TIMESTAMP},
+		</if>
+		<if test="companyId != null">
+		 company_id =#{companyId,jdbcType=BIGINT},
+		</if>
+		<if test="plateNos != null">
+		 plate_nos =#{plateNos,jdbcType=VARCHAR},
+		</if>
+		<if test="drivers != null">
+		 drivers =#{drivers,jdbcType=VARCHAR},
+		</if>
+		<if test="remark != null and remark != ''">
+		 remark =#{remark,jdbcType=VARCHAR},
+		</if>
+		<if test="rejectReason != null and rejectReason != ''">
+		 reject_reason =#{rejectReason,jdbcType=VARCHAR},
+		</if>
+		<if test="status != null">
+		 status =#{status,jdbcType=TINYINT},
+		</if>
+		version = #{version,jdbcType=INTEGER} + 1
+		</set>
+		where 
+			 id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+	</update>
+	<!-- 删除一条记录 -->
+	<delete id="delete" parameterType="com.bit.module.oa.bean.VehicleApplication">
+		delete from t_oa_vehicle_application 
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+		<!-- 批量删除 -->
+	<delete id="batchDelete" parameterType="List">
+		<foreach item="item" index="index" collection="list" open="begin" close=";end;" separator =";">
+			delete from t_oa_vehicle_application
+			id in (
+			<foreach collection="ids" item="id" separator=",">
+				#{id}
+			</foreach>
+			)
+		</foreach>
+	</delete>
+	<sql id="queryCondition">
+		<if test="applyNo != null and applyNo != ''">and apply_no like concat('%', #{applyNo,jdbcType=VARCHAR}, '%')</if>
+		<if test="nature != null" >and nature =#{nature,jdbcType=TINYINT}</if>
+		<if test="usage != null" >and `usage` =#{usage,jdbcType=TINYINT}</if>
+		<if test="planStartTime != null">and plan_start_time >= DATE_FORMAT(#{planStartTime}, '%Y-%m-%d %T') </if>
+		<if test="planEndTime != null"><![CDATA[and plan_end_time <= DATE_FORMAT(#{planEndTime}, '%Y-%m-%d %T')]]> </if>
+		<if test="minApplyTime != null">and apply_time >= DATE_FORMAT(#{minApplyTime}, '%Y-%m-%d %T')</if>
+		<if test="maxApplyTime != null"><![CDATA[and apply_time <= DATE_FORMAT(#{maxApplyTime}, '%Y-%m-%d %T')]]> </if>
+	</sql>
+</mapper>

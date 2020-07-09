@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: sleuth-zipkin-server
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8081/eureka/
+    healthCheck:
+      enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+server:
+  port: 8085
+management:
+  metrics:
+    web:
+      server:
+        auto-time-requests: false
+

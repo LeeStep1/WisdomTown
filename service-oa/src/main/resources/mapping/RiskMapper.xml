@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.module.oa.dao.RiskDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Risk_columns">
+	    <![CDATA[
+            id as id,
+            `no` as `no`,
+            `name` as `name`,
+            reporter_id as reporter_id,
+            reporter_name as reporter_name,
+
+            report_dep_id as report_dep_id,
+            report_dep_name as report_dep_name,
+            report_time as report_time,
+            report_location as report_location,
+            lng as lng,
+
+            lat as lat,
+            exception_content as exception_content,
+            exception_pic_urls as exception_pic_urls,
+            need_fix as need_fix,
+            fix_content as fix_content,
+
+            `status` AS `status`,
+            version as version
+        ]]>
+	</sql>
+    <sql id="Risk_Export_columns">
+	    <![CDATA[
+            `no` as `no`,
+            `name` as `name`,
+            reporter_name as reporter_name,
+
+            report_dep_name as report_dep_name,
+            report_time as report_time,
+            report_location as report_location,
+            `status` AS `status`
+        ]]>
+	</sql>
+    <!-- 字段与属性映射 -->
+    <resultMap type="com.bit.module.oa.bean.Risk" id="riskMap">
+        <id column="id" property="id"/>
+        <result column="no" property="no"/>
+        <result column="name" property="name"/>
+        <result column="reporter_id" property="reporterId"/>
+        <result column="reporter_name" property="reporterName"/>
+        <result column="report_dep_id" property="reportDepId"/>
+        <result column="report_dep_name" property="reportDepName"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="report_location" property="reportLocation"/>
+        <result column="lng" property="lng"/>
+        <result column="lat" property="lat"/>
+        <result column="exception_content" property="exceptionContent"/>
+        <result column="exception_pic_urls" property="exceptionPicUrls"/>
+        <result column="need_fix" property="needFix"/>
+        <result column="fix_content" property="fixContent"/>
+        <result column="status" property="status"/>
+    </resultMap>
+    <resultMap type="com.bit.module.oa.vo.risk.RiskExportVO" id="riskExportMap">
+        <result column="no" property="no"/>
+        <result column="name" property="name"/>
+        <result column="reporter_name" property="reporterName"/>
+        <result column="report_dep_name" property="reportDepName"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="report_location" property="reportLocation"/>
+        <result column="status" property="status"/>
+    </resultMap>
+    <!-- 翻页查询 -->
+    <select id="findByConditionPage" resultMap="riskMap" parameterType="com.bit.module.oa.vo.risk.RiskVO">
+        select
+        <include refid="Risk_columns"/>
+        from wt_oa.t_oa_inspect_risk
+        <where>
+            <if test="no != null and no != '' ">and `no` like concat('%', #{no,jdbcType=VARCHAR}, '%')</if>
+            <if test="name != null and name != '' ">and `name` like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+            <if test="reporterName != null and reporterName != '' ">
+            and `reporter_name` like concat('%', #{reporterName,jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="reportDepId != null">and `report_dep_id` = #{reportDepId,jdbcType=BIGINT}</if>
+            <if test="reportDepName != null and reportDepName != ''">
+                and report_dep_name like concat('%', #{reportDepName,jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="status != null">and `status` =#{status,jdbcType=TINYINT}</if>
+            <if test="reportStartTime != null">and report_time >= DATE_FORMAT(#{reportStartTime}, '%Y-%m-%d %T')</if>
+            <if test="reportEndTime != null">
+                <![CDATA[and report_time <= DATE_FORMAT(#{reportEndTime}, '%Y-%m-%d %T')]]> </if>
+        </where>
+        <if test="orderBy!=null and orderBy!=''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="order!=null and order!=''">
+            ${order}
+        </if>
+    </select>
+    <!-- 查询全部 -->
+    <select id="findAll" resultMap="riskMap" parameterType="String">
+        select
+        <include refid="Risk_columns"/>
+        from t_oa_inspect_risk
+        where
+        <if test="sorter!=null and sorter!=''">
+            ORDER BY ${sorter}
+        </if>
+    </select>
+    <!-- 查询单条记录 -->
+    <select id="findById" resultType="com.bit.module.oa.bean.Risk" parameterType="com.bit.module.oa.bean.Risk">
+        select
+        <include refid="Risk_columns"/>
+        from t_oa_inspect_risk
+        where
+        id =#{id,jdbcType=BIGINT}
+
+    </select>
+    <select id="findNo" resultType="java.lang.String">
+        select no FROM t_oa_inspect_risk
+
+		WHERE DATEDIFF(NOW(), report_time) = 0
+		ORDER BY id desc, report_time desc LIMIT 1
+    </select>
+    <select id="findByConditionExportList" resultMap="riskExportMap">
+        select
+        <include refid="Risk_Export_columns"/>
+        from wt_oa.t_oa_inspect_risk
+        <where>
+            <if test="no != null and no != '' ">and `no` like concat('%', #{no,jdbcType=VARCHAR}, '%')</if>
+            <if test="name != null and name != '' ">and `name` like concat('%', #{name,jdbcType=VARCHAR}, '%')</if>
+            <if test="reporterName != null and reporterName != '' ">
+                and `reporter_name` like concat('%', #{reporterName,jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="reportDepId != null">and `report_dep_id` =#{reportDepId,jdbcType=BIGINT}</if>
+            <if test="status != null">and `status` =#{status,jdbcType=TINYINT}</if>
+            <if test="reportStartTime != null">and report_time >= DATE_FORMAT(#{reportStartTime}, '%Y-%m-%d %T')</if>
+            <if test="reportEndTime != null">
+                <![CDATA[and report_time <= DATE_FORMAT(#{reportEndTime}, '%Y-%m-%d %T')]]> </if>
+        </where>
+    </select>
+
+    <!-- 添加一条记录 -->
+    <insert id="add" parameterType="com.bit.module.oa.bean.Risk">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+	insert INTO t_oa_inspect_risk (
+		`no`,
+		`name`,
+		reporter_id,
+		reporter_name,
+
+		report_dep_id,
+		report_dep_name,
+		report_time,
+		report_location,
+		lng,
+
+		lat,
+		exception_content,
+		exception_pic_urls,
+		need_fix,
+		fix_content,
+
+		`status`,
+	    version
+	) VALUES (
+		#{no,jdbcType=VARCHAR},
+		#{name,jdbcType=VARCHAR},
+		#{reporterId,jdbcType=BIGINT},
+		#{reporterName,jdbcType=VARCHAR},
+		#{reportDepId,jdbcType=BIGINT},
+		#{reportDepName,jdbcType=VARCHAR},
+		#{reportTime},
+		#{reportLocation,jdbcType=VARCHAR},
+		#{lng,jdbcType=DOUBLE},
+		#{lat,jdbcType=DOUBLE},
+		#{exceptionContent,jdbcType=VARCHAR},
+		#{exceptionPicUrls,jdbcType=VARCHAR},
+		#{needFix,jdbcType=BOOLEAN},
+		#{fixContent,jdbcType=VARCHAR},
+		#{status,jdbcType=TINYINT},
+        0
+	)
+	</insert>
+    <!-- 修改一条记录 -->
+    <update id="update" parameterType="com.bit.module.oa.bean.Risk">
+        update t_oa_inspect_risk
+        <set>
+            <if test="status != null">
+                status =#{status,jdbcType=TINYINT},
+            </if>
+            version = #{version,jdbcType=INTEGER} + 1
+        </set>
+        where
+        id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+    </update>
+    <!-- 删除一条记录 -->
+    <delete id="delete" parameterType="com.bit.module.oa.bean.Risk">
+		delete from t_oa_inspect_risk
+		where
+			id = #{id,jdbcType=BIGINT}
+
+	</delete>
+    <!-- 批量删除 -->
+    <delete id="batchDelete" parameterType="List">
+        <foreach item="item" index="index" collection="list" open="begin" close=";end;" separator=";">
+            delete from t_oa_inspect_risk
+            id in (
+            <foreach collection="ids" item="id" separator=",">
+                #{id}
+            </foreach>
+            )
+        </foreach>
+    </delete>
+    <select id="countByReporterId" resultType="java.lang.Integer">
+        select count(id) from t_oa_inspect_risk
+        <where>
+            reporter_id = #{userId,jdbcType=BIGINT}
+            <if test="startAt != null and endAt != null">
+                and report_time between DATE_FORMAT(#{startAt}, '%Y-%m-%d %T') and DATE_FORMAT(#{endAt}, '%Y-%m-%d %T')
+            </if>
+        </where>
+    </select>
+</mapper>
