@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-job-core</artifactId>
-            <version>2.0.1</version>
+            <version>2.3.0</version>
         </dependency>
         <!-- 引入服务容错hystrix的依赖 -->
         <dependency>
